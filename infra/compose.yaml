@@ -1,0 +1,64 @@
+name: bank-system
+
+services:
+
+  # --- Service databases ---
+
+  customer-db:
+    image: postgres:18.6-alpine3.24
+    container_name: bank-customer-db
+    environment:
+      POSTGRES_DB: customer
+      POSTGRES_USER: ${CUSTOMER_DB_USER}
+      POSTGRES_PASSWORD: ${CUSTOMER_DB_PASSWORD}
+    ports:
+      - "5433:5432"
+    volumes:
+      - customer-db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${CUSTOMER_DB_USER} -d customer"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  # --- Identity ---
+
+  keycloak-db:
+    image: postgres:18.6-alpine3.24
+    container_name: bank-keycloak-db
+    environment:
+      POSTGRES_DB: keycloak
+      POSTGRES_USER: ${KEYCLOAK_DB_USER}
+      POSTGRES_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+    volumes:
+      - keycloak-db-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${KEYCLOAK_DB_USER} -d keycloak"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+
+  keycloak:
+    image: quay.io/keycloak/keycloak:26.7.4
+    container_name: bank-keycloak
+    command:
+      - start-dev
+      - --import-realm
+    environment:
+      KC_DB: postgres
+      KC_DB_URL: jdbc:postgresql://keycloak-db:5432/keycloak
+      KC_DB_USERNAME: ${KEYCLOAK_DB_USER}
+      KC_DB_PASSWORD: ${KEYCLOAK_DB_PASSWORD}
+      KC_BOOTSTRAP_ADMIN_USERNAME: ${KEYCLOAK_ADMIN}
+      KC_BOOTSTRAP_ADMIN_PASSWORD: ${KEYCLOAK_ADMIN_PASSWORD}
+    ports:
+      - "8180:8080"
+    volumes:
+      - ./keycloak/bank-system-realm.json:/opt/keycloak/data/import/bank-system-realm.json:ro
+    depends_on:
+      keycloak-db:
+        condition: service_healthy
+
+volumes:
+  customer-db-data:
+  keycloak-db-data:
