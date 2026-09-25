@@ -1,0 +1,84 @@
+###############################################################################
+# bank-system — monorepo .gitignore
+#
+# Covers: root Gradle build, buildSrc, services/*, platform/*, frontend/
+###############################################################################
+
+### Gradle ###
+.gradle/
+build/
+!gradle/wrapper/gradle-wrapper.jar
+!**/src/main/**/build/
+!**/src/test/**/build/
+buildSrc/.gradle/
+buildSrc/build/
+
+### Spring Boot Initializr leftovers ###
+HELP.md
+
+### IntelliJ IDEA ###
+.idea/
+*.iws
+*.iml
+*.ipr
+out/
+!**/src/main/**/out/
+!**/src/test/**/out/
+
+### Eclipse / STS ###
+.apt_generated
+.classpath
+.factorypath
+.project
+.settings
+.springBeans
+.sts4-cache
+bin/
+!**/src/main/**/bin/
+!**/src/test/**/bin/
+
+### NetBeans ###
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/.nb-gradle/
+
+### VS Code ###
+.vscode/
+
+### Node / Angular (frontend/) ###
+node_modules/
+frontend/dist/
+frontend/.angular/
+frontend/.eslintcache
+npm-debug.log*
+yarn-error.log*
+
+### Environment and secrets ###
+# .env.example IS committed; .env is not.
+.env
+*.local.env
+
+### Logs ###
+/logs/
+*.log
+
+### Operating system ###
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+
+###############################################################################
+# Deliberately NOT ignored
+#
+# services/*/openapi.json        — committed so contract drift shows in PR diffs
+# frontend/src/app/api/**        — generated clients committed for the same reason
+#                                  and so CI can regenerate-and-diff without
+#                                  starting any service
+# infra/keycloak/realm-export.json — dev-only credentials, documented as such
+###############################################################################
