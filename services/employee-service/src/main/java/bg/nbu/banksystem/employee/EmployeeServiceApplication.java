@@ -1,4 +1,4 @@
-package g.nbu.banksystem.employee;
+package bg.nbu.banksystem.employee;
 
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
