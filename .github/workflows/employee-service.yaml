@@ -1,0 +1,37 @@
+name: employee-service
+
+on:
+  push:
+    branches: [ main ]
+    paths: &paths
+      - 'services/employee-service/**'
+      - 'buildSrc/**'
+      - 'gradle/**'
+      - 'settings.gradle.kts'
+      - 'gradlew'
+      - '.github/workflows/employee-service.yml'
+  pull_request:
+    paths: *paths
+
+jobs:
+  check:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '25'
+
+      - uses: gradle/actions/setup-gradle@v6
+
+      - name: Test and coverage gate
+        run: ./gradlew :services:employee-service:check
+
+      - name: Upload reports
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: employee-service-reports
+          path: services/employee-service/build/reports/
