@@ -7,12 +7,73 @@
 ---
 
 ## Overview
+Staff-facing banking system for managing customers, accounts and loans with annuity repayment schedules. Built as Spring Boot microservices with an Angular frontend and Keycloak for identity.
+
+Current state: `employee-service` foundation (database, security, tests).
+
 ## Architecture
-## Technology Stack (Java 25, Boot 4.1.1, Gradle 9.6, Postgres 18.6, Keycloak 26.7.4)
-## Project Structure (services/, infra/, buildSrc/, gradle/)
-## Local Setup (Docker, infra/.env, compose up, run employee-service)
-## Security (resource server, realm roles → ROLE_, custom converter)
+| Component | Owns | Status |
+|---|---|---|
+| employee-service | Staff profiles and employment status | In progress |
+| customer-service | Individual and legal-entity customers | Planned |
+| account-service | Accounts and balances | Planned |
+| loan-service | Loans, schedules, instalment payments | Planned |
+| Keycloak | Authentication, credentials, roles | Configured |
+
+Each service has its own PostgreSQL database. No cross-service joins.
+
+## Technology Stack
+| Area | Technology |
+|---|---|
+| Backend | Java 25, Spring Boot 4.1.1, Gradle 9.6 (Kotlin DSL) |
+| Database | PostgreSQL 18.6, Flyway |
+| Identity | Keycloak 26.7.4 (OAuth2 / OIDC) |
+| Testing | JUnit 5, Mockito, AssertJ, Testcontainers, JaCoCo (70% gate) |
+| Infrastructure | Docker Compose, GitHub Actions |
+
+##
+```
+buildSrc/        shared Gradle convention plugins
+gradle/          wrapper and version catalog
+infra/           Docker Compose, Keycloak realm export
+services/        business microservices
+```
+
+## Local Setup
+Prerequisites: Java 25, Docker Desktop.
+
+```bash
+cp infra/.env.example infra/.env
+docker compose -f infra/compose.yaml up -d
+```
+
+Run `EmployeeServiceApplication` with `infra/.env` loaded as environment
+variables, then check `http://localhost:8081/actuator/health`.
+
+## Local Credentials
+Keycloak console: http://localhost:8180, admin credentials from `infra/.env`.
+
+| User | Role |
+|---|---|
+| clerk | CLERK |
+| loan.officer | LOAN_OFFICER |
+| bank.admin | ADMIN |
+
+Dev-only accounts imported from `infra/keycloak/bank-system-realm.json`.
+
 ## Design Decisions
+- Monorepo with one Gradle build; shared build logic in convention plugins.
+- Database per service, each in its own container.
+- Keycloak issues tokens; services only validate them and never store passwords.
+- Keycloak realm roles mapped to Spring authorities with a custom converter.
+- Employee Service holds staff profiles; Keycloak holds credentials and roles.
+- Records are disabled, never deleted.
+
+## Testing
+```bash
+./gradlew check
+```
+Runs tests and enforces 70% line coverage per service.
 
 ## License
 
