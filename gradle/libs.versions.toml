@@ -21,9 +21,9 @@ spring-boot-starter-security = { module = "org.springframework.boot:spring-boot-
 spring-boot-starter-security-oauth2-resource-server = { module = "org.springframework.boot:spring-boot-starter-security-oauth2-resource-server" }
 
 # --- Operations ---
-spring-boot-starter-actuator = { module = "org.springframework.boot:spring-boot-starter-actuator" }
 spring-boot-starter-opentelemetry = { module = "org.springframework.boot:spring-boot-starter-opentelemetry" }
 springdoc-openapi-starter-webmvc-ui = { module = "org.springdoc:springdoc-openapi-starter-webmvc-ui", version.ref = "springdoc" }
+spring-boot-autoconfigure = { module = "org.springframework.boot:spring-boot-autoconfigure" }
 
 # --- Mapping ---
 mapstruct = { module = "org.mapstruct:mapstruct", version.ref = "mapstruct" }
@@ -39,7 +39,6 @@ spring-boot-starter-flyway-test = { module = "org.springframework.boot:spring-bo
 spring-boot-starter-actuator-test = { module = "org.springframework.boot:spring-boot-starter-actuator-test" }
 spring-boot-starter-security-test = { module = "org.springframework.boot:spring-boot-starter-security-test" }
 spring-boot-starter-security-oauth2-resource-server-test = { module = "org.springframework.boot:spring-boot-starter-security-oauth2-resource-server-test" }
-assertj-core = { module = "org.assertj:assertj-core" }
 
 # --- Integration testing ---
 spring-boot-testcontainers = { module = "org.springframework.boot:spring-boot-testcontainers" }
