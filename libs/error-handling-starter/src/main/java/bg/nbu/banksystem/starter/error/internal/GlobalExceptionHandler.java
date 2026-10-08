@@ -88,7 +88,6 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * @param request the current request
      * @return a 400 problem response
      */
-    // [GUIDE] Reused from Book Shelf: without it, ?sort=doesNotExist becomes a 500.
     @ExceptionHandler(PropertyReferenceException.class)
     public ResponseEntity<ProblemDetail> handleInvalidSort(PropertyReferenceException ex, HttpServletRequest request) {
         log.debug("Invalid sort property '{}' on {} {}", ex.getPropertyName(), request.getMethod(), request.getRequestURI());
@@ -103,22 +102,17 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
      * @param request the current request
      * @return a 500 problem response that reveals nothing about the failure
      */
-    // [GUIDE] Spring picks the MOST specific @ExceptionHandler, so this only receives exceptions
-    // [GUIDE] nothing else handles. The real message and stack trace go to the log, never the client.
     @ExceptionHandler(Exception.class)
     public ResponseEntity<ProblemDetail> handleUnexpected(Exception ex, HttpServletRequest request) {
         log.error("Unhandled exception on {} {}", request.getMethod(), request.getRequestURI(), ex);
         return respond(problemDetailFactory.create(CommonErrorCode.INTERNAL_ERROR, INTERNAL_ERROR_DETAIL), request);
     }
 
-    // [GUIDE] The one hook every Spring MVC exception passes through in the base class. We let Spring
-    // [GUIDE] build its problem (correct status, generic detail), then stamp our fields on top.
     @Override
     protected ResponseEntity<Object> handleExceptionInternal(
             @NonNull Exception ex, Object body, @NonNull HttpHeaders headers, @NonNull HttpStatusCode statusCode, @NonNull WebRequest request) {
 
         ResponseEntity<Object> response = super.handleExceptionInternal(ex, body, headers, statusCode, request);
-        // [GUIDE] null when the response was already committed; nothing left to enrich then.
         if (response != null && response.getBody() instanceof ProblemDetail problem) {
             problemDetailFactory.enrich(problem, codeFor(ex, statusCode));
             addValidationErrors(problem, ex);
@@ -131,14 +125,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     }
 
     private ResponseEntity<ProblemDetail> respond(ProblemDetail problem, HttpServletRequest request) {
-        // [GUIDE] Path only. getRequestURI() excludes the query string, which can hold data
-        // [GUIDE] we don't want echoed back.
         problem.setInstance(URI.create(request.getRequestURI()));
         return ResponseEntity.status(problem.getStatus()).body(problem);
     }
 
-    // [GUIDE] Validation is recognised by exception type; everything else by the status Spring chose.
-    // [GUIDE] Any other 4xx (e.g. a missing parameter) becomes MALFORMED_REQUEST.
     private static ErrorCode codeFor(Exception ex, HttpStatusCode status) {
         if (ex instanceof MethodArgumentNotValidException || ex instanceof HandlerMethodValidationException) {
             return CommonErrorCode.VALIDATION_FAILED;
@@ -153,9 +143,7 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static void addValidationErrors(ProblemDetail problem, Exception ex) {
         List<ValidationError> errors = switch (ex) {
-            // [GUIDE] @Valid on a request body.
             case MethodArgumentNotValidException e -> fromErrors(e.getBindingResult());
-            // [GUIDE] Constraints on @RequestParam / @PathVariable (Book Shelf missed these).
             case HandlerMethodValidationException e -> fromMethodValidation(e);
             default -> List.of();
         };
@@ -166,10 +154,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
 
     private static List<ValidationError> fromErrors(Errors errors) {
         List<ValidationError> result = new ArrayList<>();
-        // [GUIDE] A list, not a map: two failures on the same field are both kept.
         errors.getFieldErrors().forEach(error ->
                 result.add(new ValidationError(error.getField(), messageOf(error))));
-        // [GUIDE] Object-level rules (like @ValidOfficeSchedule in CSCB532) have no field.
         errors.getGlobalErrors().forEach(error ->
                 result.add(new ValidationError(null, messageOf(error))));
         return result;
@@ -178,13 +164,10 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static List<ValidationError> fromMethodValidation(HandlerMethodValidationException ex) {
         List<ValidationError> result = new ArrayList<>();
         for (ParameterValidationResult parameterResult : ex.getParameterValidationResults()) {
-            // [GUIDE] A @Valid object parameter inside method validation carries field errors.
             if (parameterResult instanceof ParameterErrors parameterErrors) {
                 result.addAll(fromErrors(parameterErrors));
                 continue;
             }
-            // [GUIDE] A simple parameter: the name comes from the -parameters compiler flag,
-            // [GUIDE] which bank.java-conventions already sets.
             String parameterName = parameterResult.getMethodParameter().getParameterName();
             parameterResult.getResolvableErrors().forEach(error ->
                     result.add(new ValidationError(parameterName, messageOf(error))));
@@ -199,10 +182,8 @@ public class GlobalExceptionHandler extends ResponseEntityExceptionHandler {
     private static void logDomainException(DomainException ex, HttpServletRequest request) {
         ErrorCode code = ex.getErrorCode();
         switch (code.category()) {
-            // [GUIDE] INTERNAL means a real failure: ERROR with the stack trace (and cause, if any).
             case INTERNAL -> log.error("{} on {} {}", code.code(), request.getMethod(), request.getRequestURI(), ex);
             case ACCESS_DENIED -> log.info("{} on {} {}", code.code(), request.getMethod(), request.getRequestURI());
-            // [GUIDE] Expected client-side outcomes (404, 409, 422...) are routine, so DEBUG.
             default ->
                     log.debug("{} on {} {}: {}", code.code(), request.getMethod(), request.getRequestURI(), ex.getMessage());
         }

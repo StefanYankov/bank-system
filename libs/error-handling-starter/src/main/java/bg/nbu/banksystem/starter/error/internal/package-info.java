@@ -6,4 +6,7 @@
  * automatically by the starter's auto-configuration.
  * </p>
  */
+@NullMarked
 package bg.nbu.banksystem.starter.error.internal;
+
+import org.jspecify.annotations.NullMarked;

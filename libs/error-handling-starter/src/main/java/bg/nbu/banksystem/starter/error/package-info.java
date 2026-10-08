@@ -7,4 +7,7 @@
  * refers to HTTP.
  * </p>
  */
+@NullMarked
 package bg.nbu.banksystem.starter.error;
+
+import org.jspecify.annotations.NullMarked;
