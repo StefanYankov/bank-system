@@ -1,5 +1,7 @@
 package bg.nbu.banksystem.starter.error;
 
+import jakarta.annotation.Nullable;
+
 import java.util.Objects;
 
 /**
@@ -52,7 +54,7 @@ public class DomainException extends RuntimeException {
         return detail;
     }
 
-    private static String messageOf(ErrorCode errorCode, String detail) {
+    private static String messageOf(ErrorCode errorCode, @Nullable String detail){
         Objects.requireNonNull(errorCode, "errorCode must not be null");
         return detail != null ? detail : errorCode.title();
     }

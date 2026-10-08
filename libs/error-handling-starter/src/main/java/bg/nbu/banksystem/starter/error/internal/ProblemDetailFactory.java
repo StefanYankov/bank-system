@@ -1,6 +1,7 @@
 package bg.nbu.banksystem.starter.error.internal;
 
 import bg.nbu.banksystem.starter.error.ErrorCode;
+import jakarta.annotation.Nullable;
 import org.springframework.http.ProblemDetail;
 
 import java.net.URI;
@@ -40,7 +41,7 @@ public final class ProblemDetailFactory {
      * @param detail    client-safe explanation of this occurrence; omitted when {@code null}
      * @return the problem detail
      */
-    public ProblemDetail create(ErrorCode errorCode, String detail) {
+    public ProblemDetail create(ErrorCode errorCode, @Nullable String detail) {
         ProblemDetail problem = ProblemDetail.forStatus(statusMapper.statusFor(errorCode.category()));
         problem.setDetail(detail);
         return enrich(problem, errorCode);

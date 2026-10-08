@@ -1,5 +1,8 @@
 package bg.nbu.banksystem.starter.error;
 
+import org.jspecify.annotations.NullMarked;
+
+@NullMarked
 enum TestErrorCode implements ErrorCode {
 
     WIDGET_NOT_FOUND(ErrorCategory.NOT_FOUND, "Widget not found");
