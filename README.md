@@ -69,6 +69,32 @@ Dev-only accounts imported from `infra/keycloak/bank-system-realm.json`.
 - Employee Service holds staff profiles; Keycloak holds credentials and roles.
 - Records are disabled, never deleted.
 
+## Error Handling
+
+Backend services use the shared `error-handling-starter` to return consistent RFC 9457 Problem Details responses.
+
+The starter provides:
+
+- Central handling for domain, validation, framework and unexpected errors
+- Consistent `code`, `type`, `status`, `detail` and `instance` fields
+- Field and object-level validation errors
+- Problem responses for security-filter 401 and 403 failures
+- Auto-configuration for Spring MVC services
+
+Domain error codes use transport-neutral categories. The starter maps those categories to HTTP statuses in one place:
+
+| Category | HTTP status |
+|---|---:|
+| `VALIDATION` | 400 |
+| `NOT_FOUND` | 404 |
+| `CONFLICT` | 409 |
+| `RULE_VIOLATION` | 422 |
+| `UNAUTHENTICATED` | 401 |
+| `ACCESS_DENIED` | 403 |
+| `INTERNAL` | 500 |
+
+Services may depend on shared modules under `libs/`, but never on another business service.
+
 ## Testing
 ```bash
 ./gradlew check
