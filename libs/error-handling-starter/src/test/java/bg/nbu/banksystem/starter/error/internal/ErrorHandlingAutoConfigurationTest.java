@@ -89,7 +89,6 @@ class ErrorHandlingAutoConfigurationTest {
         @Test
         @DisplayName("Error Case: Should stay inactive outside a servlet web application")
         void shouldStayInactiveOutsideWebApplication() {
-            // [GUIDE] A plain (non-web) context: @ConditionalOWebApplication fails, so nothing is registered.
             new ApplicationContextRunner()
                     .withConfiguration(AutoConfigurations.of(ErrorHandlingAutoConfiguration.class))
                     .run(context -> assertThat(context).doesNotHaveBean(ProblemDetailFactory.class));

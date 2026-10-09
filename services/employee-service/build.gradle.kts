@@ -5,6 +5,8 @@ plugins {
 description = "Employee profiles and employment status for bank staff"
 
 dependencies {
+	implementation(project(":libs:error-handling-starter"))
+
 	implementation(libs.bundles.web)
 	implementation(libs.bundles.persistence)
 	implementation(libs.bundles.security)

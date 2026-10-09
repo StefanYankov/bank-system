@@ -1,6 +1,7 @@
 package bg.nbu.banksystem.employee.config;
 
 import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.params.ParameterizedTest;
 import org.junit.jupiter.params.provider.ValueSource;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
+import org.springframework.http.MediaType;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
@@ -20,16 +22,22 @@ import java.util.Map;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.hamcrest.Matchers.containsString;
+import static org.hamcrest.Matchers.not;
+import static org.hamcrest.Matchers.startsWith;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.when;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.header;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @WebMvcTest
 @Import(SecurityConfig.class)
-@DisplayName("SecurityConfig")
+@DisplayName("SecurityConfig (web slice)")
 class SecurityConfigTest {
+
+    private static final String PROTECTED_PATH = "/api/employees";
 
     @Autowired
     private MockMvc mockMvc;
@@ -37,52 +45,67 @@ class SecurityConfigTest {
     @MockitoBean
     private JwtDecoder jwtDecoder;
 
-    // --- Public endpoints ---
+    @Nested
+    @DisplayName("Public endpoints")
+    class PublicEndpoints {
 
-    @ParameterizedTest(name = "{0} is reachable without a token")
-    @ValueSource(strings = {"/actuator/health", "/v3/api-docs", "/swagger-ui.html"})
-    @DisplayName("permits public endpoints without authentication")
-    void permitsPublicEndpointsWithoutAuthentication(String path) throws Exception {
-        // Act & Assert
-        mockMvc.perform(get(path))
-                .andExpect(isNotRejectedBySecurity());
+        @ParameterizedTest(name = "Happy Path: Should permit {0} without a token")
+        @ValueSource(strings = {"/actuator/health", "/v3/api-docs", "/swagger-ui.html"})
+        @DisplayName("Happy Path: Should permit public endpoints without a token")
+        void shouldPermitPublicEndpoints(String path) throws Exception {
+            // Act & Assert
+            mockMvc.perform(get(path))
+                    .andExpect(isNotRejectedBySecurity());
+        }
     }
 
-    // --- Protected endpoints ---
+    @Nested
+    @DisplayName("Missing or invalid token")
+    class MissingOrInvalidToken {
 
-    @ParameterizedTest(name = "{0} rejects a request without a token")
-    @ValueSource(strings = {"/api/employees", "/actuator/metrics"})
-    @DisplayName("rejects unauthenticated requests to protected endpoints")
-    void rejectsUnauthenticatedRequests(String path) throws Exception {
-        // Act & Assert
-        mockMvc.perform(get(path))
-                .andExpect(status().isUnauthorized());
+        @ParameterizedTest(name = "Error Case: Should return a 401 problem for {0} without a token")
+        @ValueSource(strings = {PROTECTED_PATH, "/actuator/metrics"})
+        @DisplayName("Error Case: Should return a 401 problem without a token")
+        void shouldReturnProblemWithoutToken(String path) throws Exception {
+            // Act & Assert
+            mockMvc.perform(get(path))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, startsWith("Bearer")))
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+                    .andExpect(jsonPath("$.code").value("UNAUTHENTICATED"))
+                    .andExpect(jsonPath("$.instance").value(path));
+        }
+
+        @Test
+        @DisplayName("Error Case: Should keep the invalid_token challenge and hide parser details for a rejected token")
+        void shouldReturnProblemForInvalidToken() throws Exception {
+            // Arrange
+            when(jwtDecoder.decode(anyString())).thenThrow(new BadJwtException("parser-detail-xyz"));
+
+            // Act & Assert
+            mockMvc.perform(get(PROTECTED_PATH).header(HttpHeaders.AUTHORIZATION, "Bearer invalid-token"))
+                    .andExpect(status().isUnauthorized())
+                    .andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, containsString("invalid_token")))
+                    .andExpect(jsonPath("$.code").value("UNAUTHENTICATED"))
+                    .andExpect(content().string(not(containsString("parser-detail-xyz"))));
+        }
     }
 
-    @Test
-    @DisplayName("accepts a request with a valid token")
-    void acceptsValidToken() throws Exception {
-        // Arrange
-        when(jwtDecoder.decode(anyString())).thenReturn(clerkToken());
+    @Nested
+    @DisplayName("Valid token")
+    class ValidToken {
 
-        // Act & Assert
-        mockMvc.perform(get("/api/employees").header(HttpHeaders.AUTHORIZATION, "Bearer valid-token"))
-                .andExpect(isNotRejectedBySecurity());
+        @Test
+        @DisplayName("Happy Path: Should pass security with a valid token")
+        void shouldPassSecurityWithValidToken() throws Exception {
+            // Arrange
+            when(jwtDecoder.decode(anyString())).thenReturn(clerkToken());
+
+            // Act & Assert
+            mockMvc.perform(get(PROTECTED_PATH).header(HttpHeaders.AUTHORIZATION, "Bearer valid-token"))
+                    .andExpect(isNotRejectedBySecurity());
+        }
     }
-
-    @Test
-    @DisplayName("rejects a request with an invalid token")
-    void rejectsInvalidToken() throws Exception {
-        // Arrange
-        when(jwtDecoder.decode(anyString())).thenThrow(new BadJwtException("invalid token"));
-
-        // Act & Assert
-        mockMvc.perform(get("/api/employees").header(HttpHeaders.AUTHORIZATION, "Bearer invalid-token"))
-                .andExpect(status().isUnauthorized())
-                .andExpect(header().string(HttpHeaders.WWW_AUTHENTICATE, containsString("invalid_token")));
-    }
-
-    // --- Helpers ---
 
     private static ResultMatcher isNotRejectedBySecurity() {
         return result -> assertThat(result.getResponse().getStatus()).isNotIn(401, 403);
