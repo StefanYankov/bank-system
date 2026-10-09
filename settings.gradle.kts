@@ -1,5 +1,8 @@
 rootProject.name = "bank-system"
 
+// --- Shared libraries ---
+include("libs:error-handling-starter")
+
 // --- Business services ---
 include("services:employee-service")
 // include("services:customer-service")
