@@ -9,7 +9,7 @@ on:
       - 'gradle/**'
       - 'settings.gradle.kts'
       - 'gradlew'
-      - '.github/workflows/employee-service.yml'
+      - '.github/workflows/employee-service.yaml'
   pull_request:
     paths: *paths
 
