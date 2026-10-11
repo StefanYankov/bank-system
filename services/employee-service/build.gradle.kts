@@ -6,6 +6,7 @@ description = "Employee profiles and employment status for bank staff"
 
 dependencies {
 	implementation(project(":libs:error-handling-starter"))
+	implementation(project(":libs:common-identifiers"))
 
 	implementation(libs.bundles.web)
 	implementation(libs.bundles.persistence)
