@@ -39,6 +39,7 @@ class EmployeeTest {
 
             // Assert
             assertThat(employee.getId()).isNotNull();
+            assertThat(employee.getId().version()).isEqualTo(7);
             assertThat(employee.getEmployeeNumber()).isEqualTo(EMPLOYEE_NUMBER);
             assertThat(employee.getIdentitySubjectId()).isEqualTo(IDENTITY_SUBJECT_ID);
             assertThat(employee.getFirstName()).isEqualTo(FIRST_NAME);

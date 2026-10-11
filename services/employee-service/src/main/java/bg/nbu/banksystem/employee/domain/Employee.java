@@ -1,5 +1,6 @@
 package bg.nbu.banksystem.employee.domain;
 
+import bg.nbu.banksystem.common.Identifiers;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -121,7 +122,7 @@ public class Employee extends BaseEntity {
             LocalDate employmentStartDate
     ) {
         return new Employee(
-                UUID.randomUUID(),
+                Identifiers.newUuid(),
                 employeeNumber,
                 identitySubjectId,
                 firstName,
