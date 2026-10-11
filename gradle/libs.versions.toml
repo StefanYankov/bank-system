@@ -4,6 +4,7 @@ springdoc = "3.1.1"
 springdocGradlePlugin = "1.9.0"
 mapstruct = "1.6.3"
 lombokMapstructBinding = "0.2.0"
+uuidCreator = "6.1.1"
 
 [libraries]
 # --- Web ---
@@ -32,6 +33,9 @@ mapstruct-processor = { module = "org.mapstruct:mapstruct-processor", version.re
 lombok = { module = "org.projectlombok:lombok" }
 lombok-mapstruct-binding = { module = "org.projectlombok:lombok-mapstruct-binding", version.ref = "lombokMapstructBinding" }
 
+# --- Identifiers ---
+uuid-creator = { module = "com.github.f4b6a3:uuid-creator", version.ref = "uuidCreator" }
+
 # --- Testing ---
 spring-boot-starter-webmvc-test = { module = "org.springframework.boot:spring-boot-starter-webmvc-test" }
 spring-boot-starter-data-jpa-test = { module = "org.springframework.boot:spring-boot-starter-data-jpa-test" }
@@ -40,6 +44,8 @@ spring-boot-starter-flyway-test = { module = "org.springframework.boot:spring-bo
 spring-boot-starter-actuator-test = { module = "org.springframework.boot:spring-boot-starter-actuator-test" }
 spring-boot-starter-security-test = { module = "org.springframework.boot:spring-boot-starter-security-test" }
 spring-boot-starter-security-oauth2-resource-server-test = { module = "org.springframework.boot:spring-boot-starter-security-oauth2-resource-server-test" }
+junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
+assertj-core = { module = "org.assertj:assertj-core" }
 
 # --- Integration testing ---
 spring-boot-testcontainers = { module = "org.springframework.boot:spring-boot-testcontainers" }
