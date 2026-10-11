@@ -22,15 +22,12 @@ import java.util.UUID;
 /**
  * Base class for persistent aggregate roots using application-assigned UUID identifiers.
  *
- * <p>
- * Provides stable identity, optimistic locking, and creation and modification
+ * <p>Provides stable identity, optimistic locking, and creation and modification
  * auditing. Concrete entities should expose domain operations rather than unrestricted
  * setters for their business state.
- * </p>
- * <p>
- * The auditing fields record when and by whom the current database row was created
+ *
+ * <p>The auditing fields record when and by whom the current database row was created
  * and last modified. They do not provide a complete history of all changes.
- * </p>
  */
 @Getter
 @MappedSuperclass
@@ -78,42 +75,57 @@ public abstract class BaseEntity {
     }
 
     /**
-     * Compares persistent entity identity using the effective Hibernate entity type
+     * Compares persistent identity using the effective Hibernate entity type
      * and UUID identifier.
      *
      * @param other the object to compare
      * @return {@code true} when both objects represent the same persistent entity
      */
-    @SuppressWarnings("EqualsDoesntCheckParameterClass") // Hibernate proxy-aware class comparison is performed through effectiveClass().
     @Override
     public final boolean equals(Object other) {
         if (this == other) {
             return true;
         }
 
-        if (other == null || effectiveClass(this) != effectiveClass(other)) {
+        if (!(other instanceof BaseEntity that)) {
             return false;
         }
 
-        BaseEntity that = (BaseEntity) other;
-        return id != null && id.equals(that.id);
+        if (effectiveClass(this) != effectiveClass(that)) {
+            return false;
+        }
+
+        UUID thisId = effectiveIdentifier(this);
+        UUID otherId = effectiveIdentifier(that);
+
+        return thisId != null && thisId.equals(otherId);
     }
 
     /**
      * Returns a stable hash code based on the effective persistent entity type.
      *
-     * @return the entity type's hash code
+     * @return the effective entity type's hash code
      */
     @Override
     public final int hashCode() {
         return effectiveClass(this).hashCode();
     }
 
-    private static Class<?> effectiveClass(Object entity) {
+    private static Class<?> effectiveClass(BaseEntity entity) {
         if (entity instanceof HibernateProxy proxy) {
-            return proxy.getHibernateLazyInitializer().getPersistentClass();
+            return proxy.getHibernateLazyInitializer()
+                    .getPersistentClass();
         }
 
         return entity.getClass();
+    }
+
+    private static UUID effectiveIdentifier(BaseEntity entity) {
+        if (entity instanceof HibernateProxy proxy) {
+            return (UUID) proxy.getHibernateLazyInitializer()
+                    .getIdentifier();
+        }
+
+        return entity.id;
     }
 }
