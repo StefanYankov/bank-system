@@ -1,7 +1,7 @@
 package bg.nbu.banksystem.starter.error.internal;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
-import jakarta.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 
 /**
  * One validation failure in the {@code errors} member of a problem response.

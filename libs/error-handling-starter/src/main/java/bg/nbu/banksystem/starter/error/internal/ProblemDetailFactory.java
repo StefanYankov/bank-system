@@ -1,7 +1,7 @@
 package bg.nbu.banksystem.starter.error.internal;
 
 import bg.nbu.banksystem.starter.error.ErrorCode;
-import jakarta.annotation.Nullable;
+import org.jspecify.annotations.Nullable;
 import org.springframework.http.ProblemDetail;
 
 import java.net.URI;
