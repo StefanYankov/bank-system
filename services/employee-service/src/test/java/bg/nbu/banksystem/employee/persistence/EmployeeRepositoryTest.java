@@ -335,6 +335,30 @@ class EmployeeRepositoryTest {
                             "unknown@example.com"
                     )
             ).isFalse();
+            assertThat(
+                    employeeRepository.existsByIdentitySubjectId(
+                            "unknown-subject"
+                    )
+            ).isFalse();
+        }
+
+        @Test
+        @DisplayName("Happy Path: Should detect an existing identity subject")
+        void shouldDetectExistingIdentitySubject() {
+            // Arrange
+            employeeRepository.saveAndFlush(
+                    registerEmployee(
+                            "EMP-000016",
+                            "subject-016",
+                            "serafim.016@example.com"
+                    )
+            );
+
+            // Act
+            boolean exists = employeeRepository.existsByIdentitySubjectId("subject-016");
+
+            // Assert
+            assertThat(exists).isTrue();
         }
     }
 

@@ -53,4 +53,16 @@ public interface EmployeeRepository extends JpaRepository<Employee, UUID> {
      * {@code false} otherwise
      */
     boolean existsByWorkEmail(String workEmail);
+
+    /**
+     * Checks whether an employee is already linked to the given Keycloak subject.
+     *
+     * <p>
+     * Used during registration to report a duplicate identity before inserting.
+     * </p>
+     *
+     * @param identitySubjectId the Keycloak subject identifier
+     * @return {@code true} if an employee is already linked to the subject
+     */
+    boolean existsByIdentitySubjectId(String identitySubjectId);
 }

@@ -1,6 +1,7 @@
 package bg.nbu.banksystem.employee.domain;
 
 import bg.nbu.banksystem.common.Identifiers;
+import bg.nbu.banksystem.starter.error.DomainException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -9,9 +10,9 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDate;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -35,7 +36,7 @@ public class Employee extends BaseEntity {
             nullable = false,
             updatable = false,
             unique = true,
-            length = 20
+            length = EmployeeConstraints.EMPLOYEE_NUMBER_MAX_LENGTH
     )
     private String employeeNumber;
 
@@ -44,32 +45,37 @@ public class Employee extends BaseEntity {
             nullable = false,
             updatable = false,
             unique = true,
-            length = 255
+            length = EmployeeConstraints.IDENTITY_SUBJECT_MAX_LENGTH
     )
     private String identitySubjectId;
 
-    @Column(name = "first_name", nullable = false, length = 100)
+    @Column(name = "first_name", nullable = false, length = EmployeeConstraints.NAME_MAX_LENGTH)
     private String firstName;
 
-    @Column(name = "last_name", nullable = false, length = 100)
+    @Column(name = "last_name", nullable = false, length = EmployeeConstraints.NAME_MAX_LENGTH)
     private String lastName;
 
-    @Column(name = "work_email", nullable = false, unique = true, length = 254)
+    @Column(
+            name = "work_email",
+            nullable = false,
+            unique = true,
+            length = EmployeeConstraints.EMAIL_MAX_LENGTH
+    )
     private String workEmail;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "position", nullable = false, length = 30)
+    @Column(name = "position", nullable = false, length = EmployeeConstraints.POSITION_MAX_LENGTH)
     private EmployeePosition position;
 
     @Enumerated(EnumType.STRING)
-    @Column(name = "status", nullable = false, length = 20)
+    @Column(name = "status", nullable = false, length = EmployeeConstraints.STATUS_MAX_LENGTH)
     private EmployeeStatus status;
 
     @Column(name = "employment_start_date", nullable = false)
     private LocalDate employmentStartDate;
 
     @Column(name = "employment_end_date")
-    private LocalDate employmentEndDate;
+    private @Nullable LocalDate employmentEndDate;
 
     private Employee(
             UUID id,
@@ -87,7 +93,7 @@ public class Employee extends BaseEntity {
         this.identitySubjectId = requireText(identitySubjectId, "identitySubjectId");
         this.firstName = requireText(firstName, "firstName");
         this.lastName = requireText(lastName, "lastName");
-        this.workEmail = normalizeEmail(workEmail);
+        this.workEmail = WorkEmails.normalize(workEmail);
         this.position = Objects.requireNonNull(
                 position,
                 "position must not be null"
@@ -147,7 +153,7 @@ public class Employee extends BaseEntity {
     ) {
         this.firstName = requireText(firstName, "firstName");
         this.lastName = requireText(lastName, "lastName");
-        this.workEmail = normalizeEmail(workEmail);
+        this.workEmail = WorkEmails.normalize(workEmail);
     }
 
     /**
@@ -171,20 +177,20 @@ public class Employee extends BaseEntity {
      * </p>
      *
      * @param endDate final date of employment
-     * @throws IllegalStateException    if the employee is already inactive
-     * @throws IllegalArgumentException if the end date precedes the start date
+     * @throws DomainException with {@link EmployeeErrorCode#EMPLOYEE_ALREADY_INACTIVE}
+     *                         if the employee is already inactive, or with
+     *                         {@link EmployeeErrorCode#INVALID_EMPLOYMENT_PERIOD}
+     *                         if the end date precedes the start date
      */
     public void disable(LocalDate endDate) {
         Objects.requireNonNull(endDate, "endDate must not be null");
 
         if (status == EmployeeStatus.INACTIVE) {
-            throw new IllegalStateException("Employee is already inactive");
+            throw new DomainException(EmployeeErrorCode.EMPLOYEE_ALREADY_INACTIVE);
         }
 
         if (endDate.isBefore(employmentStartDate)) {
-            throw new IllegalArgumentException(
-                    "Employment end date must not precede the start date"
-            );
+            throw new DomainException(EmployeeErrorCode.INVALID_EMPLOYMENT_PERIOD);
         }
 
         this.status = EmployeeStatus.INACTIVE;
@@ -199,18 +205,19 @@ public class Employee extends BaseEntity {
      * Keycloak account reactivation.
      * </p>
      *
-     * @throws IllegalStateException if the employee is already active
+     * @throws DomainException with {@link EmployeeErrorCode#EMPLOYEE_ALREADY_ACTIVE}
+     *                         if the employee is already active
      */
     public void reactivate() {
         if (status == EmployeeStatus.ACTIVE) {
-            throw new IllegalStateException("Employee is already active");
+            throw new DomainException(EmployeeErrorCode.EMPLOYEE_ALREADY_ACTIVE);
         }
 
         this.status = EmployeeStatus.ACTIVE;
         this.employmentEndDate = null;
     }
 
-    private static String requireText(String value, String fieldName) {
+    private static String requireText(@Nullable String value, String fieldName) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException(
                     fieldName + " must not be blank"
@@ -218,10 +225,5 @@ public class Employee extends BaseEntity {
         }
 
         return value.trim();
-    }
-
-    private static String normalizeEmail(String workEmail) {
-        return requireText(workEmail, "workEmail")
-                .toLowerCase(Locale.ROOT);
     }
 }
