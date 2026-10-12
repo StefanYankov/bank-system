@@ -1,5 +1,7 @@
 package bg.nbu.banksystem.employee.domain;
 
+import bg.nbu.banksystem.starter.error.DomainException;
+import org.assertj.core.api.ThrowableAssert.ThrowingCallable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -12,8 +14,8 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
-import static org.assertj.core.api.Assertions.assertThatIllegalStateException;
 import static org.assertj.core.api.Assertions.assertThatNullPointerException;
+import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DisplayName("Employee (unit)")
 class EmployeeTest {
@@ -32,7 +34,7 @@ class EmployeeTest {
     class Registration {
 
         @Test
-        @DisplayName("Happy Path: Should register an active employee with an assigned UUID")
+        @DisplayName("Happy Path: Should register an active employee with an assigned UUIDv7")
         void shouldRegisterActiveEmployee() {
             // Act
             Employee employee = registerEmployee();
@@ -266,15 +268,13 @@ class EmployeeTest {
         void shouldRejectEndDateBeforeStartDate() {
             // Arrange
             Employee employee = registerEmployee();
-            LocalDate invalidEndDate =
-                    EMPLOYMENT_START_DATE.minusDays(1);
+            LocalDate invalidEndDate = EMPLOYMENT_START_DATE.minusDays(1);
 
             // Act & Assert
-            assertThatIllegalArgumentException()
-                    .isThrownBy(() -> employee.disable(invalidEndDate))
-                    .withMessage(
-                            "Employment end date must not precede the start date"
-                    );
+            assertDomainError(
+                    () -> employee.disable(invalidEndDate),
+                    EmployeeErrorCode.INVALID_EMPLOYMENT_PERIOD
+            );
         }
 
         @Test
@@ -285,11 +285,10 @@ class EmployeeTest {
             employee.disable(LocalDate.of(2026, 10, 31));
 
             // Act & Assert
-            assertThatIllegalStateException()
-                    .isThrownBy(() ->
-                            employee.disable(LocalDate.of(2026, 11, 1))
-                    )
-                    .withMessage("Employee is already inactive");
+            assertDomainError(
+                    () -> employee.disable(LocalDate.of(2026, 11, 1)),
+                    EmployeeErrorCode.EMPLOYEE_ALREADY_INACTIVE
+            );
         }
 
         @Test
@@ -299,10 +298,19 @@ class EmployeeTest {
             Employee employee = registerEmployee();
 
             // Act & Assert
-            assertThatIllegalStateException()
-                    .isThrownBy(employee::reactivate)
-                    .withMessage("Employee is already active");
+            assertDomainError(
+                    employee::reactivate,
+                    EmployeeErrorCode.EMPLOYEE_ALREADY_ACTIVE
+            );
         }
+    }
+
+    private static void assertDomainError(ThrowingCallable action, EmployeeErrorCode expectedCode) {
+        assertThatThrownBy(action)
+                .isInstanceOfSatisfying(
+                        DomainException.class,
+                        exception -> assertThat(exception.getErrorCode()).isEqualTo(expectedCode)
+                );
     }
 
     private static Employee registerEmployee() {
