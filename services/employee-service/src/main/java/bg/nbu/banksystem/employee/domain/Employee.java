@@ -10,6 +10,7 @@ import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDate;
 import java.util.Locale;
@@ -75,7 +76,7 @@ public class Employee extends BaseEntity {
     private LocalDate employmentStartDate;
 
     @Column(name = "employment_end_date")
-    private LocalDate employmentEndDate;
+    private @Nullable LocalDate employmentEndDate;
 
     private Employee(
             UUID id,
@@ -217,7 +218,7 @@ public class Employee extends BaseEntity {
         this.employmentEndDate = null;
     }
 
-    private static String requireText(String value, String fieldName) {
+    private static String requireText(@Nullable String value, String fieldName) {
         if (value == null || value.isBlank()) {
             throw new IllegalArgumentException(
                     fieldName + " must not be blank"
