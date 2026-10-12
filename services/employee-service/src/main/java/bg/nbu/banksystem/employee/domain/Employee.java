@@ -13,7 +13,6 @@ import lombok.NoArgsConstructor;
 import org.jspecify.annotations.Nullable;
 
 import java.time.LocalDate;
-import java.util.Locale;
 import java.util.Objects;
 import java.util.UUID;
 
@@ -94,7 +93,7 @@ public class Employee extends BaseEntity {
         this.identitySubjectId = requireText(identitySubjectId, "identitySubjectId");
         this.firstName = requireText(firstName, "firstName");
         this.lastName = requireText(lastName, "lastName");
-        this.workEmail = normalizeEmail(workEmail);
+        this.workEmail = WorkEmails.normalize(workEmail);
         this.position = Objects.requireNonNull(
                 position,
                 "position must not be null"
@@ -154,7 +153,7 @@ public class Employee extends BaseEntity {
     ) {
         this.firstName = requireText(firstName, "firstName");
         this.lastName = requireText(lastName, "lastName");
-        this.workEmail = normalizeEmail(workEmail);
+        this.workEmail = WorkEmails.normalize(workEmail);
     }
 
     /**
@@ -226,10 +225,5 @@ public class Employee extends BaseEntity {
         }
 
         return value.trim();
-    }
-
-    private static String normalizeEmail(String workEmail) {
-        return requireText(workEmail, "workEmail")
-                .toLowerCase(Locale.ROOT);
     }
 }
