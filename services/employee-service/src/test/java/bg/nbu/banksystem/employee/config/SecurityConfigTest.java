@@ -10,12 +10,15 @@ import org.springframework.boot.webmvc.test.autoconfigure.WebMvcTest;
 import org.springframework.context.annotation.Import;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
+import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.oauth2.jwt.BadJwtException;
 import org.springframework.security.oauth2.jwt.Jwt;
 import org.springframework.security.oauth2.jwt.JwtDecoder;
 import org.springframework.test.context.bean.override.mockito.MockitoBean;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.ResultMatcher;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
 import java.util.Map;
@@ -32,12 +35,22 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
-@WebMvcTest
-@Import(SecurityConfig.class)
+/**
+ * Verifies the service's security infrastructure: token decoding, Keycloak realm-role
+ * mapping, the filter chain and the 401/403 problem responses.
+ *
+ * <p>
+ * Uses a test-only probe controller, so it is independent of application controllers.
+ * Endpoint-specific role policies are tested next to each controller.
+ * </p>
+ */
+@WebMvcTest(controllers = SecurityConfigTest.SecurityProbeController.class)
+@Import({SecurityConfig.class, SecurityConfigTest.SecurityProbeController.class})
 @DisplayName("SecurityConfig (web slice)")
 class SecurityConfigTest {
 
-    private static final String PROTECTED_PATH = "/api/employees";
+    private static final String PROTECTED_PATH = "/test/protected";
+    private static final String ADMIN_PATH = "/test/admin";
 
     @Autowired
     private MockMvc mockMvc;
@@ -77,7 +90,7 @@ class SecurityConfigTest {
         }
 
         @Test
-        @DisplayName("Error Case: Should keep the invalid_token challenge and hide parser details for a rejected token")
+        @DisplayName("Error Case: Should keep the invalid_token challenge and hide parser details")
         void shouldReturnProblemForInvalidToken() throws Exception {
             // Arrange
             when(jwtDecoder.decode(anyString())).thenThrow(new BadJwtException("parser-detail-xyz"));
@@ -92,18 +105,42 @@ class SecurityConfigTest {
     }
 
     @Nested
-    @DisplayName("Valid token")
-    class ValidToken {
+    @DisplayName("Realm role mapping")
+    class RealmRoleMapping {
 
         @Test
-        @DisplayName("Happy Path: Should pass security with a valid token")
-        void shouldPassSecurityWithValidToken() throws Exception {
+        @DisplayName("Happy Path: Should authenticate a valid token")
+        void shouldAuthenticateValidToken() throws Exception {
             // Arrange
-            when(jwtDecoder.decode(anyString())).thenReturn(clerkToken());
+            when(jwtDecoder.decode(anyString())).thenReturn(tokenWithRealmRole("CLERK"));
 
             // Act & Assert
             mockMvc.perform(get(PROTECTED_PATH).header(HttpHeaders.AUTHORIZATION, "Bearer valid-token"))
-                    .andExpect(isNotRejectedBySecurity());
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        @DisplayName("Happy Path: Should grant ROLE_ADMIN from the ADMIN realm role")
+        void shouldGrantAdminFromRealmRole() throws Exception {
+            // Arrange
+            when(jwtDecoder.decode(anyString())).thenReturn(tokenWithRealmRole("ADMIN"));
+
+            // Act & Assert
+            mockMvc.perform(get(ADMIN_PATH).header(HttpHeaders.AUTHORIZATION, "Bearer admin-token"))
+                    .andExpect(status().isOk());
+        }
+
+        @Test
+        @DisplayName("Error Case: Should return a 403 problem when the realm role is insufficient")
+        void shouldReturnProblemForInsufficientRole() throws Exception {
+            // Arrange
+            when(jwtDecoder.decode(anyString())).thenReturn(tokenWithRealmRole("CLERK"));
+
+            // Act & Assert
+            mockMvc.perform(get(ADMIN_PATH).header(HttpHeaders.AUTHORIZATION, "Bearer clerk-token"))
+                    .andExpect(status().isForbidden())
+                    .andExpect(content().contentTypeCompatibleWith(MediaType.APPLICATION_PROBLEM_JSON))
+                    .andExpect(jsonPath("$.code").value("ACCESS_DENIED"));
         }
     }
 
@@ -111,11 +148,29 @@ class SecurityConfigTest {
         return result -> assertThat(result.getResponse().getStatus()).isNotIn(401, 403);
     }
 
-    private static Jwt clerkToken() {
-        return Jwt.withTokenValue("valid-token")
+    private static Jwt tokenWithRealmRole(String role) {
+        return Jwt.withTokenValue("token")
                 .header("alg", "none")
-                .subject("clerk-subject-id")
-                .claim("realm_access", Map.of("roles", List.of("CLERK")))
+                .subject("probe-subject")
+                .claim("realm_access", Map.of("roles", List.of(role)))
                 .build();
+    }
+
+    /**
+     * Test-only endpoints that exercise the security configuration without application logic.
+     */
+    @RestController
+    static class SecurityProbeController {
+
+        @GetMapping(PROTECTED_PATH)
+        String protectedEndpoint() {
+            return "ok";
+        }
+
+        @GetMapping(ADMIN_PATH)
+        @PreAuthorize("hasRole('ADMIN')")
+        String adminEndpoint() {
+            return "ok";
+        }
     }
 }
