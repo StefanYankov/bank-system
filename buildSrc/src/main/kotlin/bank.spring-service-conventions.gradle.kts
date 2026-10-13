@@ -14,6 +14,10 @@ dependencies {
     add("testRuntimeOnly", "org.junit.platform:junit-platform-launcher")
 }
 
+springBoot {
+    buildInfo()
+}
+
 tasks.named<Jar>("jar") {
     enabled = false
 }
