@@ -1,14 +1,9 @@
 package bg.nbu.banksystem.employee.domain;
 
-import jakarta.persistence.Access;
-import jakarta.persistence.AccessType;
-import jakarta.persistence.Column;
-import jakarta.persistence.EntityListeners;
-import jakarta.persistence.Id;
-import jakarta.persistence.MappedSuperclass;
-import jakarta.persistence.Version;
+import jakarta.persistence.*;
 import lombok.Getter;
 import org.hibernate.proxy.HibernateProxy;
+import org.jspecify.annotations.Nullable;
 import org.springframework.data.annotation.CreatedBy;
 import org.springframework.data.annotation.CreatedDate;
 import org.springframework.data.annotation.LastModifiedBy;
@@ -41,23 +36,23 @@ public abstract class BaseEntity {
 
     @Version
     @Column(name = "version", nullable = false)
-    private Long version;
+    private @Nullable Long version;
 
     @CreatedDate
     @Column(name = "created_at", nullable = false, updatable = false)
-    private Instant createdAt;
+    private @Nullable Instant createdAt;
 
     @CreatedBy
     @Column(name = "created_by", nullable = false, updatable = false)
-    private String createdBy;
+    private @Nullable String createdBy;
 
     @LastModifiedDate
     @Column(name = "updated_at", nullable = false)
-    private Instant updatedAt;
+    private @Nullable Instant updatedAt;
 
     @LastModifiedBy
     @Column(name = "updated_by", nullable = false)
-    private String updatedBy;
+    private @Nullable String updatedBy;
 
     /**
      * Constructor used by Hibernate when reconstructing an entity from persistence.
@@ -120,7 +115,7 @@ public abstract class BaseEntity {
         return entity.getClass();
     }
 
-    private static UUID effectiveIdentifier(BaseEntity entity) {
+    private static @Nullable UUID effectiveIdentifier(BaseEntity entity) {
         if (entity instanceof HibernateProxy proxy) {
             return (UUID) proxy.getHibernateLazyInitializer()
                     .getIdentifier();
