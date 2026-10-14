@@ -1,6 +1,36 @@
 <header class="app-header">
   <div class="app-header__content">
     <span class="app-header__brand">{{ title() }}</span>
+
+    <div class="app-header__session">
+      @if (authSession.authenticated()) {
+        <div class="user-summary">
+          <span class="user-summary__name">
+            {{ authSession.username() ?? 'Authenticated user' }}
+          </span>
+
+          @if (authSession.hasRealmRole('ADMIN')) {
+            <span class="role-badge">ADMIN</span>
+          }
+        </div>
+
+        <button
+          (click)="logout()"
+          class="session-button session-button--secondary"
+          type="button"
+        >
+          Log out
+        </button>
+      } @else {
+        <button
+          (click)="login()"
+          class="session-button"
+          type="button"
+        >
+          Log in
+        </button>
+      }
+    </div>
   </div>
 </header>
 

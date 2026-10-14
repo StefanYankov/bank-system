@@ -21,9 +21,79 @@
 }
 
 .app-header__content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   width: min(70rem, calc(100% - 2rem));
   margin: 0 auto;
   padding: 1rem 0;
+}
+
+.app-header__session {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-summary__name {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.role-badge {
+  padding: 0.2rem 0.45rem;
+  color: var(--color-primary-dark);
+  background: #ffffff;
+  border-radius: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.session-button {
+  padding: 0.55rem 0.9rem;
+  color: var(--color-primary);
+  background: #ffffff;
+  border: 1px solid #ffffff;
+  border-radius: 0.3rem;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.session-button:hover {
+  background: #f3f3f3;
+}
+
+.session-button:focus-visible {
+  outline: 0.2rem solid #ffffff;
+  outline-offset: 0.2rem;
+}
+
+.session-button--secondary {
+  color: #ffffff;
+  background: transparent;
+}
+
+.session-button--secondary:hover {
+  background: rgb(255 255 255 / 12%);
+}
+
+@media (max-width: 40rem) {
+  .app-header__content,
+  .app-header__session {
+    align-items: flex-start;
+  }
+
+  .app-header__content {
+    flex-direction: column;
+  }
 }
 
 .app-header__brand {
