@@ -9,57 +9,88 @@
 ## Overview
 Staff-facing banking system for managing customers, accounts and loans with annuity repayment schedules. Built as Spring Boot microservices with an Angular frontend and Keycloak for identity.
 
-Current state: `employee-service` foundation (database, security, tests).
+Current state: `employee-service` is implemented through the persistence, application, and REST API layers.
 
 ## Architecture
 | Component | Owns | Status |
 |---|---|---|
-| employee-service | Staff profiles and employment status | In progress |
-| customer-service | Individual and legal-entity customers | Planned |
-| account-service | Accounts and balances | Planned |
-| loan-service | Loans, schedules, instalment payments | Planned |
-| Keycloak | Authentication, credentials, roles | Configured |
+| `employee-service` | Staff profiles and employment lifecycle | Implemented |
+| `customer-service` | Individual and legal-entity customers | Planned |
+| `account-service` | Accounts and balances | Planned |
+| `loan-service` | Loans, schedules and instalment payments | Planned |
+| Keycloak | Authentication, credentials, roles, and API clients | Configured |
 
-Each service has its own PostgreSQL database. No cross-service joins.
+Each service owns its PostgreSQL database. Services do not access another service's database directly.
 
 ## Technology Stack
 | Area | Technology |
 |---|---|
-| Backend | Java 25, Spring Boot 4.1.1, Gradle 9.6 (Kotlin DSL) |
+| Backend | Java 25, Spring Boot 4.1.1 |
+| Build | Gradle 9.6 with Kotlin DSL |
 | Database | PostgreSQL 18.6, Flyway |
 | Identity | Keycloak 26.7.4 (OAuth2 / OIDC) |
-| Testing | JUnit 5, Mockito, AssertJ, Testcontainers, JaCoCo (70% gate) |
+| API | Spring MVC, OpenAPI, Swagger UI, RFC 9457 Problem Details |
+| Mapping | MapStruct |
+| Testing | JUnit 5, Mockito, AssertJ, MockMvc, Testcontainers, JaCoCo |
 | Infrastructure | Docker Compose, GitHub Actions |
 
-##
-```
-buildSrc/        shared Gradle convention plugins
-gradle/          wrapper and version catalog
-infra/           Docker Compose, Keycloak realm export
-services/        business microservices
+## Repository Structure
+
+```text
+buildSrc/   shared Gradle convention plugins
+gradle/     Gradle wrapper and version catalog
+infra/      Docker Compose and Keycloak realm export
+libs/       shared technical libraries
+services/   business microservices
 ```
 
+Business services may depend on shared technical libraries under `libs/`. A business service must not depend directly on another business service's code or database.
+
 ## Local Setup
-Prerequisites: Java 25, Docker Desktop.
+
+### Prerequisites
+
+- Java 25
+- Docker Desktop
+
+### Start the local infrastructure
 
 ```bash
 cp infra/.env.example infra/.env
 docker compose -f infra/compose.yaml up -d
 ```
 
-Run `EmployeeServiceApplication` with `infra/.env` loaded as environment
-variables, then check `http://localhost:8081/actuator/health`.
+Run `EmployeeServiceApplication` with the values from `infra/.env` loaded as environment variables.
 
-## Local Credentials
-Keycloak console: http://localhost:8180, admin credentials from `infra/.env`.
+For additional local diagnostics, activate the `dev` Spring profile.
+
+### Local endpoints
+
+| Endpoint | Purpose |
+|---|---|
+| [Employee Service health](http://localhost:8081/actuator/health) | Health check |
+| [Swagger UI](http://localhost:8081/swagger-ui.html) | Interactive Employee API documentation |
+| [OpenAPI JSON](http://localhost:8081/v3/api-docs) | Generated API specification |
+| [Keycloak administration](http://localhost:8180) | Realm and client administration |
+
+## Local Identity and API Testing
+
+Development users are imported from `infra/keycloak/bank-system-realm.json`.
 
 | User | Role |
 |---|---|
-| clerk | CLERK |
-| loan.officer | LOAN_OFFICER |
-| bank.admin | ADMIN |
+| `clerk` | `CLERK` |
+| `loan.officer` | `LOAN_OFFICER` |
+| `bank.admin` | `ADMIN` |
 
-Dev-only accounts imported from `infra/keycloak/bank-system-realm.json`.
+### Keycloak clients
+
+| Client | Purpose | Authentication flow |
+|---|---|---|
+| `bank-frontend` | Angular staff application | Authorization Code with PKCE |
+| `bank-dev-cli` | Postman, command-line tools, and local API testing | Direct access grant, development only |
+
+Both clients use the shared `bank-api-audience` client scope. Backend services accept access tokens containing the `bank-api` audience.
 
 ## Design Decisions
 - Monorepo with one Gradle build; shared build logic in convention plugins.
@@ -69,19 +100,19 @@ Dev-only accounts imported from `infra/keycloak/bank-system-realm.json`.
 - Employee Service holds staff profiles; Keycloak holds credentials and roles.
 - Records are disabled, never deleted.
 
-## Error Handling
+## Shared Libraries
 
-Backend services use the shared `error-handling-starter` to return consistent RFC 9457 Problem Details responses.
+### `common-identifiers`
 
-The starter provides:
+Provides shared UUIDv7 generation for application-assigned entity identifiers.
 
-- Central handling for domain, validation, framework and unexpected errors
-- Consistent `code`, `type`, `status`, `detail` and `instance` fields
-- Field and object-level validation errors
-- Problem responses for security-filter 401 and 403 failures
-- Auto-configuration for Spring MVC services
+### `error-handling-starter`
 
-Domain error codes use transport-neutral categories. The starter maps those categories to HTTP statuses in one place:
+Provides shared runtime error handling for Spring MVC services.
+
+The starter:
+
+The starter handles domain, validation, framework, authentication, authorization, and unexpected errors. Responses follow RFC 9457 and include a project error code.
 
 | Category | HTTP status |
 |---|---:|
@@ -93,13 +124,27 @@ Domain error codes use transport-neutral categories. The starter maps those cate
 | `ACCESS_DENIED` | 403 |
 | `INTERNAL` | 500 |
 
-Services may depend on shared modules under `libs/`, but never on another business service.
+Internal starter classes are not part of the public API. Services depend only on the public error contract.
 
 ## Testing
+
+Run all project checks:
+
 ```bash
 ./gradlew check
 ```
-Runs tests and enforces 70% line coverage per service.
+
+Run Employee Service checks only:
+
+```bash
+./gradlew :services:employee-service:check
+```
+
+The build runs unit, MVC, security, and PostgreSQL Testcontainers tests. JaCoCo enforces a 70% line-coverage gate per service.
+
+## Continuous Integration
+
+GitHub Actions runs checks for changed modules. Changes to a shared library also trigger checks for services that consume it.
 
 ## License
 
