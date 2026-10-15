@@ -1,19 +1,72 @@
 <header class="app-header">
   <div class="app-header__content">
-    <span class="app-header__brand">{{ title() }}</span>
+    <a
+      class="app-header__brand"
+      routerLink="/"
+    >
+      {{ title() }}
+    </a>
+
+    <div class="app-header__session">
+      @if (authSession.authenticated()) {
+        <div class="user-summary">
+          <span class="user-summary__name">
+            {{ authSession.username() ?? 'Authenticated user' }}
+          </span>
+
+          @if (authSession.hasRealmRole('ADMIN')) {
+            <span class="role-badge">ADMIN</span>
+          }
+        </div>
+
+        <button
+          class="session-button session-button--secondary"
+          type="button"
+          (click)="logout()"
+        >
+          Log out
+        </button>
+      } @else {
+        <button
+          class="session-button"
+          type="button"
+          (click)="login()"
+        >
+          Log in
+        </button>
+      }
+    </div>
   </div>
 </header>
 
 <main class="app-content">
-  <section aria-labelledby="welcome-title" class="welcome">
+  <section
+    aria-labelledby="welcome-title"
+    class="welcome"
+  >
     <p class="welcome__label">Staff application</p>
 
     <h1 id="welcome-title">Bank operations in one place</h1>
 
-    <p>
-      The Angular application is ready. Authentication and Employee
-      management will be added in the next milestones.
+    <p class="welcome__description">
+      Authentication is connected to Keycloak. Employee management will be
+      added in the next milestone.
     </p>
+
+    <nav
+      aria-label="Authentication examples"
+      class="welcome__actions"
+    >
+      <a routerLink="/protected">
+        Open protected page
+      </a>
+
+      @if (authSession.authenticated()) {
+        <a routerLink="/admin">
+          Open ADMIN page
+        </a>
+      }
+    </nav>
   </section>
 
   <router-outlet />

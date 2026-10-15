@@ -14,6 +14,8 @@
   background: var(--color-background);
 }
 
+/* Application header */
+
 .app-header {
   color: #ffffff;
   background: var(--color-primary);
@@ -21,15 +23,89 @@
 }
 
 .app-header__content {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 1rem;
   width: min(70rem, calc(100% - 2rem));
   margin: 0 auto;
   padding: 1rem 0;
 }
 
 .app-header__brand {
+  color: #ffffff;
   font-size: 1.25rem;
   font-weight: 700;
+  text-decoration: none;
 }
+
+.app-header__brand:hover {
+  text-decoration: underline;
+}
+
+.app-header__brand:focus-visible {
+  outline: 0.2rem solid #ffffff;
+  outline-offset: 0.2rem;
+}
+
+/* Authentication controls */
+
+.app-header__session {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.user-summary {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+}
+
+.user-summary__name {
+  font-size: 0.875rem;
+  font-weight: 600;
+}
+
+.role-badge {
+  padding: 0.2rem 0.45rem;
+  color: var(--color-primary-dark);
+  background: #ffffff;
+  border-radius: 0.25rem;
+  font-size: 0.7rem;
+  font-weight: 700;
+}
+
+.session-button {
+  padding: 0.55rem 0.9rem;
+  color: var(--color-primary);
+  background: #ffffff;
+  border: 1px solid #ffffff;
+  border-radius: 0.3rem;
+  font: inherit;
+  font-weight: 700;
+  cursor: pointer;
+}
+
+.session-button:hover {
+  background: #f3f3f3;
+}
+
+.session-button:focus-visible {
+  outline: 0.2rem solid #ffffff;
+  outline-offset: 0.2rem;
+}
+
+.session-button--secondary {
+  color: #ffffff;
+  background: transparent;
+}
+
+.session-button--secondary:hover {
+  background: rgb(255 255 255 / 12%);
+}
+
+/* Main content */
 
 .app-content {
   width: min(70rem, calc(100% - 2rem));
@@ -55,15 +131,54 @@
   text-transform: uppercase;
 }
 
-h1 {
+.welcome h1 {
   margin: 0;
   color: var(--color-primary-dark);
   font-size: clamp(1.75rem, 4vw, 2.5rem);
   line-height: 1.2;
 }
 
-.welcome p:last-child {
+.welcome__description {
   margin: 1rem 0 0;
   color: var(--color-muted);
   line-height: 1.6;
+}
+
+.welcome__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1rem;
+  margin-top: 1.5rem;
+}
+
+.welcome__actions a {
+  display: inline-block;
+  padding: 0.65rem 0.9rem;
+  color: #ffffff;
+  background: var(--color-primary);
+  border-radius: 0.3rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.welcome__actions a:hover {
+  background: var(--color-primary-dark);
+}
+
+.welcome__actions a:focus-visible {
+  outline: 0.2rem solid var(--color-accent);
+  outline-offset: 0.2rem;
+}
+
+/* Responsive header */
+
+@media (max-width: 40rem) {
+  .app-header__content {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .app-header__session {
+    align-items: flex-start;
+  }
 }

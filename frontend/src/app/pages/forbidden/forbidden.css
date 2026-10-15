@@ -1,0 +1,36 @@
+:host {
+  display: block;
+}
+
+.forbidden-page {
+  max-width: 42rem;
+  padding: 2rem;
+  background: var(--color-surface);
+  border: 1px solid var(--color-border);
+  border-left: 0.3rem solid var(--color-accent);
+  border-radius: 0.5rem;
+}
+
+h1 {
+  margin-top: 0;
+  color: var(--color-primary-dark);
+}
+
+p {
+  color: var(--color-muted);
+  line-height: 1.6;
+}
+
+a {
+  color: var(--color-primary);
+  font-weight: 700;
+}
+
+a:hover {
+  color: var(--color-primary-dark);
+}
+
+a:focus-visible {
+  outline: 0.2rem solid var(--color-accent);
+  outline-offset: 0.2rem;
+}
