@@ -18,22 +18,45 @@ import java.util.List;
  */
 public record PagedResponse<T>(
 
-        @Schema(description = "Items contained in the current page.")
+        @Schema(
+                description = "Items contained in the current page.",
+                requiredMode = Schema.RequiredMode.REQUIRED
+        )
         List<T> content,
 
-        @Schema(description = "Zero-based page number.", example = "0")
+        @Schema(
+                description = "Zero-based page number.",
+                example = "0",
+                requiredMode = Schema.RequiredMode.REQUIRED
+        )
         int page,
 
-        @Schema(description = "Number of items requested per page.", example = "20")
+        @Schema(
+                description = "Number of items requested per page.",
+                example = "20",
+                requiredMode = Schema.RequiredMode.REQUIRED
+        )
         int size,
 
-        @Schema(description = "Total number of matching items.", example = "42")
+        @Schema(
+                description = "Total number of matching items.",
+                example = "42",
+                requiredMode = Schema.RequiredMode.REQUIRED
+        )
         long totalElements,
 
-        @Schema(description = "Total number of available pages.", example = "3")
+        @Schema(
+                description = "Total number of available pages.",
+                example = "3",
+                requiredMode = Schema.RequiredMode.REQUIRED
+        )
         int totalPages,
 
-        @Schema(description = "Whether this is the final page.", example = "false")
+        @Schema(
+                description = "Whether this is the final page.",
+                example = "false",
+                requiredMode = Schema.RequiredMode.REQUIRED
+        )
         boolean last
 ) {
 

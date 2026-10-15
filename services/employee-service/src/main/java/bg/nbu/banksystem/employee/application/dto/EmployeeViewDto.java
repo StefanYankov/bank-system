@@ -24,35 +24,63 @@ public record EmployeeViewDto(
 
         @Schema(
                 description = "Technical employee identifier.",
-                example = "01923b7c-8f6d-7a12-9d1e-4b2f8c3e5a10"
+                example = "01923b7c-8f6d-7a12-9d1e-4b2f8c3e5a10",
+                requiredMode = Schema.RequiredMode.REQUIRED
         )
         UUID id,
 
-        @Schema(description = "Business employee number.", example = "EMP-000001")
+        @Schema(
+                description = "Business employee number.",
+                example = "EMP-000001",
+                requiredMode = Schema.RequiredMode.REQUIRED)
         String employeeNumber,
 
-        @Schema(description = "Employee first name.", example = "Serafim")
+        @Schema(
+                description = "Employee first name.",
+                example = "Serafim",
+                requiredMode = Schema.RequiredMode.REQUIRED)
         String firstName,
 
-        @Schema(description = "Employee last name.", example = "Gerasimoff")
+        @Schema(
+                description = "Employee last name.",
+                example = "Gerasimoff",
+                requiredMode = Schema.RequiredMode.REQUIRED)
         String lastName,
 
         @Schema(
                 description = "Employee work email.",
-                example = "serafim.gerasimoff@example.com"
+                example = "serafim.gerasimoff@example.com",
+                requiredMode = Schema.RequiredMode.REQUIRED
         )
         String workEmail,
 
-        @Schema(description = "Employee position.", example = "CLERK")
+        @Schema(
+                description = "Employee position.",
+                example = "CLERK",
+                requiredMode = Schema.RequiredMode.REQUIRED
+        )
         EmployeePosition position,
 
-        @Schema(description = "Employee status.", example = "ACTIVE")
+        @Schema(
+                description = "Employee status.",
+                example = "ACTIVE",
+                requiredMode = Schema.RequiredMode.REQUIRED
+        )
         EmployeeStatus status,
 
-        @Schema(description = "First date of employment.", example = "2026-10-01")
+        @Schema(
+                description = "First date of employment.",
+                example = "2026-10-01",
+                requiredMode = Schema.RequiredMode.REQUIRED
+        )
         LocalDate employmentStartDate,
 
-        @Schema(description = "Final date of employment, if any.", example = "2026-12-31")
+        @Schema(
+                description = "Final date of employment, if any.",
+                example = "2026-12-31",
+                requiredMode = Schema.RequiredMode.REQUIRED,
+                nullable = true
+        )
         LocalDate employmentEndDate
 ) {
 }
