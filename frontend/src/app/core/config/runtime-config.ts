@@ -3,7 +3,7 @@ import {InjectionToken} from '@angular/core';
 /**
  * Runtime Keycloak settings required by the browser application.
  */
-export interface KeycloakConfig {
+export interface KeycloakRuntimeConfig {
   readonly url: string;
   readonly realm: string;
   readonly clientId: string;
@@ -12,14 +12,14 @@ export interface KeycloakConfig {
 /**
  * Environment-dependent frontend configuration loaded before Angular starts.
  */
-export interface AppConfig {
-  readonly keycloak: KeycloakConfig;
+export interface RuntimeConfig {
+  readonly keycloak: KeycloakRuntimeConfig;
   readonly employeeApiUrl: string;
 }
 
 /**
  * Injection token used by Angular services that need runtime configuration.
  */
-export const APP_CONFIG = new InjectionToken<AppConfig>(
+export const RUNTIME_CONFIG = new InjectionToken<RuntimeConfig>(
   'Application runtime configuration',
 );

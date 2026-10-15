@@ -1,4 +1,4 @@
-import {AppConfig} from './app-config';
+import {RuntimeConfig} from './runtime-config';
 
 /**
  * Loads and validates the public runtime configuration.
@@ -6,7 +6,7 @@ import {AppConfig} from './app-config';
  * @returns the validated application configuration
  * @throws Error when the file cannot be loaded or contains invalid values
  */
-export async function loadAppConfig(): Promise<AppConfig> {
+export async function loadRuntimeConfig(): Promise<RuntimeConfig> {
   const configUrl = new URL('config.json', document.baseURI);
 
   const response = await fetch(configUrl, {
@@ -21,10 +21,10 @@ export async function loadAppConfig(): Promise<AppConfig> {
 
   const data: unknown = await response.json();
 
-  return parseAppConfig(data);
+  return parseRuntimeConfig(data);
 }
 
-function parseAppConfig(value: unknown): AppConfig {
+function parseRuntimeConfig(value: unknown): RuntimeConfig {
   const root = requireObject(value, 'configuration');
   const keycloak = requireObject(root['keycloak'], 'keycloak');
 

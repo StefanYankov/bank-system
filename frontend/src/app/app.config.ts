@@ -1,27 +1,56 @@
+import {provideHttpClient, withInterceptors,} from '@angular/common/http';
 import {ApplicationConfig, provideBrowserGlobalErrorListeners,} from '@angular/core';
 import {provideRouter} from '@angular/router';
-import {provideKeycloak} from 'keycloak-angular';
+import {
+  INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
+  includeBearerTokenInterceptor,
+  provideKeycloak,
+} from 'keycloak-angular';
 
 import {routes} from './app.routes';
-import {APP_CONFIG, AppConfig,} from './core/config/app-config';
+import {RUNTIME_CONFIG, RuntimeConfig,} from './core/config/runtime-config';
+import {createApiUrlPattern} from './core/config/api-url-pattern';
 
 /**
- * Creates the Angular configuration from values loaded at runtime.
+ * Creates Angular providers from the runtime configuration.
  *
  * @param runtimeConfig environment-specific frontend configuration
  * @returns providers used to start the Angular application
  */
 export function createApplicationConfig(
-  runtimeConfig: AppConfig,
+  runtimeConfig: RuntimeConfig,
 ): ApplicationConfig {
   return {
     providers: [
       provideBrowserGlobalErrorListeners(),
       provideRouter(routes),
 
+      // [GUIDE] Registers Angular HttpClient and runs outgoing requests through
+      // [GUIDE] the Keycloak bearer-token interceptor.
+      provideHttpClient(
+        withInterceptors([
+          includeBearerTokenInterceptor,
+        ]),
+      ),
+
       {
-        provide: APP_CONFIG,
+        // [GUIDE] Make the validated runtime configuration available through
+        // [GUIDE] Angular dependency injection.
+        provide: RUNTIME_CONFIG,
         useValue: runtimeConfig,
+      },
+
+      {
+        // [GUIDE] The interceptor adds a token only when the request URL
+        // [GUIDE] matches the configured Employee Service base URL.
+        provide: INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
+        useValue: [
+          {
+            urlPattern: createApiUrlPattern(
+              runtimeConfig.employeeApiUrl,
+            ),
+          },
+        ],
       },
 
       provideKeycloak({

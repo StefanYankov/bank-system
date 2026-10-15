@@ -1,7 +1,7 @@
 import {afterEach, describe, expect, it, vi} from 'vitest';
-import {loadAppConfig} from './app-config-loader';
+import {loadRuntimeConfig} from './runtime-config-loader';
 
-describe('loadAppConfig', () => {
+describe('loadRuntimeConfig', () => {
   afterEach(() => {
     vi.unstubAllGlobals();
   });
@@ -30,7 +30,7 @@ describe('loadAppConfig', () => {
     vi.stubGlobal('fetch', fetchMock);
 
     // Act
-    const config = await loadAppConfig();
+    const config = await loadRuntimeConfig();
 
     // Assert
     expect(config).toEqual({
@@ -62,7 +62,7 @@ describe('loadAppConfig', () => {
     );
 
     // Act & Assert
-    await expect(loadAppConfig()).rejects.toThrow(
+    await expect(loadRuntimeConfig()).rejects.toThrow(
       'Could not load runtime configuration: HTTP 404',
     );
   });
@@ -87,7 +87,7 @@ describe('loadAppConfig', () => {
     );
 
     // Act & Assert
-    await expect(loadAppConfig()).rejects.toThrow(
+    await expect(loadRuntimeConfig()).rejects.toThrow(
       "Runtime configuration field 'keycloak' must be an object",
     );
   });
@@ -117,7 +117,7 @@ describe('loadAppConfig', () => {
     );
 
     // Act & Assert
-    await expect(loadAppConfig()).rejects.toThrow(
+    await expect(loadRuntimeConfig()).rejects.toThrow(
       "Runtime configuration field 'keycloak.realm' must be a non-empty string",
     );
   });
