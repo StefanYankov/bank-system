@@ -25,8 +25,6 @@ export function createApplicationConfig(
       provideBrowserGlobalErrorListeners(),
       provideRouter(routes),
 
-      // [GUIDE] Registers Angular HttpClient and runs outgoing requests through
-      // [GUIDE] the Keycloak bearer-token interceptor.
       provideHttpClient(
         withInterceptors([
           includeBearerTokenInterceptor,
@@ -34,15 +32,11 @@ export function createApplicationConfig(
       ),
 
       {
-        // [GUIDE] Make the validated runtime configuration available through
-        // [GUIDE] Angular dependency injection.
         provide: RUNTIME_CONFIG,
         useValue: runtimeConfig,
       },
 
       {
-        // [GUIDE] The interceptor adds a token only when the request URL
-        // [GUIDE] matches the configured Employee Service base URL.
         provide: INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
         useValue: [
           {
