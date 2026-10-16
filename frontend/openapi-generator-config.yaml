@@ -1,0 +1,10 @@
+generatorName: typescript-angular
+inputSpec: openapi/employee-service.json
+outputDir: src/app/generated/employee-api
+
+additionalProperties:
+  ngVersion: 22.2.2
+  fileNaming: kebab-case
+  providedInRoot: true
+  useSingleRequestParameter: true
+  disallowAdditionalPropertiesIfNotPresent: false

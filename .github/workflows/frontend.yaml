@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   frontend-check:
-    name: Lint, test and build
+    name: Generate client, lint, test and build
     runs-on: ubuntu-latest
 
     defaults:
@@ -40,6 +40,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Generate Employee API client
+        run: npm run generate:employee-api
 
       - name: Lint
         run: npm run lint

@@ -10,7 +10,7 @@
 
 Staff-facing banking system for managing customers, accounts, and loans with annuity repayment schedules. Built as Spring Boot microservices with an Angular frontend and Keycloak for identity.
 
-Current state: `employee-service` is implemented through the persistence, application, and REST API layers. The Angular application foundation and Keycloak authentication are also implemented.
+Current state: `employee-service` is implemented through the persistence, application, and secured REST API layers. The Angular application includes Keycloak authentication, a generated Employee API client, and the first protected Employee profile page.
 
 ## Architecture
 
@@ -20,7 +20,7 @@ Current state: `employee-service` is implemented through the persistence, applic
 | `customer-service` | Individual and legal-entity customers | Planned |
 | `account-service` | Accounts and balances | Planned |
 | `loan-service` | Loans, schedules, and instalment payments | Planned |
-| Angular frontend | Staff-facing web application | Authentication implemented |
+| Angular frontend | Staff-facing web application | Employee API integration implemented |
 | Keycloak | Authentication, credentials, roles, and API clients | Configured |
 
 Each service owns its PostgreSQL database. Services do not access another service's database directly.
@@ -85,6 +85,33 @@ The frontend loads environment-specific values from `frontend/public/config.json
 
 Authentication uses Authorization Code with PKCE. Anonymous users can open the landing page, while protected routes redirect to Keycloak. Realm roles control role-restricted routes such as the temporary ADMIN example.
 
+### Generate the Employee API client
+
+Employee Service must be running locally before refreshing its OpenAPI contract.
+
+From the repository root:
+
+```bash
+curl --fail \
+  http://localhost:8081/v3/api-docs \
+  --output frontend/openapi/employee-service.json
+```
+
+Generate the Angular client from the committed contract:
+
+```bash
+cd frontend
+npm run generate:employee-api
+```
+
+The generated TypeScript is written to:
+
+```text
+frontend/src/app/generated/employee-api/
+```
+
+The `generated/` directory is not committed or linted. Generated files must not be edited manually. The OpenAPI contract, generator configuration, and pinned generator version are committed so that the client can be reproduced locally and in CI.
+
 ### Local endpoints
 
 | Endpoint | Purpose |
@@ -123,6 +150,7 @@ Both clients use the shared `bank-api-audience` client scope. Backend services a
 - Keycloak realm roles map to Spring authorities through a custom converter.
 - The Angular application uses Keycloak's public-client Authorization Code flow with PKCE.
 - Frontend deployment values are loaded at runtime from `config.json`, allowing the same build to be used in different environments.
+- Angular API clients are generated from committed service OpenAPI contracts. Generated TypeScript is replaceable build output and is recreated locally and in CI.
 - Employee Service holds staff profiles; Keycloak holds credentials and roles.
 - Records are disabled, never deleted.
 
@@ -169,6 +197,7 @@ Run frontend checks:
 ```bash
 cd frontend
 npm ci
+npm run generate:employee-api
 npm run lint
 npm test
 npm run build
@@ -176,11 +205,11 @@ npm run build
 
 Backend checks include unit, MVC, security, and PostgreSQL Testcontainers tests. JaCoCo enforces a 70% line-coverage gate per service.
 
-Frontend checks include ESLint, Vitest, and the production Angular build. Authentication tests cover runtime configuration loading, authentication state, route guards, role checks, and API URL matching for bearer-token propagation.
+Frontend checks include reproducible Employee API client generation, ESLint, Vitest, and the production Angular build. Tests cover runtime configuration, authentication state, route guards, role checks, bearer-token propagation, and the current Employee profile page.
 
 ## Continuous Integration
 
-GitHub Actions runs checks for changed modules. Changes to a shared library also trigger checks for services that consume it. Frontend changes run dependency installation, linting, tests, and a production build.
+GitHub Actions runs checks for changed modules. Changes to a shared library also trigger checks for services that consume it. Frontend CI installs dependencies, regenerates the Employee API client from the committed OpenAPI contract, runs linting and tests, and produces a production build.
 
 ## License
 

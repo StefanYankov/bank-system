@@ -8,7 +8,7 @@ export const routes: Routes = [
     canActivate: [authGuard],
 
     loadComponent: () =>
-      import('./pages/protected/protected')
+      import('./features/access/pages/protected/protected')
         .then((module) => module.Protected),
   },
   {
@@ -20,15 +20,25 @@ export const routes: Routes = [
     },
 
     loadComponent: () =>
-      import('./pages/protected/protected')
+      import('./features/access/pages/protected/protected')
         .then((module) => module.Protected),
   },
   {
     path: 'forbidden',
 
     loadComponent: () =>
-      import('./pages/forbidden/forbidden')
+      import('./features/access/pages/forbidden/forbidden')
         .then((module) => module.Forbidden),
+  },
+  {
+    path: 'current-employee',
+    canActivate: [authGuard],
+    loadComponent: () =>
+      import(
+        './features/employees/pages/current-employee/current-employee'
+        ).then(
+        (module) => module.CurrentEmployee,
+      ),
   },
   {
     path: '**',
