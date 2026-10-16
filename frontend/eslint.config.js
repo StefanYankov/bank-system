@@ -10,7 +10,7 @@ const angular = require('angular-eslint');
 
 module.exports = defineConfig([
   globalIgnores([
-    'src/app/api/generated/**',
+    'src/app/generated/**',
   ]),
   {
     files: ['**/*.ts'],

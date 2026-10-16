@@ -3,7 +3,7 @@ import {TestBed} from '@angular/core/testing';
 import {of, throwError,} from 'rxjs';
 import {beforeEach, describe, expect, it, vi,} from 'vitest';
 
-import {EmployeeAPIService, EmployeeViewDto,} from '../../../../api/generated/employee-api';
+import {EmployeeAPIService, EmployeeViewDto,} from '../../../../generated/employee-api';
 import {CurrentEmployee} from './current-employee';
 
 describe('CurrentEmployee', () => {

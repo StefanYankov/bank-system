@@ -2,7 +2,7 @@ import {Component, DestroyRef, inject, OnInit, signal,} from '@angular/core';
 import {HttpErrorResponse} from '@angular/common/http';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 
-import {EmployeeAPIService, EmployeeViewDto,} from '../../../../api/generated/employee-api';
+import {EmployeeAPIService, EmployeeViewDto,} from '../../../../generated/employee-api';
 
 @Component({
   selector: 'app-current-employee',

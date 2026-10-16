@@ -8,7 +8,7 @@ import {
 } from 'keycloak-angular';
 
 import {routes} from './app.routes';
-import {provideApi} from './api/generated/employee-api';
+import {provideApi} from './generated/employee-api';
 import {createApiUrlPattern} from './core/config/api-url-pattern';
 import {RUNTIME_CONFIG, RuntimeConfig,} from './core/config/runtime-config';
 
