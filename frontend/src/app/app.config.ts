@@ -8,14 +8,15 @@ import {
 } from 'keycloak-angular';
 
 import {routes} from './app.routes';
-import {RUNTIME_CONFIG, RuntimeConfig,} from './core/config/runtime-config';
+import {provideApi} from './api/generated/employee-api';
 import {createApiUrlPattern} from './core/config/api-url-pattern';
+import {RUNTIME_CONFIG, RuntimeConfig,} from './core/config/runtime-config';
 
 /**
- * Creates Angular providers from the runtime configuration.
+ * Creates the Angular application configuration from values loaded at runtime.
  *
  * @param runtimeConfig environment-specific frontend configuration
- * @returns providers used to start the Angular application
+ * @returns providers used to bootstrap the Angular application
  */
 export function createApplicationConfig(
   runtimeConfig: RuntimeConfig,
@@ -23,6 +24,7 @@ export function createApplicationConfig(
   return {
     providers: [
       provideBrowserGlobalErrorListeners(),
+
       provideRouter(routes),
 
       provideHttpClient(
@@ -30,6 +32,8 @@ export function createApplicationConfig(
           includeBearerTokenInterceptor,
         ]),
       ),
+
+      provideApi(runtimeConfig.employeeApiUrl),
 
       {
         provide: RUNTIME_CONFIG,
