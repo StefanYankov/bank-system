@@ -25,6 +25,12 @@ export const employeeManagementRoutes: Routes = [
         .then((module) => module.EmployeeRegistration),
   },
   {
+    path: 'employees/:id/edit',
+    loadComponent: () =>
+      import('./pages/employee-profile-edit/employee-profile-edit')
+        .then((module) => module.EmployeeProfileEdit),
+  },
+  {
     path: 'employees/:id',
     loadComponent: () =>
       import('./pages/employee-details/employee-details')

@@ -51,7 +51,12 @@
           {{ employeeRecord.lastName }}
         </h1>
 
-        <p class="employee-details__field-label employee-details__number-label">
+        <p
+          class="
+            employee-details__field-label
+            employee-details__number-label
+          "
+        >
           Employee number
         </p>
 
@@ -61,18 +66,46 @@
       </div>
 
       <span
+        class="status-badge"
         [class.status-badge--inactive]="
           employeeRecord.status === 'INACTIVE'
         "
-        class="status-badge"
       >
         {{ employeeRecord.status }}
       </span>
     </header>
 
     <section
-      aria-labelledby="employment-details-title"
+      aria-labelledby="employee-actions-title"
+      class="employee-actions"
+    >
+      <div>
+        <h2 id="employee-actions-title">
+          Employee actions
+        </h2>
+
+        <p>
+          Update the Employee profile and employment information.
+        </p>
+      </div>
+
+      <div class="employee-actions__controls">
+        <a
+          [routerLink]="[
+            '/admin/employees',
+            employeeRecord.id,
+            'edit'
+          ]"
+          class="details-action"
+        >
+          Edit profile
+        </a>
+      </div>
+    </section>
+
+    <section
       class="details-card"
+      aria-labelledby="employment-details-title"
     >
       <h2 id="employment-details-title">
         Employment details
@@ -81,23 +114,36 @@
       <dl class="details-grid">
         <div class="details-grid__item">
           <dt>Work email</dt>
-          <dd>{{ employeeRecord.workEmail }}</dd>
+
+          <dd>
+            {{ employeeRecord.workEmail }}
+          </dd>
         </div>
 
         <div class="details-grid__item">
           <dt>Position</dt>
-          <dd>{{ employeeRecord.position }}</dd>
+
+          <dd>
+            {{ employeeRecord.position }}
+          </dd>
         </div>
 
         <div class="details-grid__item">
           <dt>Employment start date</dt>
-          <dd>{{ employeeRecord.employmentStartDate }}</dd>
+
+          <dd>
+            {{ employeeRecord.employmentStartDate }}
+          </dd>
         </div>
 
         <div class="details-grid__item">
           <dt>Employment end date</dt>
+
           <dd>
-            {{ employeeRecord.employmentEndDate ?? 'Not applicable' }}
+            {{
+              employeeRecord.employmentEndDate
+              ?? 'Not applicable'
+            }}
           </dd>
         </div>
       </dl>

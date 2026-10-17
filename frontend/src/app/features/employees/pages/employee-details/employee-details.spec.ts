@@ -7,8 +7,7 @@ import {EmployeeAPIService, EmployeeViewDto,} from '../../../../generated/employ
 import {EmployeeDetails} from './employee-details';
 
 describe('EmployeeDetails', () => {
-  const employeeId =
-    '0199e65a-35b1-7000-8000-000000000001';
+  const employeeId = '0199e65a-35b1-7000-8000-000000000001';
 
   const employee: EmployeeViewDto = {
     id: employeeId,
@@ -26,7 +25,9 @@ describe('EmployeeDetails', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    getEmployeeByIdMock.mockReturnValue(of(employee));
+    getEmployeeByIdMock.mockReturnValue(
+      of(employee),
+    );
 
     await TestBed.configureTestingModule({
       imports: [EmployeeDetails],
@@ -79,6 +80,24 @@ describe('EmployeeDetails', () => {
     expect(element.textContent).toContain('Not applicable');
   });
 
+  it('should render the Employee profile edit action', () => {
+    const fixture = TestBed.createComponent(EmployeeDetails);
+
+    fixture.detectChanges();
+
+    const element = fixture.nativeElement as HTMLElement;
+
+    const editLink = element.querySelector(
+      '.details-action',
+    ) as HTMLAnchorElement | null;
+
+    expect(editLink).not.toBeNull();
+    expect(editLink?.textContent?.trim()).toBe('Edit profile');
+    expect(editLink?.getAttribute('href')).toBe(
+      `/admin/employees/${employeeId}/edit`
+    );
+  });
+
   it('should not display the technical Employee identifier', () => {
     const fixture = TestBed.createComponent(EmployeeDetails);
 
@@ -102,6 +121,7 @@ describe('EmployeeDetails', () => {
 
     expect(element.textContent).toContain('Loading Employee');
     expect(element.querySelector('.details-card')).toBeNull();
+    expect(element.querySelector('.employee-actions')).toBeNull();
   });
 
   it('should show a not-found message for a missing Employee', () => {
@@ -118,10 +138,8 @@ describe('EmployeeDetails', () => {
     const element = fixture.nativeElement as HTMLElement;
 
     expect(element.textContent).toContain('Employee unavailable');
-
-    expect(element.textContent).toContain(
-      'The requested Employee could not be found.',
-    );
+    expect(element.textContent).toContain('The requested Employee could not be found.');
+    expect(element.querySelector('.employee-actions')).toBeNull();
   });
 
   it('should show an authorization message for a forbidden response', () => {
@@ -136,10 +154,8 @@ describe('EmployeeDetails', () => {
     fixture.detectChanges();
 
     const element = fixture.nativeElement as HTMLElement;
-
-    expect(element.textContent).toContain(
-      'You do not have permission to view this Employee.',
-    );
+    expect(element.textContent).toContain('You do not have permission to view this Employee.');
+    expect(element.querySelector('.employee-actions')).toBeNull();
   });
 
   it('should retry loading the Employee', () => {
@@ -151,7 +167,8 @@ describe('EmployeeDetails', () => {
       )
       .mockReturnValueOnce(of(employee));
 
-    const fixture = TestBed.createComponent(EmployeeDetails);
+    const fixture =
+      TestBed.createComponent(EmployeeDetails);
 
     fixture.detectChanges();
 
@@ -164,7 +181,16 @@ describe('EmployeeDetails', () => {
     retryButton?.click();
     fixture.detectChanges();
 
-    expect(getEmployeeByIdMock).toHaveBeenCalledTimes(2);
-    expect(element.textContent).toContain('Serafim Gerasimoff');
+    expect(
+      getEmployeeByIdMock,
+    ).toHaveBeenCalledTimes(2);
+
+    expect(element.textContent).toContain(
+      'Serafim Gerasimoff',
+    );
+
+    expect(
+      element.querySelector('.details-action'),
+    ).not.toBeNull();
   });
 });
