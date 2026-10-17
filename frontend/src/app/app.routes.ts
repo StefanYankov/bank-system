@@ -19,13 +19,15 @@ export const routes: Routes = [
       [ROUTE_ROLES]: ['ADMIN'],
     },
 
-    loadComponent: () =>
-      import('./features/access/pages/protected/protected')
-        .then((module) => module.Protected),
+    loadChildren: () =>
+      import(
+        './features/employees/employee-management.routes'
+        ).then(
+        (module) => module.employeeManagementRoutes,
+      ),
   },
   {
     path: 'forbidden',
-
     loadComponent: () =>
       import('./features/access/pages/forbidden/forbidden')
         .then((module) => module.Forbidden),

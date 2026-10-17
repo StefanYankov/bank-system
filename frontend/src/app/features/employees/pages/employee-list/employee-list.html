@@ -1,0 +1,109 @@
+<section aria-labelledby="employee-list-title" class="employee-list">
+  <header class="employee-list__header">
+    <div>
+      <p class="employee-list__label">Employee administration</p>
+      <h1 id="employee-list-title">Employees</h1>
+      <p class="employee-list__description">
+        Review Employee records and open an Employee for management.
+      </p>
+    </div>
+  </header>
+
+  @if (loading()) {
+    <p class="state-message" role="status">
+      Loading employees...
+    </p>
+  } @else if (error(); as errorMessage) {
+    <section class="state-panel state-panel--error" role="alert">
+      <h2>Employees unavailable</h2>
+      <p>{{ errorMessage }}</p>
+
+      <button
+        (click)="retry()"
+        class="button button--primary"
+        type="button"
+      >
+        Try again
+      </button>
+    </section>
+  } @else if (employees().length === 0) {
+    <section class="state-panel">
+      <h2>No employees found</h2>
+      <p>
+        Employee records will appear here after registration.
+      </p>
+    </section>
+  } @else {
+    <div class="employee-table-container">
+      <table class="employee-table">
+        <caption class="visually-hidden">
+          Registered bank employees
+        </caption>
+
+        <thead>
+        <tr>
+          <th scope="col">Employee number</th>
+          <th scope="col">Name</th>
+          <th scope="col">Work email</th>
+          <th scope="col">Position</th>
+          <th scope="col">Status</th>
+        </tr>
+        </thead>
+
+        <tbody>
+          @for (employee of employees(); track employee.id) {
+            <tr>
+              <td>{{ employee.employeeNumber }}</td>
+              <td>
+                {{ employee.firstName }} {{ employee.lastName }}
+              </td>
+              <td>{{ employee.workEmail }}</td>
+              <td>{{ employee.position }}</td>
+              <td>
+                <span
+                  [class.status-badge--inactive]="
+                    employee.status === 'INACTIVE'
+                  "
+                  class="status-badge"
+                >
+                  {{ employee.status }}
+                </span>
+              </td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+
+    <footer aria-label="Employee list pagination" class="pagination">
+      <p class="pagination__summary">
+        {{ totalElements() }}
+        {{ totalElements() === 1 ? 'employee' : 'employees' }}
+      </p>
+
+      <div class="pagination__controls">
+        <button
+          (click)="previousPage()"
+          [disabled]="page() === 0 || loading()"
+          class="button button--secondary"
+          type="button"
+        >
+          Previous
+        </button>
+
+        <span class="pagination__page">
+          Page {{ page() + 1 }} of {{ totalPages() }}
+        </span>
+
+        <button
+          (click)="nextPage()"
+          [disabled]="last() || loading()"
+          class="button button--secondary"
+          type="button"
+        >
+          Next
+        </button>
+      </div>
+    </footer>
+  }
+</section>
