@@ -1,5 +1,6 @@
 import {TestBed} from '@angular/core/testing';
 import {of, Subject, throwError} from 'rxjs';
+import {provideRouter} from '@angular/router';
 import {beforeEach, describe, expect, it, vi,} from 'vitest';
 import {EmployeeAPIService, EmployeeViewDto, PagedResponseEmployeeViewDto,} from '../../../../generated/employee-api';
 import {EmployeeList} from './employee-list';
@@ -35,6 +36,7 @@ describe('EmployeeList', () => {
     await TestBed.configureTestingModule({
       imports: [EmployeeList],
       providers: [
+        provideRouter([]),
         {
           provide: EmployeeAPIService,
           useValue: {

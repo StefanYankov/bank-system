@@ -1,5 +1,11 @@
 import {Routes} from '@angular/router';
 
+/**
+ * Routes for ADMIN Employee operations.
+ *
+ * The route group is mounted below `/admin` by the root route configuration,
+ * so all routes declared here inherit the parent ADMIN route guard.
+ */
 export const employeeManagementRoutes: Routes = [
   {
     path: '',
@@ -11,6 +17,12 @@ export const employeeManagementRoutes: Routes = [
     loadComponent: () =>
       import('./pages/employee-list/employee-list')
         .then((module) => module.EmployeeList),
+  },
+  {
+    path: 'employees/new',
+    loadComponent: () =>
+      import('./pages/employee-registration/employee-registration')
+        .then((module) => module.EmployeeRegistration),
   },
   {
     path: 'employees/:id',

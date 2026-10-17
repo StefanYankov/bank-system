@@ -11,7 +11,7 @@
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
-  gap: 1rem;
+  gap: 1.5rem;
 }
 
 .employee-list__label {
@@ -33,6 +33,26 @@
   margin: 0.75rem 0 0;
   color: #626262;
   line-height: 1.5;
+}
+
+.registration-link {
+  display: inline-block;
+  flex-shrink: 0;
+  padding: 0.65rem 0.9rem;
+  color: #ffffff;
+  background: #8f001f;
+  border-radius: 0.3rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.registration-link:hover {
+  background: #650016;
+}
+
+.registration-link:focus-visible {
+  outline: 0.2rem solid #d7193f;
+  outline-offset: 0.2rem;
 }
 
 .employee-table-container {
@@ -205,6 +225,15 @@
 }
 
 @media (max-width: 45rem) {
+  .employee-list__header {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .registration-link {
+    width: fit-content;
+  }
+
   .pagination {
     align-items: flex-start;
     flex-direction: column;
