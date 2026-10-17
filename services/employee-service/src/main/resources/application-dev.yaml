@@ -5,3 +5,9 @@ logging:
     org.hibernate.orm.jdbc.bind: TRACE
     org.springframework.web: DEBUG
     org.springframework.security: DEBUG
+
+spring:
+  flyway:
+    locations:
+      - classpath:db/migration
+      - classpath:db/devdata
