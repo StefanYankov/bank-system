@@ -10,7 +10,7 @@ import {EmployeeDetails} from './employee-details';
 describe('EmployeeDetails', () => {
   const employeeId = '0199e65a-35b1-7000-8000-000000000001';
 
-  const employee: EmployeeViewDto = {
+  const activeEmployee: EmployeeViewDto = {
     id: employeeId,
     employeeNumber: 'EMP-000001',
     firstName: 'Serafim',
@@ -22,12 +22,18 @@ describe('EmployeeDetails', () => {
     employmentEndDate: null,
   };
 
+  const inactiveEmployee: EmployeeViewDto = {
+    ...activeEmployee,
+    status: EmployeeViewDto.StatusEnum.Inactive,
+    employmentEndDate: '2026-10-18',
+  };
+
   const getEmployeeByIdMock = vi.fn();
 
   beforeEach(async () => {
     vi.clearAllMocks();
     getEmployeeByIdMock.mockReturnValue(
-      of(employee),
+      of(activeEmployee),
     );
 
     await TestBed.configureTestingModule({
@@ -77,53 +83,36 @@ describe('EmployeeDetails', () => {
     expect(element.textContent).toContain('Not applicable');
   });
 
-  it('should render the Employee profile edit action', () => {
+  it('should render active Employee actions', () => {
     const fixture = TestBed.createComponent(EmployeeDetails);
 
     fixture.detectChanges();
 
     const element = fixture.nativeElement as HTMLElement;
 
-    const actionLinks = Array.from(
-      element.querySelectorAll<HTMLAnchorElement>(
-        '.details-action',
-      ),
-    );
-
-    const editProfileLink = actionLinks.find(
-      (link) =>
-        link.textContent?.trim() === 'Edit profile',
-    );
-
-    expect(editProfileLink).toBeDefined();
-
-    expect(editProfileLink?.getAttribute('href')).toBe(
-      `/admin/employees/${employeeId}/edit`,
-    );
+    expectActionLink(element, 'Edit profile', `/admin/employees/${employeeId}/edit`);
+    expectActionLink(element, 'Change position', `/admin/employees/${employeeId}/position`);
+    expectActionLink(element, 'Disable Employee', `/admin/employees/${employeeId}/disable`);
+    expect(findActionLink(element, 'Reactivate Employee')).toBeUndefined();
+    expect(element.querySelectorAll('.details-action')).toHaveLength(3);
   });
 
-  it('should render the Employee position-change action', () => {
+  it('should render only reactivation for an inactive Employee', () => {
+    getEmployeeByIdMock.mockReturnValue(of(inactiveEmployee));
+
     const fixture = TestBed.createComponent(EmployeeDetails);
 
     fixture.detectChanges();
 
     const element = fixture.nativeElement as HTMLElement;
 
-    const actionLinks = Array.from(
-      element.querySelectorAll<HTMLAnchorElement>(
-        '.details-action',
-      ),
-    );
-
-    const changePositionLink = actionLinks.find(
-      (link) =>
-        link.textContent?.trim() === 'Change position',
-    );
-
-    expect(changePositionLink).toBeDefined();
-    expect(changePositionLink?.getAttribute('href')).toBe(
-      `/admin/employees/${employeeId}/position`
-    );
+    expect(element.textContent).toContain('INACTIVE');
+    expect(element.textContent).toContain('2026-10-18');
+    expectActionLink(element, 'Reactivate Employee', `/admin/employees/${employeeId}/reactivate`);
+    expect(findActionLink(element, 'Edit profile')).toBeUndefined();
+    expect(findActionLink(element, 'Change position')).toBeUndefined();
+    expect(findActionLink(element, 'Disable Employee')).toBeUndefined();
+    expect(element.querySelectorAll('.details-action')).toHaveLength(1);
   });
 
   it('should not display the technical Employee identifier', () => {
@@ -141,6 +130,7 @@ describe('EmployeeDetails', () => {
     const response = new Subject<EmployeeViewDto>();
     getEmployeeByIdMock.mockReturnValue(response);
 
+    getEmployeeByIdMock.mockReturnValue(response);
     const fixture = TestBed.createComponent(EmployeeDetails);
 
     fixture.detectChanges();
@@ -196,7 +186,7 @@ describe('EmployeeDetails', () => {
           new Error('Employee Service unavailable'),
         ),
       )
-      .mockReturnValueOnce(of(employee));
+      .mockReturnValueOnce(of(activeEmployee));
 
     const fixture =
       TestBed.createComponent(EmployeeDetails);
@@ -205,8 +195,9 @@ describe('EmployeeDetails', () => {
 
     const element = fixture.nativeElement as HTMLElement;
 
-    expect(element.textContent).toContain('The Employee could not be loaded. Please try again.');
     expect(getEmployeeByIdMock).toHaveBeenCalledOnce();
+    expect(element.textContent).toContain('The Employee could not be loaded. Please try again.');
+
     const retryButton = element.querySelector(
       '.button--primary',
     ) as HTMLButtonElement | null;
@@ -224,7 +215,52 @@ describe('EmployeeDetails', () => {
       'Serafim Gerasimoff',
     );
 
-    expect(element.querySelectorAll('.details-action')).toHaveLength(2);
+    expect(element.querySelectorAll('.details-action')).toHaveLength(3);
     expect(element.querySelector('.state-panel--error')).toBeNull();
   });
+
+  /**
+   * Finds an Employee action by its visible label.
+   *
+   * @param element rendered component root
+   * @param label visible action label
+   * @returns matching action link, if present
+   */
+  function findActionLink(
+    element: HTMLElement,
+    label: string,
+  ): HTMLAnchorElement | undefined {
+    return Array.from(
+      element.querySelectorAll<HTMLAnchorElement>(
+        '.details-action',
+      ),
+    ).find(
+      (link) =>
+        link.textContent?.trim() === label,
+    );
+  }
+
+  /**
+   * Verifies one Employee action and its destination.
+   *
+   * @param element rendered component root
+   * @param label visible action label
+   * @param expectedHref expected Angular route
+   */
+  function expectActionLink(
+    element: HTMLElement,
+    label: string,
+    expectedHref: string,
+  ): void {
+    const actionLink = findActionLink(
+      element,
+      label,
+    );
+
+    expect(actionLink).toBeDefined();
+
+    expect(
+      actionLink?.getAttribute('href'),
+    ).toBe(expectedHref);
+  }
 });

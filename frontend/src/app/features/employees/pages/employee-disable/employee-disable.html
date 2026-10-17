@@ -1,0 +1,205 @@
+<section
+  aria-labelledby="employee-disable-title"
+  class="employee-disable"
+>
+  <a
+    [routerLink]="[
+      '/admin/employees',
+      employeeId
+    ]"
+    class="back-link"
+  >
+    ← Back to Employee details
+  </a>
+
+  @if (loading()) {
+    <p
+      class="state-message"
+      role="status"
+    >
+      Loading Employee...
+    </p>
+  } @else if (loadError(); as errorMessage) {
+    <section
+      class="state-panel state-panel--error"
+      role="alert"
+    >
+      <h1 id="employee-disable-title">
+        Employee unavailable
+      </h1>
+
+      <p>{{ errorMessage }}</p>
+
+      <button
+        (click)="retry()"
+        class="button button--primary"
+        type="button"
+      >
+        Try again
+      </button>
+    </section>
+  } @else if (employee(); as employeeRecord) {
+    <header class="employee-disable__header">
+      <p class="employee-disable__label">
+        Employee administration
+      </p>
+
+      <h1 id="employee-disable-title">
+        Disable Employee
+      </h1>
+
+      <p class="employee-disable__description">
+        End active employment for
+        {{ employeeRecord.firstName }}
+        {{ employeeRecord.lastName }}.
+      </p>
+    </header>
+
+    @if (
+      employeeRecord.status
+      === 'INACTIVE'
+      ) {
+      <section
+        class="state-panel state-panel--warning"
+        role="status"
+      >
+        <h2>Employee already inactive</h2>
+
+        <p>
+          This Employee has already been disabled and cannot
+          be disabled again.
+        </p>
+
+        <a
+          [routerLink]="[
+            '/admin/employees',
+            employeeRecord.id
+          ]"
+          class="button button--secondary"
+        >
+          Return to Employee details
+        </a>
+      </section>
+    } @else {
+      @if (submissionError(); as errorMessage) {
+        <section
+          class="submission-error"
+          role="alert"
+        >
+          <h2>Disable unsuccessful</h2>
+
+          <p>{{ errorMessage }}</p>
+        </section>
+      }
+
+      <form
+        (ngSubmit)="submit()"
+        [formGroup]="disableForm"
+        class="disable-form"
+        novalidate
+      >
+        <section
+          aria-labelledby="disable-fields-title"
+          class="form-section"
+        >
+          <h2 id="disable-fields-title">
+            Employment end
+          </h2>
+
+          <p class="form-section__description">
+            Disabling the Employee changes the status to
+            <strong>INACTIVE</strong> and records the final date
+            of employment.
+          </p>
+
+          <dl class="employee-summary">
+            <div>
+              <dt>Employee number</dt>
+              <dd>{{ employeeRecord.employeeNumber }}</dd>
+            </div>
+
+            <div>
+              <dt>Current status</dt>
+              <dd>{{ employeeRecord.status }}</dd>
+            </div>
+
+            <div>
+              <dt>Employment start date</dt>
+              <dd>{{ employeeRecord.employmentStartDate }}</dd>
+            </div>
+          </dl>
+
+          <div class="form-field">
+            <label for="employment-end-date">
+              Employment end date
+            </label>
+
+            <input
+              aria-describedby="employment-end-date-help employment-end-date-error"
+              formControlName="employmentEndDate"
+              id="employment-end-date"
+              type="date"
+            >
+
+            <p
+              class="field-help"
+              id="employment-end-date-help"
+            >
+              Enter the final date of the Employee's employment.
+            </p>
+
+            @if (
+              disableForm.controls.employmentEndDate.invalid
+              && disableForm.controls.employmentEndDate.touched
+              ) {
+              <p
+                class="field-error"
+                id="employment-end-date-error"
+              >
+                Employment end date is required.
+              </p>
+            }
+          </div>
+        </section>
+
+        <section
+          aria-labelledby="disable-warning-title"
+          class="disable-warning"
+        >
+          <h2 id="disable-warning-title">
+            Confirm lifecycle change
+          </h2>
+
+          <p>
+            The Employee will no longer be active after this
+            operation. The Employee can be reactivated later.
+          </p>
+        </section>
+
+        <footer class="form-actions">
+          <a
+            [routerLink]="[
+              '/admin/employees',
+              employeeRecord.id
+            ]"
+            class="button button--secondary"
+          >
+            Cancel
+          </a>
+
+          <button
+            [disabled]="submitting()"
+            class="button button--danger"
+            type="submit"
+          >
+            @if (submitting()) {
+              Disabling...
+            } @else {
+              Disable Employee
+            }
+          </button>
+        </footer>
+      </form>
+    }
+  }
+</section>

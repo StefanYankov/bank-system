@@ -84,33 +84,63 @@
           Employee actions
         </h2>
 
-        <p>
-          Update the Employee profile and employment information.
-        </p>
+        @if (employeeRecord.status === 'ACTIVE') {
+          <p>
+            Update the Employee profile, position, or employment status.
+          </p>
+        } @else {
+          <p>
+            Restore active employment for this Employee.
+          </p>
+        }
       </div>
 
       <div class="employee-actions__controls">
-        <a
-          class="details-action"
-          [routerLink]="[
-            '/admin/employees',
-            employeeRecord.id,
-            'edit'
-          ]"
-        >
-          Edit profile
-        </a>
+        @if (employeeRecord.status === 'ACTIVE') {
+          <a
+            [routerLink]="[
+              '/admin/employees',
+              employeeRecord.id,
+              'edit'
+            ]"
+            class="details-action"
+          >
+            Edit profile
+          </a>
 
-        <a
-          class="details-action"
-          [routerLink]="[
-            '/admin/employees',
-            employeeRecord.id,
-            'position'
-          ]"
-        >
-          Change position
-        </a>
+          <a
+            [routerLink]="[
+              '/admin/employees',
+              employeeRecord.id,
+              'position'
+            ]"
+            class="details-action"
+          >
+            Change position
+          </a>
+
+          <a
+            [routerLink]="[
+              '/admin/employees',
+              employeeRecord.id,
+              'disable'
+            ]"
+            class="details-action"
+          >
+            Disable Employee
+          </a>
+        } @else {
+          <a
+            [routerLink]="[
+              '/admin/employees',
+              employeeRecord.id,
+              'reactivate'
+            ]"
+            class="details-action"
+          >
+            Reactivate Employee
+          </a>
+        }
       </div>
     </section>
 

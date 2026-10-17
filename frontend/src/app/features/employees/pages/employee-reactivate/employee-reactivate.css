@@ -1,0 +1,184 @@
+:host {
+  display: block;
+}
+
+.employee-reactivate {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 55rem;
+}
+
+.back-link {
+  width: fit-content;
+  color: #8f001f;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.back-link:focus-visible {
+  outline: 0.2rem solid #d7193f;
+  outline-offset: 0.2rem;
+}
+
+.employee-reactivate__label {
+  margin: 0 0 0.4rem;
+  color: #8f001f;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.employee-reactivate h1 {
+  margin: 0;
+  color: #650016;
+  font-size: clamp(1.75rem, 4vw, 2.4rem);
+  line-height: 1.2;
+}
+
+.employee-reactivate__description {
+  margin: 0.75rem 0 0;
+  color: #626262;
+  line-height: 1.5;
+}
+
+.reactivation-card,
+.reactivation-confirmation,
+.state-message,
+.state-panel,
+.submission-error {
+  margin: 0;
+  padding: 1.5rem;
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.25rem 1rem rgb(0 0 0 / 6%);
+}
+
+.reactivation-card h2,
+.reactivation-confirmation h2,
+.state-panel h1,
+.state-panel h2,
+.submission-error h2 {
+  margin: 0;
+  color: #650016;
+  font-size: 1.25rem;
+}
+
+.reactivation-card__description,
+.reactivation-confirmation p,
+.state-panel p,
+.submission-error p {
+  margin: 0.75rem 0 0;
+  color: #626262;
+  line-height: 1.5;
+}
+
+.state-panel--error,
+.submission-error {
+  border-color: #d7193f;
+}
+
+.state-panel--error p,
+.submission-error p {
+  color: #7f1d1d;
+}
+
+.state-panel--success,
+.reactivation-confirmation {
+  border-color: #15803d;
+  background: #f0fdf4;
+}
+
+.employee-summary {
+  display: grid;
+  grid-template-columns: repeat(
+    3,
+    minmax(0, 1fr)
+  );
+  gap: 1rem;
+  margin: 1.5rem 0 0;
+}
+
+.employee-summary dt {
+  color: #626262;
+  font-size: 0.75rem;
+  font-weight: 700;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.employee-summary dd {
+  margin: 0.35rem 0 0;
+  font-weight: 700;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.button {
+  display: inline-block;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid #8f001f;
+  border-radius: 0.3rem;
+  font: inherit;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.button--primary {
+  color: #ffffff;
+  background: #8f001f;
+}
+
+.button--primary:hover:not(:disabled) {
+  background: #650016;
+}
+
+.button--secondary {
+  margin-top: 1rem;
+  color: #8f001f;
+  background: #ffffff;
+}
+
+.button--secondary:hover {
+  background: #faf4f5;
+}
+
+.button:focus-visible {
+  outline: 0.2rem solid #d7193f;
+  outline-offset: 0.2rem;
+}
+
+@media (max-width: 45rem) {
+  .employee-summary {
+    grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 40rem) {
+  .form-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}

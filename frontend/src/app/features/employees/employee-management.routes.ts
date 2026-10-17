@@ -37,6 +37,21 @@ export const employeeManagementRoutes: Routes = [
         .then(module => module.EmployeePositionChange),
   },
   {
+    path: 'employees/:id/disable',
+    loadComponent: () =>
+      import('./pages/employee-disable/employee-disable')
+        .then(module => module.EmployeeDisable),
+  },
+  {
+    path: 'employees/:id/reactivate',
+    loadComponent: () =>
+      import(
+        './pages/employee-reactivate/employee-reactivate'
+        ).then(
+        (module) => module.EmployeeReactivate,
+      ),
+  },
+  {
     path: 'employees/:id',
     loadComponent: () =>
       import('./pages/employee-details/employee-details')
