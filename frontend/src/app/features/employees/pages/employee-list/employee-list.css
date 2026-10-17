@@ -72,6 +72,11 @@
   background: #fafafa;
 }
 
+.employee-table__actions-heading,
+.employee-table__actions {
+  text-align: right;
+}
+
 .status-badge {
   display: inline-block;
   padding: 0.25rem 0.5rem;
@@ -85,6 +90,25 @@
 .status-badge--inactive {
   color: #7f1d1d;
   background: #fee2e2;
+}
+
+.details-link {
+  display: inline-block;
+  padding: 0.4rem 0.7rem;
+  color: #ffffff;
+  background: #8f001f;
+  border-radius: 0.3rem;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.details-link:hover {
+  background: #650016;
+}
+
+.details-link:focus-visible {
+  outline: 0.2rem solid #d7193f;
+  outline-offset: 0.2rem;
 }
 
 .state-message,

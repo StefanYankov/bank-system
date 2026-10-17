@@ -4,7 +4,7 @@
       <p class="employee-list__label">Employee administration</p>
       <h1 id="employee-list-title">Employees</h1>
       <p class="employee-list__description">
-        Review Employee records and open an Employee for management.
+        Review Employee records and open an Employee for details.
       </p>
     </div>
   </header>
@@ -69,6 +69,24 @@
                   {{ employee.status }}
                 </span>
               </td>
+
+              <td class="employee-table__actions">
+                <a
+                  [attr.aria-label]="
+                    'View details for '
+                    + employee.firstName
+                    + ' '
+                    + employee.lastName
+                  "
+                  [routerLink]="[
+                    '/admin/employees',
+                    employee.id
+                  ]"
+                  class="details-link"
+                >
+                  View
+                </a>
+              </td>
             </tr>
           }
         </tbody>
@@ -96,10 +114,10 @@
         </span>
 
         <button
-          (click)="nextPage()"
-          [disabled]="last() || loading()"
           class="button button--secondary"
           type="button"
+          (click)="nextPage()"
+          [disabled]="last() || loading()"
         >
           Next
         </button>

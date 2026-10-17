@@ -12,4 +12,10 @@ export const employeeManagementRoutes: Routes = [
       import('./pages/employee-list/employee-list')
         .then((module) => module.EmployeeList),
   },
+  {
+    path: 'employees/:id',
+    loadComponent: () =>
+      import('./pages/employee-details/employee-details')
+        .then((module) => module.EmployeeDetails),
+  },
 ];
