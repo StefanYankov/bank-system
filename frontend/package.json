@@ -9,7 +9,9 @@
     "test": "ng test --watch=false",
     "test:watch": "ng test",
     "lint": "ng lint",
-    "generate:employee-api": "openapi-generator-cli generate -c openapi-generator-config.yaml"
+    "generate:employee-api": "openapi-generator-cli generate -c openapi-generator-config.yaml && npm run generate:employee-constraints",
+    "generate:employee-constraints": "node scripts/generate-form-constraints.mjs",
+    "test:form-constraints": "node --test scripts/generate-form-constraints.test.mjs"
   },
   "private": true,
   "packageManager": "npm@11.19.0",

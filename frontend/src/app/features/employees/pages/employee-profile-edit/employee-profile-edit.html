@@ -1,0 +1,222 @@
+<section
+  aria-labelledby="employee-profile-edit-title"
+  class="employee-profile-edit"
+>
+  <a
+    [routerLink]="[
+      '/admin/employees',
+      employeeId
+    ]"
+    class="back-link"
+  >
+    ← Back to Employee details
+  </a>
+
+  @if (loading()) {
+    <p
+      class="state-message"
+      role="status"
+    >
+      Loading Employee...
+    </p>
+  } @else if (loadError(); as errorMessage) {
+    <section
+      class="state-panel state-panel--error"
+      role="alert"
+    >
+      <h1 id="employee-profile-edit-title">
+        Employee unavailable
+      </h1>
+
+      <p>{{ errorMessage }}</p>
+
+      <button
+        (click)="retry()"
+        class="button button--primary"
+        type="button"
+      >
+        Try again
+      </button>
+    </section>
+  } @else {
+    <header class="employee-profile-edit__header">
+      <p class="employee-profile-edit__label">
+        Employee administration
+      </p>
+
+      <h1 id="employee-profile-edit-title">
+        Edit Employee profile
+      </h1>
+
+      <p class="employee-profile-edit__description">
+        Update the Employee name and work email.
+      </p>
+    </header>
+
+    @if (submissionError(); as errorMessage) {
+      <section
+        class="submission-error"
+        role="alert"
+      >
+        <h2>Update unsuccessful</h2>
+        <p>{{ errorMessage }}</p>
+      </section>
+    }
+
+    <form
+      (ngSubmit)="submit()"
+      [formGroup]="profileForm"
+      class="profile-form"
+      novalidate
+    >
+      <section
+        aria-labelledby="profile-fields-title"
+        class="form-section"
+      >
+        <h2 id="profile-fields-title">
+          Profile information
+        </h2>
+
+        <div class="form-grid">
+          <div class="form-field">
+            <label for="first-name">
+              First name
+            </label>
+
+            <input
+              aria-describedby="first-name-error"
+              autocomplete="given-name"
+              formControlName="firstName"
+              id="first-name"
+              type="text"
+            >
+
+            @if (shouldShowError('firstName')) {
+              <p
+                class="field-error"
+                id="first-name-error"
+              >
+                @if (
+                  profileForm.controls.firstName.hasError(
+                    'required'
+                  )
+                  || profileForm.controls.firstName.hasError(
+                    'notBlank'
+                  )
+                  ) {
+                  First name is required.
+                } @else {
+                  First name must not exceed
+                  {{ updateConstraints.firstName.maxLength }}
+                  characters.
+                }
+              </p>
+            }
+          </div>
+
+          <div class="form-field">
+            <label for="last-name">
+              Last name
+            </label>
+
+            <input
+              aria-describedby="last-name-error"
+              autocomplete="family-name"
+              formControlName="lastName"
+              id="last-name"
+              type="text"
+            >
+
+            @if (shouldShowError('lastName')) {
+              <p
+                class="field-error"
+                id="last-name-error"
+              >
+                @if (
+                  profileForm.controls.lastName.hasError(
+                    'required'
+                  )
+                  || profileForm.controls.lastName.hasError(
+                    'notBlank'
+                  )
+                  ) {
+                  Last name is required.
+                } @else {
+                  Last name must not exceed
+                  {{ updateConstraints.lastName.maxLength }}
+                  characters.
+                }
+              </p>
+            }
+          </div>
+
+          <div class="form-field form-field--full-width">
+            <label for="work-email">
+              Work email
+            </label>
+
+            <input
+              aria-describedby="work-email-error"
+              autocomplete="email"
+              formControlName="workEmail"
+              id="work-email"
+              type="email"
+            >
+
+            @if (shouldShowError('workEmail')) {
+              <p
+                class="field-error"
+                id="work-email-error"
+              >
+                @if (
+                  profileForm.controls.workEmail.hasError(
+                    'required'
+                  )
+                  || profileForm.controls.workEmail.hasError(
+                    'notBlank'
+                  )
+                  ) {
+                  Work email is required.
+                } @else if (
+                  profileForm.controls.workEmail.hasError(
+                    'email'
+                  )
+                  ) {
+                  Enter a valid work email address.
+                } @else {
+                  Work email must not exceed
+                  {{ updateConstraints.workEmail.maxLength }}
+                  characters.
+                }
+              </p>
+            }
+          </div>
+        </div>
+      </section>
+
+      <footer class="form-actions">
+        <a
+          [routerLink]="[
+            '/admin/employees',
+            employeeId
+          ]"
+          class="button button--secondary"
+        >
+          Cancel
+        </a>
+
+        <button
+          [disabled]="submitting()"
+          class="button button--primary"
+          type="submit"
+        >
+          @if (submitting()) {
+            Saving...
+          } @else {
+            Save changes
+          }
+        </button>
+      </footer>
+    </form>
+  }
+</section>

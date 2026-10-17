@@ -1,0 +1,169 @@
+<section
+  aria-labelledby="employee-reactivate-title"
+  class="employee-reactivate"
+>
+  <a
+    [routerLink]="[
+      '/admin/employees',
+      employeeId
+    ]"
+    class="back-link"
+  >
+    ← Back to Employee details
+  </a>
+
+  @if (loading()) {
+    <p
+      class="state-message"
+      role="status"
+    >
+      Loading Employee...
+    </p>
+  } @else if (loadError(); as errorMessage) {
+    <section
+      class="state-panel state-panel--error"
+      role="alert"
+    >
+      <h1 id="employee-reactivate-title">
+        Employee unavailable
+      </h1>
+
+      <p>{{ errorMessage }}</p>
+
+      <button
+        (click)="retry()"
+        class="button button--primary"
+        type="button"
+      >
+        Try again
+      </button>
+    </section>
+  } @else if (employee(); as employeeRecord) {
+    <header class="employee-reactivate__header">
+      <p class="employee-reactivate__label">
+        Employee administration
+      </p>
+
+      <h1 id="employee-reactivate-title">
+        Reactivate Employee
+      </h1>
+
+      <p class="employee-reactivate__description">
+        Restore active employment for
+        {{ employeeRecord.firstName }}
+        {{ employeeRecord.lastName }}.
+      </p>
+    </header>
+
+    @if (employeeRecord.status === 'ACTIVE') {
+      <section
+        class="state-panel state-panel--success"
+        role="status"
+      >
+        <h2>Employee already active</h2>
+
+        <p>
+          This Employee is already active and does not require
+          reactivation.
+        </p>
+
+        <a
+          [routerLink]="[
+            '/admin/employees',
+            employeeRecord.id
+          ]"
+          class="button button--secondary"
+        >
+          Return to Employee details
+        </a>
+      </section>
+    } @else {
+      @if (submissionError(); as errorMessage) {
+        <section
+          class="submission-error"
+          role="alert"
+        >
+          <h2>Reactivation unsuccessful</h2>
+
+          <p>{{ errorMessage }}</p>
+        </section>
+      }
+
+      <section
+        aria-labelledby="reactivation-summary-title"
+        class="reactivation-card"
+      >
+        <h2 id="reactivation-summary-title">
+          Employment reactivation
+        </h2>
+
+        <p class="reactivation-card__description">
+          Reactivating the Employee changes the status to
+          <strong>ACTIVE</strong> and removes the previous
+          employment end date.
+        </p>
+
+        <dl class="employee-summary">
+          <div>
+            <dt>Employee number</dt>
+            <dd>{{ employeeRecord.employeeNumber }}</dd>
+          </div>
+
+          <div>
+            <dt>Current status</dt>
+            <dd>{{ employeeRecord.status }}</dd>
+          </div>
+
+          <div>
+            <dt>Previous employment end date</dt>
+            <dd>
+              {{
+                employeeRecord.employmentEndDate
+                ?? 'Not recorded'
+              }}
+            </dd>
+          </div>
+        </dl>
+      </section>
+
+      <section
+        aria-labelledby="reactivation-confirmation-title"
+        class="reactivation-confirmation"
+      >
+        <h2 id="reactivation-confirmation-title">
+          Confirm lifecycle change
+        </h2>
+
+        <p>
+          The Employee will become active again and can resume
+          Employee operations within the Bank System.
+        </p>
+      </section>
+
+      <footer class="form-actions">
+        <a
+          [routerLink]="[
+            '/admin/employees',
+            employeeRecord.id
+          ]"
+          class="button button--secondary"
+        >
+          Cancel
+        </a>
+
+        <button
+          (click)="reactivate()"
+          [disabled]="submitting()"
+          class="button button--primary"
+          type="button"
+        >
+          @if (submitting()) {
+            Reactivating...
+          } @else {
+            Reactivate Employee
+          }
+        </button>
+      </footer>
+    }
+  }
+</section>

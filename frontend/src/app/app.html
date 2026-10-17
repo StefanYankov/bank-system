@@ -7,6 +7,31 @@
       {{ title() }}
     </a>
 
+    @if (authSession.authenticated()) {
+      <nav
+        aria-label="Application navigation"
+        class="app-navigation"
+      >
+        @if (authSession.hasRealmRole('ADMIN')) {
+          <a
+            class="app-navigation__link"
+            routerLink="/admin/employees"
+            routerLinkActive="app-navigation__link--active"
+          >
+            Employee administration
+          </a>
+        }
+
+        <a
+          class="app-navigation__link"
+          routerLink="/current-employee"
+          routerLinkActive="app-navigation__link--active"
+        >
+          My profile
+        </a>
+      </nav>
+    }
+
     <div class="app-header__session">
       @if (authSession.authenticated()) {
         <div class="user-summary">
@@ -15,7 +40,9 @@
           </span>
 
           @if (authSession.hasRealmRole('ADMIN')) {
-            <span class="role-badge">ADMIN</span>
+            <span class="role-badge">
+              ADMIN
+            </span>
           }
         </div>
 
@@ -40,34 +67,41 @@
 </header>
 
 <main class="app-content">
-  <section
-    aria-labelledby="welcome-title"
-    class="welcome"
-  >
-    <p class="welcome__label">Staff application</p>
+  <router-outlet #outlet="outlet"></router-outlet>
 
-    <h1 id="welcome-title">Bank operations in one place</h1>
-
-    <p class="welcome__description">
-      Authentication is connected to Keycloak. Employee management will be
-      added in the next milestone.
-    </p>
-
-    <nav
-      aria-label="Authentication examples"
-      class="welcome__actions"
+  @if (!outlet.isActivated) {
+    <section
+      aria-labelledby="welcome-title"
+      class="welcome"
     >
-      <a routerLink="/protected">
-        Open protected page
-      </a>
+      <p class="welcome__label">
+        Staff application
+      </p>
+
+      <h1 id="welcome-title">
+        Bank operations in one place
+      </h1>
 
       @if (authSession.authenticated()) {
-        <a routerLink="/admin">
-          Open ADMIN page
-        </a>
+        <p class="welcome__description">
+          Use the navigation above to open your Employee profile
+          and access the operations permitted by your role.
+        </p>
+      } @else {
+        <p class="welcome__description">
+          Log in with your Bank System account to access staff operations.
+        </p>
       }
-    </nav>
-  </section>
-
-  <router-outlet />
+    </section>
+  }
 </main>
+
+<footer class="app-footer">
+  <div class="app-footer__content">
+    <span>Bank System</span>
+
+    <span aria-hidden="true">·</span>
+
+    <span>NBU CSCB634 capstone project</span>
+  </div>
+</footer>
