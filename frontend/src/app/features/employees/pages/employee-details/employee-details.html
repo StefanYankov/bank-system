@@ -28,9 +28,9 @@
       <p>{{ errorMessage }}</p>
 
       <button
-        (click)="retry()"
         class="button button--primary"
         type="button"
+        (click)="retry()"
       >
         Try again
       </button>
@@ -76,8 +76,8 @@
     </header>
 
     <section
-      aria-labelledby="employee-actions-title"
       class="employee-actions"
+      aria-labelledby="employee-actions-title"
     >
       <div>
         <h2 id="employee-actions-title">
@@ -91,14 +91,25 @@
 
       <div class="employee-actions__controls">
         <a
+          class="details-action"
           [routerLink]="[
             '/admin/employees',
             employeeRecord.id,
             'edit'
           ]"
-          class="details-action"
         >
           Edit profile
+        </a>
+
+        <a
+          class="details-action"
+          [routerLink]="[
+            '/admin/employees',
+            employeeRecord.id,
+            'position'
+          ]"
+        >
+          Change position
         </a>
       </div>
     </section>

@@ -31,6 +31,12 @@ export const employeeManagementRoutes: Routes = [
         .then((module) => module.EmployeeProfileEdit),
   },
   {
+    path: 'employees/:id/position',
+    loadComponent: () =>
+      import('./pages/employee-position-change/employee-position-change')
+        .then(module => module.EmployeePositionChange),
+  },
+  {
     path: 'employees/:id',
     loadComponent: () =>
       import('./pages/employee-details/employee-details')
