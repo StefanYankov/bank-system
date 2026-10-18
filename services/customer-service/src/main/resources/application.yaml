@@ -1,0 +1,19 @@
+spring:
+  application:
+    name: customer-service
+
+  main:
+    banner-mode: off
+
+  datasource:
+    url: ${CUSTOMER_DB_URL:jdbc:postgresql://localhost:5433/customer}
+    username: ${CUSTOMER_DB_USER}
+    password: ${CUSTOMER_DB_PASSWORD}
+
+  jpa:
+    open-in-view: false
+
+    hibernate:
+      ddl-auto: validate
+server:
+  port: 8082
