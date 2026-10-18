@@ -1,0 +1,27 @@
+package bg.nbu.banksystem.customer.domain;
+
+/**
+ * Length limits shared by Customer API validation and JPA mapping.
+ *
+ * <p>
+ * The Flyway migration repeats these values in SQL. Hibernate schema
+ * validation detects mismatches between the migration and entity mappings.
+ * </p>
+ */
+public final class CustomerConstraints {
+
+    public static final int CUSTOMER_NUMBER_MAX_LENGTH = 20;
+    public static final int CUSTOMER_TYPE_MAX_LENGTH = 20;
+
+    public static final int NAME_MAX_LENGTH = 100;
+    public static final int COMPANY_NAME_MAX_LENGTH = 200;
+
+    public static final int EMAIL_MAX_LENGTH = 254;
+    public static final int PHONE_MAX_LENGTH = 30;
+
+    public static final int EGN_LENGTH = 10;
+    public static final int EIK_MAX_LENGTH = 13;
+
+    private CustomerConstraints() {
+    }
+}
