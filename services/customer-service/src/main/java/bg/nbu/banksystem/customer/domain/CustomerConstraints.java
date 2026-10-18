@@ -22,6 +22,11 @@ public final class CustomerConstraints {
     public static final int EGN_LENGTH = 10;
     public static final int EIK_MAX_LENGTH = 13;
 
+    public static final int COUNTRY_CODE_LENGTH = 2;
+    public static final int CITY_MAX_LENGTH = 100;
+    public static final int POSTAL_CODE_MAX_LENGTH = 20;
+    public static final int ADDRESS_LINE_MAX_LENGTH = 200;
+
     private CustomerConstraints() {
     }
 }

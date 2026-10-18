@@ -1,5 +1,6 @@
 package bg.nbu.banksystem.customer.domain;
 
+import org.jspecify.annotations.Nullable;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -11,6 +12,7 @@ import java.util.stream.Stream;
 
 import static org.assertj.core.api.Assertions.assertThat;
 import static org.assertj.core.api.Assertions.assertThatIllegalArgumentException;
+import static org.assertj.core.api.Assertions.assertThatNullPointerException;
 
 @DisplayName("IndividualCustomer (unit)")
 class IndividualCustomerTest {
@@ -24,11 +26,21 @@ class IndividualCustomerTest {
     private static final String EGN = "9001010000";
 
     private static IndividualCustomer registerIndividualCustomer() {
-        return IndividualCustomer.register(CUSTOMER_NUMBER, EMAIL, PHONE, FIRST_NAME, MIDDLE_NAME, LAST_NAME, EGN);
+        return IndividualCustomer.register(CUSTOMER_NUMBER, EMAIL, PHONE, FIRST_NAME, MIDDLE_NAME, LAST_NAME, EGN,
+                residentialAddressFixture());
+    }
+
+    private static Address residentialAddressFixture() {
+        return Address.of("BG", "Sofia", "1000", "1 Alexander Battenberg Square", null);
     }
 
     static Stream<Arguments> invalidRegistrationData() {
-        return Stream.of(Arguments.of("customerNumber", null, EMAIL, PHONE, FIRST_NAME, LAST_NAME, EGN), Arguments.of("email", CUSTOMER_NUMBER, "   ", PHONE, FIRST_NAME, LAST_NAME, EGN), Arguments.of("phone", CUSTOMER_NUMBER, EMAIL, "", FIRST_NAME, LAST_NAME, EGN), Arguments.of("firstName", CUSTOMER_NUMBER, EMAIL, PHONE, null, LAST_NAME, EGN), Arguments.of("lastName", CUSTOMER_NUMBER, EMAIL, PHONE, FIRST_NAME, "   ", EGN), Arguments.of("egn", CUSTOMER_NUMBER, EMAIL, PHONE, FIRST_NAME, LAST_NAME, ""));
+        return Stream.of(Arguments.of("customerNumber", null, EMAIL, PHONE, FIRST_NAME, LAST_NAME, EGN),
+                Arguments.of("email", CUSTOMER_NUMBER, "   ", PHONE, FIRST_NAME, LAST_NAME, EGN),
+                Arguments.of("phone", CUSTOMER_NUMBER, EMAIL, "", FIRST_NAME, LAST_NAME, EGN),
+                Arguments.of("firstName", CUSTOMER_NUMBER, EMAIL, PHONE, null, LAST_NAME, EGN),
+                Arguments.of("lastName", CUSTOMER_NUMBER, EMAIL, PHONE, FIRST_NAME, "   ", EGN),
+                Arguments.of("egn", CUSTOMER_NUMBER, EMAIL, PHONE, FIRST_NAME, LAST_NAME, ""));
     }
 
     static Stream<Arguments> invalidNameUpdateData() {
@@ -46,8 +58,12 @@ class IndividualCustomerTest {
         @Test
         @DisplayName("Happy Path: Should register an individual Customer with an assigned UUIDv7")
         void shouldRegisterIndividualCustomer() {
+            // Arrange
+            Address residentialAddress = residentialAddressFixture();
+
             // Act
-            IndividualCustomer customer = registerIndividualCustomer();
+            IndividualCustomer customer = IndividualCustomer.register(CUSTOMER_NUMBER, EMAIL, PHONE, FIRST_NAME,
+                    MIDDLE_NAME, LAST_NAME, EGN, residentialAddress);
 
             // Assert
             assertThat(customer.getId()).isNotNull();
@@ -60,6 +76,7 @@ class IndividualCustomerTest {
             assertThat(customer.getMiddleName()).isEqualTo(MIDDLE_NAME);
             assertThat(customer.getLastName()).isEqualTo(LAST_NAME);
             assertThat(customer.getEgn()).isEqualTo(EGN);
+            assertThat(customer.getResidentialAddress()).isSameAs(residentialAddress);
         }
 
         @Test
@@ -67,6 +84,7 @@ class IndividualCustomerTest {
         void shouldAssignDifferentUuidToEveryCustomer() {
             // Act
             IndividualCustomer firstCustomer = registerIndividualCustomer();
+
             IndividualCustomer secondCustomer = registerIndividualCustomer();
 
             // Assert
@@ -76,8 +94,13 @@ class IndividualCustomerTest {
         @Test
         @DisplayName("Edge Case: Should trim text and normalize the email")
         void shouldNormalizeRegistrationData() {
+            // Arrange
+            Address residentialAddress = residentialAddressFixture();
+
             // Act
-            IndividualCustomer customer = IndividualCustomer.register("  CUS-000001  ", "  Serafim.Gerasimoff@Example.COM  ", "  +359888123456  ", "  Serafim  ", "  Ivanov  ", "  Gerasimoff  ", "  9001010000  ");
+            IndividualCustomer customer = IndividualCustomer.register("  CUS-000001  ",
+                    "  Serafim.Gerasimoff@Example.COM  ", "  +359888123456  ", "  Serafim  ", "  Ivanov  ",
+                    "  Gerasimoff  ", "  9001010000  ", residentialAddress);
 
             // Assert
             assertThat(customer.getCustomerNumber()).isEqualTo(CUSTOMER_NUMBER);
@@ -87,13 +110,15 @@ class IndividualCustomerTest {
             assertThat(customer.getMiddleName()).isEqualTo(MIDDLE_NAME);
             assertThat(customer.getLastName()).isEqualTo(LAST_NAME);
             assertThat(customer.getEgn()).isEqualTo(EGN);
+            assertThat(customer.getResidentialAddress()).isSameAs(residentialAddress);
         }
 
         @Test
         @DisplayName("Edge Case: Should store a blank middle name as null")
         void shouldNormalizeBlankMiddleNameToNull() {
             // Act
-            IndividualCustomer customer = IndividualCustomer.register(CUSTOMER_NUMBER, EMAIL, PHONE, FIRST_NAME, "   ", LAST_NAME, EGN);
+            IndividualCustomer customer = IndividualCustomer.register(CUSTOMER_NUMBER, EMAIL, PHONE, FIRST_NAME, "   ",
+                    LAST_NAME, EGN, residentialAddressFixture());
 
             // Assert
             assertThat(customer.getMiddleName()).isNull();
@@ -103,7 +128,8 @@ class IndividualCustomerTest {
         @DisplayName("Edge Case: Should allow a missing middle name")
         void shouldAllowMissingMiddleName() {
             // Act
-            IndividualCustomer customer = IndividualCustomer.register(CUSTOMER_NUMBER, EMAIL, PHONE, FIRST_NAME, null, LAST_NAME, EGN);
+            IndividualCustomer customer = IndividualCustomer.register(CUSTOMER_NUMBER, EMAIL, PHONE, FIRST_NAME, null,
+                    LAST_NAME, EGN, residentialAddressFixture());
 
             // Assert
             assertThat(customer.getMiddleName()).isNull();
@@ -112,9 +138,22 @@ class IndividualCustomerTest {
         @ParameterizedTest(name = "Error Case: Should reject invalid {0}")
         @MethodSource("bg.nbu.banksystem.customer.domain." + "IndividualCustomerTest#invalidRegistrationData")
         @DisplayName("Error Case: Should reject missing mandatory text")
-        void shouldRejectInvalidMandatoryText(String field, String customerNumber, String email, String phone, String firstName, String lastName, String egn) {
+        void shouldRejectInvalidMandatoryText(String field, @Nullable String customerNumber, @Nullable String email,
+                                              @Nullable String phone, @Nullable String firstName,
+                                              @Nullable String lastName, @Nullable String egn) {
             // Act & Assert
-            assertThatIllegalArgumentException().isThrownBy(() -> IndividualCustomer.register(customerNumber, email, phone, firstName, MIDDLE_NAME, lastName, egn)).withMessageContaining(field);
+            assertThatIllegalArgumentException().isThrownBy(
+                    () -> IndividualCustomer.register(customerNumber, email, phone, firstName, MIDDLE_NAME, lastName,
+                            egn, residentialAddressFixture())).withMessageContaining(field);
+        }
+
+        @Test
+        @DisplayName("Error Case: Should reject a missing residential address")
+        void shouldRejectMissingResidentialAddress() {
+            // Act & Assert
+            assertThatNullPointerException().isThrownBy(
+                    () -> IndividualCustomer.register(CUSTOMER_NUMBER, EMAIL, PHONE, FIRST_NAME, MIDDLE_NAME, LAST_NAME,
+                            EGN, null)).withMessage("residentialAddress must not be null");
         }
     }
 
@@ -151,26 +190,54 @@ class IndividualCustomerTest {
             assertThat(customer.getPhone()).isEqualTo("+359888654321");
         }
 
-        @ParameterizedTest(name = "Error Case: Should reject invalid {0}")
-        @MethodSource("bg.nbu.banksystem.customer.domain." + "IndividualCustomerTest#invalidNameUpdateData")
-        @DisplayName("Error Case: Should reject invalid mandatory names")
-        void shouldRejectInvalidNameUpdate(String field, String firstName, String lastName) {
+        @Test
+        @DisplayName("Happy Path: Should replace the residential address")
+        void shouldChangeResidentialAddress() {
+            // Arrange
+            IndividualCustomer customer = registerIndividualCustomer();
+
+            Address newAddress = Address.of("BG", "Plovdiv", "4000", "1 Central Square", null);
+
+            // Act
+            customer.changeResidentialAddress(newAddress);
+
+            // Assert
+            assertThat(customer.getResidentialAddress()).isSameAs(newAddress);
+        }
+
+        @Test
+        @DisplayName("Error Case: Should reject a missing residential address update")
+        void shouldRejectMissingResidentialAddressUpdate() {
             // Arrange
             IndividualCustomer customer = registerIndividualCustomer();
 
             // Act & Assert
-            assertThatIllegalArgumentException().isThrownBy(() -> customer.updateName(firstName, MIDDLE_NAME, lastName)).withMessageContaining(field);
+            assertThatNullPointerException().isThrownBy(() -> customer.changeResidentialAddress(null))
+                    .withMessage("residentialAddress must not be null");
+        }
+
+        @ParameterizedTest(name = "Error Case: Should reject invalid {0}")
+        @MethodSource("bg.nbu.banksystem.customer.domain." + "IndividualCustomerTest#invalidNameUpdateData")
+        @DisplayName("Error Case: Should reject invalid mandatory names")
+        void shouldRejectInvalidNameUpdate(String field, @Nullable String firstName, @Nullable String lastName) {
+            // Arrange
+            IndividualCustomer customer = registerIndividualCustomer();
+
+            // Act & Assert
+            assertThatIllegalArgumentException().isThrownBy(() -> customer.updateName(firstName, MIDDLE_NAME, lastName))
+                    .withMessageContaining(field);
         }
 
         @ParameterizedTest(name = "Error Case: Should reject invalid {0}")
         @MethodSource("bg.nbu.banksystem.customer.domain." + "IndividualCustomerTest#invalidContactUpdateData")
         @DisplayName("Error Case: Should reject invalid contact information")
-        void shouldRejectInvalidContactUpdate(String field, String email, String phone) {
+        void shouldRejectInvalidContactUpdate(String field, @Nullable String email, @Nullable String phone) {
             // Arrange
             IndividualCustomer customer = registerIndividualCustomer();
 
             // Act & Assert
-            assertThatIllegalArgumentException().isThrownBy(() -> customer.updateContactInformation(email, phone)).withMessageContaining(field);
+            assertThatIllegalArgumentException().isThrownBy(() -> customer.updateContactInformation(email, phone))
+                    .withMessageContaining(field);
         }
     }
 }
