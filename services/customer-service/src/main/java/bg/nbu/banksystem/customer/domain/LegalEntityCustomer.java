@@ -2,15 +2,21 @@ package bg.nbu.banksystem.customer.domain;
 
 import bg.nbu.banksystem.common.Identifiers;
 import jakarta.persistence.AttributeOverride;
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.DiscriminatorValue;
 import jakarta.persistence.Embedded;
 import jakarta.persistence.Entity;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 import lombok.AccessLevel;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
+import org.jspecify.annotations.Nullable;
 
+import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -45,16 +51,17 @@ public class LegalEntityCustomer extends Customer {
     @AttributeOverride(name = "addressLine2", column = @Column(name = "correspondence_address_line_2", length = CustomerConstraints.ADDRESS_LINE_MAX_LENGTH))
     private Address correspondenceAddress;
 
+    @OneToMany(mappedBy = "legalEntityCustomer", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
+    @Getter(AccessLevel.NONE)
+    private final List<Representative> representatives = new ArrayList<>();
+
     private LegalEntityCustomer(String customerNumber, String email, String phone, String companyName, String eik,
                                 Address registeredAddress, Address correspondenceAddress) {
         super(Identifiers.newUuid(), customerNumber, email, phone);
 
         this.companyName = requireText(companyName, "companyName");
-
         this.eik = requireText(eik, "eik");
-
         this.registeredAddress = Objects.requireNonNull(registeredAddress, "registeredAddress must not be null");
-
         this.correspondenceAddress = Objects.requireNonNull(correspondenceAddress,
                 "correspondenceAddress must not be null");
     }
@@ -80,6 +87,37 @@ public class LegalEntityCustomer extends Customer {
     @Override
     public CustomerType getCustomerType() {
         return CustomerType.LEGAL_ENTITY;
+    }
+
+    /**
+     * Returns a read-only snapshot of the Representatives.
+     *
+     * @return current Representative collection
+     */
+    public List<Representative> getRepresentatives() {
+        return List.copyOf(representatives);
+    }
+
+    /**
+     * Adds a Representative to this legal entity.
+     *
+     * @param individualCustomer optional linked individual Customer
+     * @param firstName          representative first name
+     * @param middleName         optional representative middle name
+     * @param lastName           representative last name
+     * @param role               representation role
+     * @param validFrom          first valid date
+     * @return the newly added Representative
+     */
+    public Representative addRepresentative(@Nullable IndividualCustomer individualCustomer, String firstName,
+                                            @Nullable String middleName, String lastName, RepresentativeRole role,
+                                            LocalDate validFrom) {
+        Representative representative = Representative.create(this, individualCustomer, firstName, middleName, lastName,
+                role, validFrom);
+
+        representatives.add(representative);
+
+        return representative;
     }
 
     public void updateCompanyName(String companyName) {

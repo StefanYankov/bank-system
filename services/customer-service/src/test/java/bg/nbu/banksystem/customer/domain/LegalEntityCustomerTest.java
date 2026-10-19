@@ -171,7 +171,6 @@ class LegalEntityCustomerTest {
 
             // Assert
             assertThat(customer.getEmail()).isEqualTo("office@starter.example");
-
             assertThat(customer.getPhone()).isEqualTo("+35929204321");
         }
 

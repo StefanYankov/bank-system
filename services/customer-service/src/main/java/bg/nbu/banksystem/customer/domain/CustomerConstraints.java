@@ -27,6 +27,8 @@ public final class CustomerConstraints {
     public static final int POSTAL_CODE_MAX_LENGTH = 20;
     public static final int ADDRESS_LINE_MAX_LENGTH = 200;
 
+    public static final int REPRESENTATIVE_ROLE_MAX_LENGTH = 40;
+
     private CustomerConstraints() {
     }
 }
