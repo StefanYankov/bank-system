@@ -12,22 +12,6 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 @DisplayName("LegalEntityCustomer representatives (unit)")
 class LegalEntityRepresentativeTest {
 
-    private static final LocalDate VALID_FROM = LocalDate.of(2026, 1, 1);
-
-    private static LegalEntityCustomer legalEntityFixture() {
-        return LegalEntityCustomer.register("CUS-000002", "contact@starter.example", "+35929201234",
-                "Starter Financial Services", "123456789", registeredAddressFixture(),
-                correspondenceAddressFixture());
-    }
-
-    private static Address registeredAddressFixture() {
-        return Address.of("BG", "Sofia", "1000", "1 Alexander Battenberg Square", null);
-    }
-
-    private static Address correspondenceAddressFixture() {
-        return Address.of("BG", "Sofia", "1000", "10 Business Park Street", "Office 4");
-    }
-
     @Test
     @DisplayName("Happy Path: Should synchronize both sides when adding a Representative")
     void shouldSynchronizeRepresentativeRelationship() {
@@ -111,5 +95,20 @@ class LegalEntityRepresentativeTest {
         // Assert
         assertThat(firstSnapshot).containsExactly(firstRepresentative);
         assertThat(customer.getRepresentatives()).containsExactly(firstRepresentative, secondRepresentative);
+    }
+
+    private static final LocalDate VALID_FROM = LocalDate.of(2026, 1, 1);
+
+    private static LegalEntityCustomer legalEntityFixture() {
+        return LegalEntityCustomer.register("CUS-000002", "contact@starter.example", "+35929201234",
+                "Starter Financial Services", "123456786", registeredAddressFixture(), correspondenceAddressFixture());
+    }
+
+    private static Address registeredAddressFixture() {
+        return Address.of("BG", "Sofia", "1000", "1 Alexander Battenberg Square", null);
+    }
+
+    private static Address correspondenceAddressFixture() {
+        return Address.of("BG", "Sofia", "1000", "10 Business Park Street", "Office 4");
     }
 }

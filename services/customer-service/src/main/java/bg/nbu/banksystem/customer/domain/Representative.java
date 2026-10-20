@@ -1,6 +1,7 @@
 package bg.nbu.banksystem.customer.domain;
 
 import bg.nbu.banksystem.common.Identifiers;
+import bg.nbu.banksystem.starter.error.DomainException;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.EnumType;
@@ -83,33 +84,6 @@ public class Representative extends BaseEntity {
         return value.trim();
     }
 
-    private static @Nullable String normalizeOptionalText(@Nullable String value) {
-        if (value == null || value.isBlank()) {
-            return null;
-        }
-
-        return value.trim();
-    }
-
-    /**
-     * Ends the Representative's authority on the supplied date.
-     *
-     * @param validTo final date of representation
-     */
-    public void endRepresentation(LocalDate validTo) {
-        Objects.requireNonNull(validTo, "validTo must not be null");
-
-        if (validTo.isBefore(validFrom)) {
-            throw new IllegalArgumentException("validTo must not be before validFrom");
-        }
-
-        if (this.validTo != null) {
-            throw new IllegalStateException("representation has already ended");
-        }
-
-        this.validTo = validTo;
-    }
-
     /**
      * Indicates whether the representation is active on the supplied date.
      *
@@ -128,5 +102,36 @@ public class Representative extends BaseEntity {
         }
 
         return !date.isAfter(validTo);
+    }
+
+    private static @Nullable String normalizeOptionalText(@Nullable String value) {
+        if (value == null || value.isBlank()) {
+            return null;
+        }
+
+        return value.trim();
+    }
+
+    /**
+     * Ends the Representative's authority on the supplied date.
+     *
+     * @param validTo final date of representation
+     * @throws DomainException with {@link CustomerErrorCode#REPRESENTATION_ALREADY_ENDED}
+     *                         if the representation has already ended, or with
+     *                         {@link CustomerErrorCode#INVALID_REPRESENTATION_PERIOD}
+     *                         if the end date precedes the start date
+     */
+    void endRepresentation(LocalDate validTo) {
+        Objects.requireNonNull(validTo, "validTo must not be null");
+
+        if (this.validTo != null) {
+            throw new DomainException(CustomerErrorCode.REPRESENTATION_ALREADY_ENDED);
+        }
+
+        if (validTo.isBefore(validFrom)) {
+            throw new DomainException(CustomerErrorCode.INVALID_REPRESENTATION_PERIOD);
+        }
+
+        this.validTo = validTo;
     }
 }

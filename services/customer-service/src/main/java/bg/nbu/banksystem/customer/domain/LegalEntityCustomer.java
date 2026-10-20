@@ -1,6 +1,7 @@
 package bg.nbu.banksystem.customer.domain;
 
 import bg.nbu.banksystem.common.Identifiers;
+import bg.nbu.banksystem.starter.error.DomainException;
 import jakarta.persistence.AttributeOverride;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
@@ -18,6 +19,7 @@ import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * Customer representing a legal entity identified by EIK.
@@ -32,7 +34,7 @@ public class LegalEntityCustomer extends Customer {
     @Column(name = "company_name", nullable = false, length = CustomerConstraints.COMPANY_NAME_MAX_LENGTH)
     private String companyName;
 
-    @Column(name = "eik", nullable = false, updatable = false, unique = true, length = CustomerConstraints.EIK_MAX_LENGTH)
+    @Column(name = "eik", nullable = false, unique = true, length = CustomerConstraints.EIK_LENGTH)
     private String eik;
 
     @Embedded
@@ -60,8 +62,10 @@ public class LegalEntityCustomer extends Customer {
         super(Identifiers.newUuid(), customerNumber, email, phone);
 
         this.companyName = requireText(companyName, "companyName");
-        this.eik = requireText(eik, "eik");
+        this.eik = Eiks.normalize(eik);
+
         this.registeredAddress = Objects.requireNonNull(registeredAddress, "registeredAddress must not be null");
+
         this.correspondenceAddress = Objects.requireNonNull(correspondenceAddress,
                 "correspondenceAddress must not be null");
     }
@@ -73,7 +77,7 @@ public class LegalEntityCustomer extends Customer {
      * @param email                 Customer email
      * @param phone                 Customer phone
      * @param companyName           registered company name
-     * @param eik                   immutable Bulgarian legal-entity identifier
+     * @param eik                   9-digit Bulgarian legal-entity identifier
      * @param registeredAddress     registered company address
      * @param correspondenceAddress correspondence address
      * @return registered legal-entity Customer
@@ -84,34 +88,97 @@ public class LegalEntityCustomer extends Customer {
                 correspondenceAddress);
     }
 
+    /**
+     * Returns the concrete Customer type.
+     *
+     * @return legal-entity Customer type
+     */
     @Override
     public CustomerType getCustomerType() {
         return CustomerType.LEGAL_ENTITY;
     }
 
     /**
-     * Returns a read-only snapshot of the Representatives.
+     * Returns a read-only snapshot of all Representatives, including ended ones.
      *
-     * @return current Representative collection
+     * @return current and historical Representatives
      */
     public List<Representative> getRepresentatives() {
         return List.copyOf(representatives);
     }
 
     /**
+     * Updates the registered company name.
+     *
+     * @param companyName new registered company name
+     * @throws DomainException with {@link CustomerErrorCode#CUSTOMER_CLOSED}
+     *                         if the Customer is closed
+     */
+    public void updateCompanyName(String companyName) {
+        ensureActive();
+
+        this.companyName = requireText(companyName, "companyName");
+    }
+
+    /**
+     * Corrects an EIK entered incorrectly at registration.
+     *
+     * @param eik the correct EIK
+     * @throws DomainException with {@link CustomerErrorCode#CUSTOMER_CLOSED}
+     *                         if the Customer is closed
+     */
+    public void correctEik(String eik) {
+        ensureActive();
+
+        this.eik = Eiks.normalize(eik);
+    }
+
+    /**
+     * Replaces the registered address.
+     *
+     * @param registeredAddress new registered address
+     * @throws DomainException with {@link CustomerErrorCode#CUSTOMER_CLOSED}
+     *                         if the Customer is closed
+     */
+    public void changeRegisteredAddress(Address registeredAddress) {
+        ensureActive();
+
+        this.registeredAddress = Objects.requireNonNull(registeredAddress, "registeredAddress must not be null");
+    }
+
+    /**
+     * Replaces the correspondence address.
+     *
+     * @param correspondenceAddress new correspondence address
+     * @throws DomainException with {@link CustomerErrorCode#CUSTOMER_CLOSED}
+     *                         if the Customer is closed
+     */
+    public void changeCorrespondenceAddress(Address correspondenceAddress) {
+        ensureActive();
+
+        this.correspondenceAddress = Objects.requireNonNull(correspondenceAddress,
+                "correspondenceAddress must not be null");
+    }
+
+    /**
      * Adds a Representative to this legal entity.
      *
-     * @param individualCustomer optional linked individual Customer
+     *
+     * @param individualCustomer optional link to an existing individual Customer
      * @param firstName          representative first name
      * @param middleName         optional representative middle name
      * @param lastName           representative last name
      * @param role               representation role
      * @param validFrom          first valid date
      * @return the newly added Representative
+     * @throws DomainException with {@link CustomerErrorCode#CUSTOMER_CLOSED}
+     *                         if the Customer is closed
      */
     public Representative addRepresentative(@Nullable IndividualCustomer individualCustomer, String firstName,
                                             @Nullable String middleName, String lastName, RepresentativeRole role,
                                             LocalDate validFrom) {
+        ensureActive();
+
         Representative representative = Representative.create(this, individualCustomer, firstName, middleName, lastName,
                 role, validFrom);
 
@@ -120,26 +187,34 @@ public class LegalEntityCustomer extends Customer {
         return representative;
     }
 
-    public void updateCompanyName(String companyName) {
-        this.companyName = requireText(companyName, "companyName");
+    /**
+     * Ends a Representative's authority on the supplied date.
+     *
+     * @param representativeId identifier of a Representative of this legal entity
+     * @param validTo          final date of representation
+     * @throws DomainException with {@link CustomerErrorCode#CUSTOMER_CLOSED}
+     *                         if the Customer is closed, with
+     *                         {@link CustomerErrorCode#REPRESENTATIVE_NOT_FOUND}
+     *                         if the Representative does not belong to this legal
+     *                         entity, or with a Representative period error
+     */
+    public void endRepresentation(UUID representativeId, LocalDate validTo) {
+        ensureActive();
+
+        Representative representative = findRepresentative(representativeId);
+
+        representative.endRepresentation(validTo);
     }
 
-    /**
-     * Replaces the registered address.
-     *
-     * @param registeredAddress new registered address
-     */
-    public void changeRegisteredAddress(Address registeredAddress) {
-        this.registeredAddress = Objects.requireNonNull(registeredAddress, "registeredAddress must not be null");
-    }
+    private Representative findRepresentative(UUID representativeId) {
+        Objects.requireNonNull(representativeId, "representativeId must not be null");
 
-    /**
-     * Replaces the correspondence address.
-     *
-     * @param correspondenceAddress new correspondence address
-     */
-    public void changeCorrespondenceAddress(Address correspondenceAddress) {
-        this.correspondenceAddress = Objects.requireNonNull(correspondenceAddress,
-                "correspondenceAddress must not be null");
+        for (Representative representative : representatives) {
+            if (representative.getId().equals(representativeId)) {
+                return representative;
+            }
+        }
+
+        throw new DomainException(CustomerErrorCode.REPRESENTATIVE_NOT_FOUND);
     }
 }
