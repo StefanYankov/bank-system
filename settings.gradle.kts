@@ -7,7 +7,7 @@ include("libs:common-identifiers")
 
 // --- Business services ---
 include("services:employee-service")
-// include("services:customer-service")
+include("services:customer-service")
 // include("services:account-service")
 // include("services:loan-service")
 
