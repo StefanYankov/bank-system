@@ -1,5 +1,6 @@
 package bg.nbu.banksystem.customer.application;
 
+import bg.nbu.banksystem.customer.application.dto.AddressDto;
 import bg.nbu.banksystem.customer.application.dto.AddressViewDto;
 import bg.nbu.banksystem.customer.application.dto.CustomerSummaryDto;
 import bg.nbu.banksystem.customer.application.dto.IndividualCustomerViewDto;
@@ -80,5 +81,16 @@ public interface CustomerMapper {
         }
 
         throw new IllegalArgumentException("Unsupported Customer type: " + customer.getClass().getName());
+    }
+
+    /**
+     * Converts an address request to the domain value object, which validates and normalizes it.
+     *
+     * @param address the address request
+     * @return the Address
+     */
+    default Address toAddress(AddressDto address) {
+        return Address.of(address.countryCode(), address.city(), address.postalCode(), address.addressLine1(),
+                address.addressLine2());
     }
 }
