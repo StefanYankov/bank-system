@@ -50,6 +50,36 @@ class SearchTermsTest {
     }
 
     @Test
+    @DisplayName("Happy Path: Should keep Cyrillic terms unchanged")
+    void shouldKeepCyrillicTerms() {
+        // Act
+        List<String> terms = SearchTerms.parse("Серафим Герасимов");
+
+        // Assert
+        assertThat(terms).containsExactly("Серафим", "Герасимов");
+    }
+
+    @Test
+    @DisplayName("Edge Case: Should return wildcard and escape characters unchanged")
+    void shouldKeepSpecialCharacters() {
+        // Act
+        List<String> terms = SearchTerms.parse("50% a_b c\\d");
+
+        // Assert
+        assertThat(terms).containsExactly("50%", "a_b", "c\\d");
+    }
+
+    @Test
+    @DisplayName("Edge Case: Should keep duplicate terms")
+    void shouldKeepDuplicateTerms() {
+        // Act
+        List<String> terms = SearchTerms.parse("Ivan Ivan");
+
+        // Assert
+        assertThat(terms).containsExactly("Ivan", "Ivan");
+    }
+
+    @Test
     @DisplayName("Edge Case: Should accept exactly the maximum number of terms")
     void shouldAcceptMaximumTerms() {
         // Act
@@ -60,11 +90,21 @@ class SearchTermsTest {
     }
 
     @Test
+    @DisplayName("Edge Case: Should not count repeated whitespace towards the term limit")
+    void shouldIgnoreRepeatedWhitespaceForLimit() {
+        // Act
+        List<String> terms = SearchTerms.parse("one    two\t\tthree  four   five");
+
+        // Assert
+        assertThat(terms).containsExactly("one", "two", "three", "four", "five");
+    }
+
+    @Test
     @DisplayName("Error Case: Should reject more than the maximum number of terms")
     void shouldRejectTooManyTerms() {
         // Act & Assert
-        assertThatThrownBy(() -> SearchTerms.parse("one two three four five six"))
-                .isInstanceOfSatisfying(DomainException.class, exception -> {
+        assertThatThrownBy(() -> SearchTerms.parse("one two three four five six")).isInstanceOfSatisfying(
+                DomainException.class, exception -> {
                     assertThat(exception.getErrorCode()).isEqualTo(CustomerErrorCode.INVALID_SEARCH_QUERY);
                     assertThat(exception.getDetail()).contains(String.valueOf(SearchTerms.MAX_TERMS));
                 });
