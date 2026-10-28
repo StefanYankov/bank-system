@@ -66,40 +66,6 @@ class CustomerRepositoryTest {
     @Autowired
     private JdbcClient jdbcClient;
 
-    private static IndividualCustomer individualCustomer(String customerNumber, String egn) {
-        return IndividualCustomer.register(customerNumber, "serafim.gerasimoff@example.com", "+359888123456", "Serafim",
-                "Ivanov", "Gerasimoff", egn, residentialAddress());
-    }
-
-    private static LegalEntityCustomer legalEntityCustomer(String customerNumber, String eik) {
-        return LegalEntityCustomer.register(customerNumber, "contact@starter.example", "+35929201234", COMPANY_NAME,
-                eik, registeredAddress(), correspondenceAddress());
-    }
-
-    private static Representative addLegalRepresentative(LegalEntityCustomer company,
-                                                         @Nullable IndividualCustomer individualCustomer) {
-        return company.addRepresentative(individualCustomer, "Serafim", "Ivanov", "Gerasimoff",
-                RepresentativeRole.LEGAL_REPRESENTATIVE, VALID_FROM);
-    }
-
-    private static Address residentialAddress() {
-        return Address.of("BG", "Sofia", "1000", "1 Alexander Battenberg Square", null);
-    }
-
-    private static Address registeredAddress() {
-        return Address.of("BG", "Sofia", "1000", "1 Alexander Battenberg Square", null);
-    }
-
-    private static Address correspondenceAddress() {
-        return Address.of("BG", "Sofia", "1000", "10 Business Park Street", "Office 4");
-    }
-
-    private static JwtAuthenticationToken authenticatedJwt(String subject) {
-        Jwt jwt = Jwt.withTokenValue("test-token").header("alg", "none").subject(subject).build();
-
-        return new JwtAuthenticationToken(jwt, List.of());
-    }
-
     @AfterEach
     void clearSecurityContext() {
         SecurityContextHolder.clearContext();
@@ -196,68 +162,9 @@ class CustomerRepositoryTest {
         }
     }
 
-    @Nested
-    @DisplayName("Representatives")
-    class Representatives {
-
-        @Test
-        @DisplayName("Happy Path: Should persist a Representative through the legal-entity cascade")
-        void shouldPersistRepresentativeThroughCascade() {
-            // Arrange
-            LegalEntityCustomer company = legalEntityCustomer("CUS-000007", EIK);
-            Representative representative = addLegalRepresentative(company, null);
-
-            // Act
-            customerRepository.saveAndFlush(company);
-            entityManager.clear();
-
-            // Assert
-            LegalEntityCustomer reloaded = reloadLegalEntity(company.getId());
-            assertThat(reloaded.getRepresentatives()).singleElement().satisfies(saved -> {
-                assertThat(saved.getId()).isEqualTo(representative.getId());
-                assertThat(saved.getRole()).isEqualTo(RepresentativeRole.LEGAL_REPRESENTATIVE);
-                assertThat(saved.getValidFrom()).isEqualTo(VALID_FROM);
-                assertThat(saved.getIndividualCustomer()).isNull();
-            });
-        }
-
-        @Test
-        @DisplayName("Happy Path: Should persist the optional link to an individual Customer")
-        void shouldPersistLinkToIndividualCustomer() {
-            // Arrange
-            IndividualCustomer individual = individualCustomer("CUS-000008", EGN);
-            customerRepository.saveAndFlush(individual);
-            LegalEntityCustomer company = legalEntityCustomer("CUS-000009", EIK);
-            addLegalRepresentative(company, individual);
-
-            // Act
-            customerRepository.saveAndFlush(company);
-            entityManager.clear();
-
-            // Assert
-            LegalEntityCustomer reloaded = reloadLegalEntity(company.getId());
-            assertThat(reloaded.getRepresentatives().getFirst().getIndividualCustomer().getId()).isEqualTo(
-                    individual.getId());
-        }
-
-        @Test
-        @DisplayName("Happy Path: Should keep an ended Representative in the history")
-        void shouldKeepEndedRepresentative() {
-            // Arrange
-            LegalEntityCustomer company = legalEntityCustomer("CUS-000010", EIK);
-            Representative representative = addLegalRepresentative(company, null);
-            customerRepository.saveAndFlush(company);
-
-            // Act
-            company.endRepresentation(representative.getId(), VALID_TO);
-            customerRepository.flush();
-            entityManager.clear();
-
-            // Assert
-            LegalEntityCustomer reloaded = reloadLegalEntity(company.getId());
-            assertThat(reloaded.getRepresentatives()).singleElement()
-                    .satisfies(saved -> assertThat(saved.getValidTo()).isEqualTo(VALID_TO));
-        }
+    private static IndividualCustomer individualCustomer(String customerNumber, String egn) {
+        return IndividualCustomer.register(customerNumber, "serafim.gerasimoff@example.com", "+359888123456", "Serafim",
+                "Ivanov", "Gerasimoff", egn, residentialAddress());
     }
 
     @Nested
@@ -410,6 +317,127 @@ class CustomerRepositoryTest {
             assertThat(customer).isEqualTo(proxy);
             assertThat(proxy).isEqualTo(customer);
             assertThat(customer.hashCode()).isEqualTo(proxy.hashCode());
+        }
+    }
+
+    private static LegalEntityCustomer legalEntityCustomer(String customerNumber, String eik) {
+        return LegalEntityCustomer.register(customerNumber, "contact@starter.example", "+35929201234", COMPANY_NAME,
+                eik, registeredAddress(), correspondenceAddress());
+    }
+
+    private static Representative addLegalRepresentative(LegalEntityCustomer company,
+                                                         @Nullable IndividualCustomer individualCustomer) {
+        return company.addRepresentative(individualCustomer, "Serafim", "Ivanov", "Gerasimoff",
+                RepresentativeRole.LEGAL_REPRESENTATIVE, VALID_FROM);
+    }
+
+    private static Address residentialAddress() {
+        return Address.of("BG", "Sofia", "1000", "1 Alexander Battenberg Square", null);
+    }
+
+    private static Address registeredAddress() {
+        return Address.of("BG", "Sofia", "1000", "1 Alexander Battenberg Square", null);
+    }
+
+    private static Address correspondenceAddress() {
+        return Address.of("BG", "Sofia", "1000", "10 Business Park Street", "Office 4");
+    }
+
+    private static JwtAuthenticationToken authenticatedJwt(String subject) {
+        Jwt jwt = Jwt.withTokenValue("test-token").header("alg", "none").subject(subject).build();
+
+        return new JwtAuthenticationToken(jwt, List.of());
+    }
+
+    @Nested
+    @DisplayName("Representatives")
+    class Representatives {
+
+        @Test
+        @DisplayName("Happy Path: Should persist a Representative through the legal-entity cascade")
+        void shouldPersistRepresentativeThroughCascade() {
+            // Arrange
+            LegalEntityCustomer company = legalEntityCustomer("CUS-000007", EIK);
+            Representative representative = addLegalRepresentative(company, null);
+
+            // Act
+            customerRepository.saveAndFlush(company);
+            entityManager.clear();
+
+            // Assert
+            LegalEntityCustomer reloaded = reloadLegalEntity(company.getId());
+            assertThat(reloaded.getRepresentatives()).singleElement().satisfies(saved -> {
+                assertThat(saved.getId()).isEqualTo(representative.getId());
+                assertThat(saved.getRole()).isEqualTo(RepresentativeRole.LEGAL_REPRESENTATIVE);
+                assertThat(saved.getValidFrom()).isEqualTo(VALID_FROM);
+                assertThat(saved.getIndividualCustomer()).isNull();
+            });
+        }
+
+        @Test
+        @DisplayName("Happy Path: Should persist the optional link to an individual Customer")
+        void shouldPersistLinkToIndividualCustomer() {
+            // Arrange
+            IndividualCustomer individual = individualCustomer("CUS-000008", EGN);
+            customerRepository.saveAndFlush(individual);
+            LegalEntityCustomer company = legalEntityCustomer("CUS-000009", EIK);
+            addLegalRepresentative(company, individual);
+
+            // Act
+            customerRepository.saveAndFlush(company);
+            entityManager.clear();
+
+            // Assert
+            LegalEntityCustomer reloaded = reloadLegalEntity(company.getId());
+            assertThat(reloaded.getRepresentatives().getFirst().getIndividualCustomer().getId()).isEqualTo(
+                    individual.getId());
+        }
+
+        @Test
+        @DisplayName("Happy Path: Should keep an ended Representative in the history")
+        void shouldKeepEndedRepresentative() {
+            // Arrange
+            LegalEntityCustomer company = legalEntityCustomer("CUS-000010", EIK);
+            Representative representative = addLegalRepresentative(company, null);
+            customerRepository.saveAndFlush(company);
+
+            // Act
+            company.endRepresentation(representative.getId(), VALID_TO);
+            customerRepository.flush();
+            entityManager.clear();
+
+            // Assert
+            LegalEntityCustomer reloaded = reloadLegalEntity(company.getId());
+            assertThat(reloaded.getRepresentatives()).singleElement()
+                    .satisfies(saved -> assertThat(saved.getValidTo()).isEqualTo(VALID_TO));
+        }
+
+        @Test
+        @DisplayName("Happy Path: Should persist a Representative correction")
+        void shouldPersistRepresentativeCorrection() {
+            // Arrange
+            LegalEntityCustomer company = legalEntityCustomer("CUS-000027", EIK);
+            Representative representative = addLegalRepresentative(company, null);
+            customerRepository.saveAndFlush(company);
+            company.endRepresentation(representative.getId(), VALID_TO);
+            customerRepository.flush();
+            LocalDate correctedValidFrom = LocalDate.of(2025, 6, 1);
+
+            // Act
+            company.correctRepresentative(representative.getId(), null, "Jane", null, "Doe",
+                    RepresentativeRole.AUTHORIZED_REPRESENTATIVE, correctedValidFrom, null);
+            customerRepository.flush();
+            entityManager.clear();
+
+            // Assert
+            LegalEntityCustomer reloaded = reloadLegalEntity(company.getId());
+            assertThat(reloaded.getRepresentatives()).singleElement().satisfies(saved -> {
+                assertThat(saved.getFirstName()).isEqualTo("Jane");
+                assertThat(saved.getLastName()).isEqualTo("Doe");
+                assertThat(saved.getRole()).isEqualTo(RepresentativeRole.AUTHORIZED_REPRESENTATIVE);
+                assertThat(saved.getValidFrom()).isEqualTo(correctedValidFrom);
+                assertThat(saved.getValidTo()).isNull();
+            });
         }
     }
 }

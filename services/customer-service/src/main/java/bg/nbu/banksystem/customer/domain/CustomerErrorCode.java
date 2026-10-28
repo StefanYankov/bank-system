@@ -8,12 +8,20 @@ import bg.nbu.banksystem.starter.error.ErrorCode;
  */
 public enum CustomerErrorCode implements ErrorCode {
 
-    CUSTOMER_ALREADY_CLOSED(ErrorCategory.CONFLICT, "Customer is already closed"), CUSTOMER_ALREADY_ACTIVE(
-            ErrorCategory.CONFLICT, "Customer is already active"), CUSTOMER_CLOSED(ErrorCategory.CONFLICT,
-            "Customer is closed and cannot be changed"), REPRESENTATIVE_NOT_FOUND(ErrorCategory.NOT_FOUND,
-            "Representative not found"), REPRESENTATION_ALREADY_ENDED(ErrorCategory.CONFLICT,
-            "Representation has already ended"), INVALID_REPRESENTATION_PERIOD(ErrorCategory.RULE_VIOLATION,
-            "Representation end date precedes the start date");
+    CUSTOMER_NOT_FOUND(ErrorCategory.NOT_FOUND, "Customer not found"),
+    CUSTOMER_EGN_ALREADY_REGISTERED(ErrorCategory.CONFLICT, "EGN is already registered to another Customer"),
+    CUSTOMER_EIK_ALREADY_REGISTERED(ErrorCategory.CONFLICT, "EIK is already registered to another Customer"),
+
+    CUSTOMER_ALREADY_CLOSED(ErrorCategory.CONFLICT, "Customer is already closed"),
+    CUSTOMER_ALREADY_ACTIVE(ErrorCategory.CONFLICT, "Customer is already active"),
+    CUSTOMER_CLOSED(ErrorCategory.CONFLICT, "Customer is closed and cannot be changed"),
+
+    REPRESENTATIVE_NOT_FOUND(ErrorCategory.NOT_FOUND, "Representative not found"),
+    REPRESENTATION_ALREADY_ENDED(ErrorCategory.CONFLICT, "Representation has already ended"),
+    INVALID_REPRESENTATIVE_NAMES(ErrorCategory.VALIDATION, "Representative names are invalid"),
+    INVALID_REPRESENTATION_PERIOD(ErrorCategory.RULE_VIOLATION, "Representation end date precedes the start date"),
+    INVALID_SEARCH_QUERY(ErrorCategory.VALIDATION, "Search query is invalid"),
+    ;
 
     private final ErrorCategory category;
     private final String title;

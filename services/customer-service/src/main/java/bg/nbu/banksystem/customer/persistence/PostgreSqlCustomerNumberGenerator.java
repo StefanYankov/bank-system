@@ -8,11 +8,6 @@ import java.util.Objects;
 
 /**
  * Generates Customer numbers from the service-owned PostgreSQL sequence.
- *
- * <p>
- * The database sequence provides atomic value allocation across concurrent requests and multiple Customer Service
- * instances. Sequence gaps are accepted.
- * </p>
  */
 @Repository
 public class PostgreSqlCustomerNumberGenerator implements CustomerNumberGenerator {
