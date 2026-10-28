@@ -11,10 +11,6 @@ import java.util.UUID;
 
 /**
  * Application service for individual Customer use cases.
- *
- * <p>
- * Every operation returns the updated detailed view, so a client can refresh its screen from the response.
- * </p>
  */
 public interface IndividualCustomerService {
 

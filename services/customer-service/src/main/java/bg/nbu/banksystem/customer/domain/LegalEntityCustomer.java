@@ -38,19 +38,29 @@ public class LegalEntityCustomer extends Customer {
     private String eik;
 
     @Embedded
-    @AttributeOverride(name = "countryCode", column = @Column(name = "registered_country_code", nullable = false, length = CustomerConstraints.COUNTRY_CODE_LENGTH))
-    @AttributeOverride(name = "city", column = @Column(name = "registered_city", nullable = false, length = CustomerConstraints.CITY_MAX_LENGTH))
-    @AttributeOverride(name = "postalCode", column = @Column(name = "registered_postal_code", nullable = false, length = CustomerConstraints.POSTAL_CODE_MAX_LENGTH))
-    @AttributeOverride(name = "addressLine1", column = @Column(name = "registered_address_line_1", nullable = false, length = CustomerConstraints.ADDRESS_LINE_MAX_LENGTH))
-    @AttributeOverride(name = "addressLine2", column = @Column(name = "registered_address_line_2", length = CustomerConstraints.ADDRESS_LINE_MAX_LENGTH))
+    @AttributeOverride(name = "countryCode", column = @Column(name = "registered_country_code", nullable = false,
+            length = CustomerConstraints.COUNTRY_CODE_LENGTH))
+    @AttributeOverride(name = "city",
+            column = @Column(name = "registered_city", nullable = false, length = CustomerConstraints.CITY_MAX_LENGTH))
+    @AttributeOverride(name = "postalCode", column = @Column(name = "registered_postal_code", nullable = false,
+            length = CustomerConstraints.POSTAL_CODE_MAX_LENGTH))
+    @AttributeOverride(name = "addressLine1", column = @Column(name = "registered_address_line_1", nullable = false,
+            length = CustomerConstraints.ADDRESS_LINE_MAX_LENGTH))
+    @AttributeOverride(name = "addressLine2",
+            column = @Column(name = "registered_address_line_2", length = CustomerConstraints.ADDRESS_LINE_MAX_LENGTH))
     private Address registeredAddress;
 
     @Embedded
-    @AttributeOverride(name = "countryCode", column = @Column(name = "correspondence_country_code", nullable = false, length = CustomerConstraints.COUNTRY_CODE_LENGTH))
-    @AttributeOverride(name = "city", column = @Column(name = "correspondence_city", nullable = false, length = CustomerConstraints.CITY_MAX_LENGTH))
-    @AttributeOverride(name = "postalCode", column = @Column(name = "correspondence_postal_code", nullable = false, length = CustomerConstraints.POSTAL_CODE_MAX_LENGTH))
-    @AttributeOverride(name = "addressLine1", column = @Column(name = "correspondence_address_line_1", nullable = false, length = CustomerConstraints.ADDRESS_LINE_MAX_LENGTH))
-    @AttributeOverride(name = "addressLine2", column = @Column(name = "correspondence_address_line_2", length = CustomerConstraints.ADDRESS_LINE_MAX_LENGTH))
+    @AttributeOverride(name = "countryCode", column = @Column(name = "correspondence_country_code", nullable = false,
+            length = CustomerConstraints.COUNTRY_CODE_LENGTH))
+    @AttributeOverride(name = "city", column = @Column(name = "correspondence_city", nullable = false,
+            length = CustomerConstraints.CITY_MAX_LENGTH))
+    @AttributeOverride(name = "postalCode", column = @Column(name = "correspondence_postal_code", nullable = false,
+            length = CustomerConstraints.POSTAL_CODE_MAX_LENGTH))
+    @AttributeOverride(name = "addressLine1", column = @Column(name = "correspondence_address_line_1", nullable = false,
+            length = CustomerConstraints.ADDRESS_LINE_MAX_LENGTH))
+    @AttributeOverride(name = "addressLine2", column = @Column(name = "correspondence_address_line_2",
+            length = CustomerConstraints.ADDRESS_LINE_MAX_LENGTH))
     private Address correspondenceAddress;
 
     @OneToMany(mappedBy = "legalEntityCustomer", cascade = {CascadeType.PERSIST, CascadeType.MERGE})
@@ -63,9 +73,7 @@ public class LegalEntityCustomer extends Customer {
 
         this.companyName = requireText(companyName, "companyName");
         this.eik = Eiks.normalize(eik);
-
         this.registeredAddress = Objects.requireNonNull(registeredAddress, "registeredAddress must not be null");
-
         this.correspondenceAddress = Objects.requireNonNull(correspondenceAddress,
                 "correspondenceAddress must not be null");
     }
@@ -88,11 +96,6 @@ public class LegalEntityCustomer extends Customer {
                 correspondenceAddress);
     }
 
-    /**
-     * Returns the concrete Customer type.
-     *
-     * @return legal-entity Customer type
-     */
     @Override
     public CustomerType getCustomerType() {
         return CustomerType.LEGAL_ENTITY;
@@ -111,8 +114,7 @@ public class LegalEntityCustomer extends Customer {
      * Updates the registered company name.
      *
      * @param companyName new registered company name
-     * @throws DomainException with {@link CustomerErrorCode#CUSTOMER_CLOSED}
-     *                         if the Customer is closed
+     * @throws DomainException with {@link CustomerErrorCode#CUSTOMER_CLOSED} if the Customer is closed
      */
     public void updateCompanyName(String companyName) {
         ensureActive();
@@ -121,11 +123,11 @@ public class LegalEntityCustomer extends Customer {
     }
 
     /**
-     * Corrects an EIK entered incorrectly at registration.
+     * Corrects an EIK entered incorrectly at registration. The application service must verify that the new EIK is
+     * not registered to another Customer before calling this method.
      *
      * @param eik the correct EIK
-     * @throws DomainException with {@link CustomerErrorCode#CUSTOMER_CLOSED}
-     *                         if the Customer is closed
+     * @throws DomainException with {@link CustomerErrorCode#CUSTOMER_CLOSED} if the Customer is closed
      */
     public void correctEik(String eik) {
         ensureActive();
@@ -137,8 +139,7 @@ public class LegalEntityCustomer extends Customer {
      * Replaces the registered address.
      *
      * @param registeredAddress new registered address
-     * @throws DomainException with {@link CustomerErrorCode#CUSTOMER_CLOSED}
-     *                         if the Customer is closed
+     * @throws DomainException with {@link CustomerErrorCode#CUSTOMER_CLOSED} if the Customer is closed
      */
     public void changeRegisteredAddress(Address registeredAddress) {
         ensureActive();
@@ -150,8 +151,7 @@ public class LegalEntityCustomer extends Customer {
      * Replaces the correspondence address.
      *
      * @param correspondenceAddress new correspondence address
-     * @throws DomainException with {@link CustomerErrorCode#CUSTOMER_CLOSED}
-     *                         if the Customer is closed
+     * @throws DomainException with {@link CustomerErrorCode#CUSTOMER_CLOSED} if the Customer is closed
      */
     public void changeCorrespondenceAddress(Address correspondenceAddress) {
         ensureActive();
@@ -161,8 +161,7 @@ public class LegalEntityCustomer extends Customer {
     }
 
     /**
-     * Adds a Representative to this legal entity.
-     *
+     * Adds a Representative to this legal entity and synchronizes both sides of the relationship.
      *
      * @param individualCustomer optional link to an existing individual Customer
      * @param firstName          representative first name
@@ -171,8 +170,7 @@ public class LegalEntityCustomer extends Customer {
      * @param role               representation role
      * @param validFrom          first valid date
      * @return the newly added Representative
-     * @throws DomainException with {@link CustomerErrorCode#CUSTOMER_CLOSED}
-     *                         if the Customer is closed
+     * @throws DomainException with {@link CustomerErrorCode#CUSTOMER_CLOSED} if the Customer is closed
      */
     public Representative addRepresentative(@Nullable IndividualCustomer individualCustomer, String firstName,
                                             @Nullable String middleName, String lastName, RepresentativeRole role,
@@ -181,7 +179,6 @@ public class LegalEntityCustomer extends Customer {
 
         Representative representative = Representative.create(this, individualCustomer, firstName, middleName, lastName,
                 role, validFrom);
-
         representatives.add(representative);
 
         return representative;
@@ -192,18 +189,46 @@ public class LegalEntityCustomer extends Customer {
      *
      * @param representativeId identifier of a Representative of this legal entity
      * @param validTo          final date of representation
-     * @throws DomainException with {@link CustomerErrorCode#CUSTOMER_CLOSED}
-     *                         if the Customer is closed, with
-     *                         {@link CustomerErrorCode#REPRESENTATIVE_NOT_FOUND}
-     *                         if the Representative does not belong to this legal
-     *                         entity, or with a Representative period error
+     * @return the ended Representative
+     * @throws DomainException with {@link CustomerErrorCode#CUSTOMER_CLOSED} if the Customer is closed, with
+     *                         {@link CustomerErrorCode#REPRESENTATIVE_NOT_FOUND} if the Representative does not belong
+     *                         to this legal entity, or with a Representative period error
      */
-    public void endRepresentation(UUID representativeId, LocalDate validTo) {
+    public Representative endRepresentation(UUID representativeId, LocalDate validTo) {
         ensureActive();
 
         Representative representative = findRepresentative(representativeId);
-
         representative.endRepresentation(validTo);
+
+        return representative;
+    }
+
+    /**
+     * Corrects a data-entry mistake in one of this legal entity's Representatives.
+     *
+     * @param representativeId   identifier of a Representative of this legal entity
+     * @param individualCustomer linked individual Customer, if any
+     * @param firstName          corrected first name
+     * @param middleName         corrected middle name, if any
+     * @param lastName           corrected last name
+     * @param role               corrected role
+     * @param validFrom          corrected first valid date
+     * @param validTo            corrected final valid date, or {@code null} if the representation has not ended
+     * @return the corrected Representative
+     * @throws DomainException with {@link CustomerErrorCode#CUSTOMER_CLOSED} if the Customer is closed, with
+     *                         {@link CustomerErrorCode#REPRESENTATIVE_NOT_FOUND} if the Representative does not belong
+     *                         to this legal entity, or with a Representative period error
+     */
+    public Representative correctRepresentative(UUID representativeId, @Nullable IndividualCustomer individualCustomer,
+                                                String firstName, @Nullable String middleName, String lastName,
+                                                RepresentativeRole role, LocalDate validFrom,
+                                                @Nullable LocalDate validTo) {
+        ensureActive();
+
+        Representative representative = findRepresentative(representativeId);
+        representative.correct(individualCustomer, firstName, middleName, lastName, role, validFrom, validTo);
+
+        return representative;
     }
 
     private Representative findRepresentative(UUID representativeId) {

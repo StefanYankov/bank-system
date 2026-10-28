@@ -48,7 +48,7 @@ public class Representative extends BaseEntity {
     @Column(name = "role", nullable = false, length = CustomerConstraints.REPRESENTATIVE_ROLE_MAX_LENGTH)
     private RepresentativeRole role;
 
-    @Column(name = "valid_from", nullable = false, updatable = false)
+    @Column(name = "valid_from", nullable = false)
     private LocalDate validFrom;
 
     @Column(name = "valid_to")
@@ -85,7 +85,76 @@ public class Representative extends BaseEntity {
     }
 
     /**
-     * Indicates whether the representation is active on the supplied date.
+     * Ends the representation on the supplied date.
+     *
+     * <p>
+     * Package-private: callers use {@link LegalEntityCustomer#endRepresentation(java.util.UUID, LocalDate)}, which
+     * first checks that the legal entity is not closed.
+     * </p>
+     *
+     * @param validTo final date of representation
+     * @throws DomainException with {@link CustomerErrorCode#REPRESENTATION_ALREADY_ENDED} if the representation has
+     *                         already ended, or with {@link CustomerErrorCode#INVALID_REPRESENTATION_PERIOD} if the end
+     *                         date precedes the start date
+     */
+    void endRepresentation(LocalDate validTo) {
+        Objects.requireNonNull(validTo, "validTo must not be null");
+
+        if (this.validTo != null) {
+            throw new DomainException(CustomerErrorCode.REPRESENTATION_ALREADY_ENDED);
+        }
+
+        if (validTo.isBefore(validFrom)) {
+            throw new DomainException(CustomerErrorCode.INVALID_REPRESENTATION_PERIOD);
+        }
+
+        this.validTo = validTo;
+    }
+
+    /**
+     * Corrects a data-entry mistake in this representation.
+     *
+     * <p>
+     * A correction replaces the recorded values because the wrong values never reflected reality. A real change,
+     * such as the same person representing the legal entity again after a gap, is recorded as a new representation
+     * instead. Package-private: callers use {@link LegalEntityCustomer#correctRepresentative}, which first checks
+     * that the legal entity is not closed.
+     * </p>
+     *
+     * @param individualCustomer linked individual Customer, if any
+     * @param firstName          corrected first name
+     * @param middleName         corrected middle name, if any
+     * @param lastName           corrected last name
+     * @param role               corrected role
+     * @param validFrom          corrected first valid date
+     * @param validTo            corrected final valid date, or {@code null} if the representation has not ended
+     * @throws DomainException with {@link CustomerErrorCode#INVALID_REPRESENTATION_PERIOD} if the end date precedes
+     *                         the start date
+     */
+    void correct(@Nullable IndividualCustomer individualCustomer, String firstName, @Nullable String middleName,
+                 String lastName, RepresentativeRole role, LocalDate validFrom, @Nullable LocalDate validTo) {
+        String correctedFirstName = requireText(firstName, "firstName");
+        String correctedLastName = requireText(lastName, "lastName");
+        RepresentativeRole correctedRole = Objects.requireNonNull(role, "role must not be null");
+        LocalDate correctedValidFrom = Objects.requireNonNull(validFrom, "validFrom must not be null");
+
+        if (validTo != null && validTo.isBefore(correctedValidFrom)) {
+            throw new DomainException(CustomerErrorCode.INVALID_REPRESENTATION_PERIOD);
+        }
+
+        this.individualCustomer = individualCustomer;
+        this.firstName = correctedFirstName;
+        this.middleName = normalizeOptionalText(middleName);
+        this.lastName = correctedLastName;
+        this.role = correctedRole;
+        this.validFrom = correctedValidFrom;
+
+        this.validTo = validTo;
+    }
+
+    /**
+     * Indicates whether the representation is active on the supplied date. Both {@code validFrom} and
+     * {@code validTo} are inclusive.
      *
      * @param date date being evaluated
      * @return whether the Representative is active on that date
@@ -110,28 +179,5 @@ public class Representative extends BaseEntity {
         }
 
         return value.trim();
-    }
-
-    /**
-     * Ends the Representative's authority on the supplied date.
-     *
-     * @param validTo final date of representation
-     * @throws DomainException with {@link CustomerErrorCode#REPRESENTATION_ALREADY_ENDED}
-     *                         if the representation has already ended, or with
-     *                         {@link CustomerErrorCode#INVALID_REPRESENTATION_PERIOD}
-     *                         if the end date precedes the start date
-     */
-    void endRepresentation(LocalDate validTo) {
-        Objects.requireNonNull(validTo, "validTo must not be null");
-
-        if (this.validTo != null) {
-            throw new DomainException(CustomerErrorCode.REPRESENTATION_ALREADY_ENDED);
-        }
-
-        if (validTo.isBefore(validFrom)) {
-            throw new DomainException(CustomerErrorCode.INVALID_REPRESENTATION_PERIOD);
-        }
-
-        this.validTo = validTo;
     }
 }

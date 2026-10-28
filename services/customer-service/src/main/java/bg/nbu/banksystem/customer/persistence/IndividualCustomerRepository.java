@@ -28,10 +28,6 @@ public interface IndividualCustomerRepository extends JpaRepository<IndividualCu
     /**
      * Checks whether a different individual Customer already exists with the given EGN.
      *
-     * <p>
-     * Used when correcting an EGN, so the Customer being corrected is not reported as its own duplicate.
-     * </p>
-     *
      * @param egn the normalized EGN
      * @param id  identifier of the Customer being corrected
      * @return {@code true} if another Customer already uses the EGN

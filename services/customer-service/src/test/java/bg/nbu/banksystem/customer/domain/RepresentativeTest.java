@@ -28,9 +28,18 @@ class RepresentativeTest {
     private static final LocalDate VALID_TO = LocalDate.of(2026, 12, 31);
 
     private static void assertDomainError(ThrowingCallable action, CustomerErrorCode expectedCode) {
-        assertThatThrownBy(action)
-                .isInstanceOfSatisfying(DomainException.class,
-                        exception -> assertThat(exception.getErrorCode()).isEqualTo(expectedCode));
+        assertThatThrownBy(action).isInstanceOfSatisfying(DomainException.class,
+                exception -> assertThat(exception.getErrorCode()).isEqualTo(expectedCode));
+    }
+
+    private static void assertUnchanged(Representative representative) {
+        assertThat(representative.getIndividualCustomer()).isNull();
+        assertThat(representative.getFirstName()).isEqualTo(FIRST_NAME);
+        assertThat(representative.getMiddleName()).isEqualTo(MIDDLE_NAME);
+        assertThat(representative.getLastName()).isEqualTo(LAST_NAME);
+        assertThat(representative.getRole()).isEqualTo(RepresentativeRole.LEGAL_REPRESENTATIVE);
+        assertThat(representative.getValidFrom()).isEqualTo(VALID_FROM);
+        assertThat(representative.getValidTo()).isNull();
     }
 
     private static Representative representative() {
@@ -39,13 +48,13 @@ class RepresentativeTest {
     }
 
     private static LegalEntityCustomer legalEntityCustomer() {
-        return LegalEntityCustomer.register("CUS-000002", "contact@starter.example", "+35929201234", "Starter Ltd",
-                "123456786", address(), address());
+        return LegalEntityCustomer.register("CUS-000002", "contact@starter.example", "+35929201234",
+                "Starter Financial Services", "123456786", address(), address());
     }
 
     private static IndividualCustomer individualCustomer() {
-        return IndividualCustomer.register("CUS-000001", "serafim.gerasimoff@example.com", "+359888123456",
-                FIRST_NAME, MIDDLE_NAME, LAST_NAME, "6101047500", address());
+        return IndividualCustomer.register("CUS-000001", "serafim.gerasimoff@example.com", "+359888123456", FIRST_NAME,
+                MIDDLE_NAME, LAST_NAME, "6101047500", address());
     }
 
     private static Address address() {
@@ -53,11 +62,8 @@ class RepresentativeTest {
     }
 
     static Stream<Arguments> invalidNameData() {
-        return Stream.of(
-                Arguments.of("firstName", null, LAST_NAME),
-                Arguments.of("firstName", "   ", LAST_NAME),
-                Arguments.of("lastName", FIRST_NAME, null),
-                Arguments.of("lastName", FIRST_NAME, "   "));
+        return Stream.of(Arguments.of("firstName", null, LAST_NAME), Arguments.of("firstName", "   ", LAST_NAME),
+                Arguments.of("lastName", FIRST_NAME, null), Arguments.of("lastName", FIRST_NAME, "   "));
     }
 
     @Nested
@@ -138,10 +144,9 @@ class RepresentativeTest {
             LegalEntityCustomer legalEntity = legalEntityCustomer();
 
             // Act & Assert
-            assertThatIllegalArgumentException()
-                    .isThrownBy(() -> legalEntity.addRepresentative(null, firstName, MIDDLE_NAME, lastName,
-                            RepresentativeRole.LEGAL_REPRESENTATIVE, VALID_FROM))
-                    .withMessageContaining(field);
+            assertThatIllegalArgumentException().isThrownBy(
+                    () -> legalEntity.addRepresentative(null, firstName, MIDDLE_NAME, lastName,
+                            RepresentativeRole.LEGAL_REPRESENTATIVE, VALID_FROM)).withMessageContaining(field);
         }
 
         @Test
@@ -151,15 +156,13 @@ class RepresentativeTest {
             LegalEntityCustomer legalEntity = legalEntityCustomer();
 
             // Act & Assert
-            assertThatNullPointerException()
-                    .isThrownBy(() -> legalEntity.addRepresentative(null, FIRST_NAME, MIDDLE_NAME, LAST_NAME, null,
-                            VALID_FROM))
+            assertThatNullPointerException().isThrownBy(
+                            () -> legalEntity.addRepresentative(null, FIRST_NAME, MIDDLE_NAME, LAST_NAME, null, VALID_FROM))
                     .withMessage("role must not be null");
 
-            assertThatNullPointerException()
-                    .isThrownBy(() -> legalEntity.addRepresentative(null, FIRST_NAME, MIDDLE_NAME, LAST_NAME,
-                            RepresentativeRole.LEGAL_REPRESENTATIVE, null))
-                    .withMessage("validFrom must not be null");
+            assertThatNullPointerException().isThrownBy(
+                    () -> legalEntity.addRepresentative(null, FIRST_NAME, MIDDLE_NAME, LAST_NAME,
+                            RepresentativeRole.LEGAL_REPRESENTATIVE, null)).withMessage("validFrom must not be null");
         }
     }
 
@@ -200,8 +203,7 @@ class RepresentativeTest {
             Representative representative = representative();
 
             // Act & Assert
-            assertThatNullPointerException()
-                    .isThrownBy(() -> representative.endRepresentation(null))
+            assertThatNullPointerException().isThrownBy(() -> representative.endRepresentation(null))
                     .withMessage("validTo must not be null");
         }
 
@@ -238,6 +240,144 @@ class RepresentativeTest {
             // Act & Assert
             assertDomainError(() -> representative.endRepresentation(VALID_FROM.minusDays(1)),
                     CustomerErrorCode.REPRESENTATION_ALREADY_ENDED);
+        }
+    }
+
+    @Nested
+    @DisplayName("Correction")
+    class Correction {
+
+        @Test
+        @DisplayName("Happy Path: Should replace every recorded value")
+        void shouldReplaceEveryValue() {
+            // Arrange
+            Representative representative = representative();
+            IndividualCustomer individualCustomer = individualCustomer();
+            LocalDate correctedValidFrom = LocalDate.of(2025, 6, 1);
+            LocalDate correctedValidTo = LocalDate.of(2026, 6, 30);
+
+            // Act
+            representative.correct(individualCustomer, "Jane", "Maria", "Doe",
+                    RepresentativeRole.AUTHORIZED_REPRESENTATIVE, correctedValidFrom, correctedValidTo);
+
+            // Assert
+            assertThat(representative.getIndividualCustomer()).isSameAs(individualCustomer);
+            assertThat(representative.getFirstName()).isEqualTo("Jane");
+            assertThat(representative.getMiddleName()).isEqualTo("Maria");
+            assertThat(representative.getLastName()).isEqualTo("Doe");
+            assertThat(representative.getRole()).isEqualTo(RepresentativeRole.AUTHORIZED_REPRESENTATIVE);
+            assertThat(representative.getValidFrom()).isEqualTo(correctedValidFrom);
+            assertThat(representative.getValidTo()).isEqualTo(correctedValidTo);
+        }
+
+        @Test
+        @DisplayName("Happy Path: Should remove a link chosen by mistake")
+        void shouldRemoveLink() {
+            // Arrange
+            Representative representative = legalEntityCustomer().addRepresentative(individualCustomer(), FIRST_NAME,
+                    MIDDLE_NAME, LAST_NAME, RepresentativeRole.LEGAL_REPRESENTATIVE, VALID_FROM);
+
+            // Act
+            representative.correct(null, "Jane", null, "Doe", RepresentativeRole.LEGAL_REPRESENTATIVE, VALID_FROM,
+                    null);
+
+            // Assert
+            assertThat(representative.getIndividualCustomer()).isNull();
+            assertThat(representative.getFirstName()).isEqualTo("Jane");
+        }
+
+        @Test
+        @DisplayName("Happy Path: Should reopen a representation ended by mistake")
+        void shouldClearMistakenEndDate() {
+            // Arrange
+            Representative representative = representative();
+            representative.endRepresentation(VALID_TO);
+
+            // Act
+            representative.correct(null, FIRST_NAME, MIDDLE_NAME, LAST_NAME, RepresentativeRole.LEGAL_REPRESENTATIVE,
+                    VALID_FROM, null);
+
+            // Assert
+            assertThat(representative.getValidTo()).isNull();
+            assertThat(representative.isActiveOn(VALID_TO.plusDays(1))).isTrue();
+        }
+
+        @Test
+        @DisplayName("Happy Path: Should correct the end date of an ended representation")
+        void shouldCorrectEndDate() {
+            // Arrange
+            Representative representative = representative();
+            representative.endRepresentation(VALID_TO);
+            LocalDate correctedValidTo = LocalDate.of(2026, 11, 30);
+
+            // Act
+            representative.correct(null, FIRST_NAME, MIDDLE_NAME, LAST_NAME, RepresentativeRole.LEGAL_REPRESENTATIVE,
+                    VALID_FROM, correctedValidTo);
+
+            // Assert
+            assertThat(representative.getValidTo()).isEqualTo(correctedValidTo);
+        }
+
+        @Test
+        @DisplayName("Edge Case: Should normalize names and allow the end date to equal the start date")
+        void shouldNormalizeAndAllowSingleDay() {
+            // Arrange
+            Representative representative = representative();
+
+            // Act
+            representative.correct(null, "  Jane  ", "   ", "  Doe  ", RepresentativeRole.LEGAL_REPRESENTATIVE,
+                    VALID_FROM, VALID_FROM);
+
+            // Assert
+            assertThat(representative.getFirstName()).isEqualTo("Jane");
+            assertThat(representative.getMiddleName()).isNull();
+            assertThat(representative.getLastName()).isEqualTo("Doe");
+            assertThat(representative.getValidTo()).isEqualTo(VALID_FROM);
+        }
+
+        @Test
+        @DisplayName("Error Case: Should reject an end date before the corrected start date and change nothing")
+        void shouldRejectInvalidPeriod() {
+            // Arrange
+            Representative representative = representative();
+
+            // Act & Assert
+            assertDomainError(() -> representative.correct(null, "Jane", null, "Doe",
+                            RepresentativeRole.AUTHORIZED_REPRESENTATIVE, VALID_TO, VALID_FROM),
+                    CustomerErrorCode.INVALID_REPRESENTATION_PERIOD);
+            assertUnchanged(representative);
+        }
+
+        @ParameterizedTest(name = "Error Case: Should reject invalid {0} and change nothing")
+        @MethodSource("bg.nbu.banksystem.customer.domain.RepresentativeTest#invalidNameData")
+        @DisplayName("Error Case: Should reject missing mandatory names and change nothing")
+        void shouldRejectInvalidNames(String field, @Nullable String firstName, @Nullable String lastName) {
+            // Arrange
+            Representative representative = representative();
+
+            // Act & Assert
+            assertThatIllegalArgumentException().isThrownBy(
+                    () -> representative.correct(null, firstName, null, lastName,
+                            RepresentativeRole.AUTHORIZED_REPRESENTATIVE, VALID_TO, null)).withMessageContaining(field);
+            assertUnchanged(representative);
+        }
+
+        @Test
+        @DisplayName("Error Case: Should reject a missing role or valid-from date and change nothing")
+        void shouldRejectMissingRoleOrValidFrom() {
+            // Arrange
+            Representative representative = representative();
+
+            // Act & Assert
+            assertThatNullPointerException().isThrownBy(
+                            () -> representative.correct(null, "Jane", null, "Doe", null, VALID_FROM, null))
+                    .withMessage("role must not be null");
+
+            assertThatNullPointerException().isThrownBy(
+                    () -> representative.correct(null, "Jane", null, "Doe", RepresentativeRole.LEGAL_REPRESENTATIVE,
+                            null, null)).withMessage("validFrom must not be null");
+
+            assertUnchanged(representative);
         }
     }
 
@@ -279,8 +419,7 @@ class RepresentativeTest {
         @DisplayName("Error Case: Should reject a missing evaluation date")
         void shouldRejectMissingEvaluationDate() {
             // Act & Assert
-            assertThatNullPointerException()
-                    .isThrownBy(() -> representative().isActiveOn(null))
+            assertThatNullPointerException().isThrownBy(() -> representative().isActiveOn(null))
                     .withMessage("date must not be null");
         }
     }

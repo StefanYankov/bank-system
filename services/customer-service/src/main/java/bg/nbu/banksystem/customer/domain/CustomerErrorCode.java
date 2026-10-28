@@ -18,6 +18,7 @@ public enum CustomerErrorCode implements ErrorCode {
 
     REPRESENTATIVE_NOT_FOUND(ErrorCategory.NOT_FOUND, "Representative not found"),
     REPRESENTATION_ALREADY_ENDED(ErrorCategory.CONFLICT, "Representation has already ended"),
+    INVALID_REPRESENTATIVE_NAMES(ErrorCategory.VALIDATION, "Representative names are invalid"),
     INVALID_REPRESENTATION_PERIOD(ErrorCategory.RULE_VIOLATION, "Representation end date precedes the start date"),
     INVALID_SEARCH_QUERY(ErrorCategory.VALIDATION, "Search query is invalid"),
     ;
