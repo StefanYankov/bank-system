@@ -15,6 +15,8 @@ import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.ValueSource;
 import org.mapstruct.factory.Mappers;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
@@ -45,8 +47,61 @@ class CustomerServiceImplTest {
     private CustomerRepository customerRepository;
     private CustomerServiceImpl customerService;
 
+    @BeforeEach
+    void setUp() {
+        customerService = new CustomerServiceImpl(customerRepository, Mappers.getMapper(CustomerMapper.class));
+    }
+
     private static Specification<Customer> anySpecification() {
         return any();
+    }
+
+    @Nested
+    @DisplayName("Summary")
+    class Summary {
+
+        @Test
+        @DisplayName("Happy Path: Should return the summary of an existing legal-entity Customer")
+        void shouldGetSummary() {
+            // Arrange
+            LegalEntityCustomer customer = legalEntityCustomer();
+            when(customerRepository.findById(customer.getId())).thenReturn(Optional.of(customer));
+
+            // Act
+            CustomerSummaryDto summary = customerService.getSummary(customer.getId());
+
+            // Assert
+            assertThat(summary.id()).isEqualTo(customer.getId());
+            assertThat(summary.displayName()).isEqualTo("Starter Financial Services");
+            verify(customerRepository).findById(customer.getId());
+        }
+
+        @Test
+        @DisplayName("Happy Path: Should return the summary of an existing individual Customer")
+        void shouldGetIndividualSummary() {
+            // Arrange
+            IndividualCustomer customer = individualCustomer();
+            when(customerRepository.findById(customer.getId())).thenReturn(Optional.of(customer));
+
+            // Act
+            CustomerSummaryDto summary = customerService.getSummary(customer.getId());
+
+            // Assert
+            assertThat(summary.customerType()).isEqualTo(CustomerType.INDIVIDUAL);
+            assertThat(summary.displayName()).isEqualTo("Serafim Ivanov Gerasimoff");
+            assertThat(summary.identifier()).isEqualTo("6101047500");
+        }
+
+        @Test
+        @DisplayName("Error Case: Should report a missing Customer")
+        void shouldReportMissingCustomer() {
+            // Arrange
+            UUID unknownId = UUID.randomUUID();
+            when(customerRepository.findById(unknownId)).thenReturn(Optional.empty());
+
+            // Act & Assert
+            assertDomainError(() -> customerService.getSummary(unknownId), CustomerErrorCode.CUSTOMER_NOT_FOUND);
+        }
     }
 
     private static void assertDomainError(ThrowingCallable action, CustomerErrorCode expectedCode) {
@@ -74,11 +129,6 @@ class CustomerServiceImplTest {
 
     private static Address correspondenceAddress() {
         return Address.of("BG", "Sofia", "1000", "10 Business Park Street", "Office 4");
-    }
-
-    @BeforeEach
-    void setUp() {
-        customerService = new CustomerServiceImpl(customerRepository, Mappers.getMapper(CustomerMapper.class));
     }
 
     @Nested
@@ -157,53 +207,32 @@ class CustomerServiceImplTest {
                     CustomerErrorCode.INVALID_SEARCH_QUERY);
             verifyNoInteractions(customerRepository);
         }
-    }
 
-    @Nested
-    @DisplayName("Summary")
-    class Summary {
-
-        @Test
-        @DisplayName("Happy Path: Should return the summary of an existing legal-entity Customer")
-        void shouldGetSummary() {
+        @ParameterizedTest(name = "Happy Path: Should accept sorting by {0}")
+        @ValueSource(strings = {"customerNumber", "status", "createdAt"})
+        @DisplayName("Happy Path: Should accept every allowed sort property")
+        void shouldAcceptAllowedSortProperty(String property) {
             // Arrange
-            LegalEntityCustomer customer = legalEntityCustomer();
-            when(customerRepository.findById(customer.getId())).thenReturn(Optional.of(customer));
+            when(customerRepository.findAll(anySpecification(), any(Pageable.class))).thenReturn(Page.empty());
 
             // Act
-            CustomerSummaryDto summary = customerService.getSummary(customer.getId());
+            customerService.search(null, PageRequest.of(0, 10, Sort.by(property)));
 
             // Assert
-            assertThat(summary.id()).isEqualTo(customer.getId());
-            assertThat(summary.displayName()).isEqualTo("Starter Financial Services");
-            verify(customerRepository).findById(customer.getId());
+            verify(customerRepository).findAll(anySpecification(), any(Pageable.class));
         }
 
         @Test
-        @DisplayName("Happy Path: Should return the summary of an existing individual Customer")
-        void shouldGetIndividualSummary() {
-            // Arrange
-            IndividualCustomer customer = individualCustomer();
-            when(customerRepository.findById(customer.getId())).thenReturn(Optional.of(customer));
-
-            // Act
-            CustomerSummaryDto summary = customerService.getSummary(customer.getId());
-
-            // Assert
-            assertThat(summary.customerType()).isEqualTo(CustomerType.INDIVIDUAL);
-            assertThat(summary.displayName()).isEqualTo("Serafim Ivanov Gerasimoff");
-            assertThat(summary.identifier()).isEqualTo("6101047500");
-        }
-
-        @Test
-        @DisplayName("Error Case: Should report a missing Customer")
-        void shouldReportMissingCustomer() {
-            // Arrange
-            UUID unknownId = UUID.randomUUID();
-            when(customerRepository.findById(unknownId)).thenReturn(Optional.empty());
-
+        @DisplayName("Error Case: Should reject a sort property outside the allow-list before querying the database")
+        void shouldRejectDisallowedSortProperty() {
             // Act & Assert
-            assertDomainError(() -> customerService.getSummary(unknownId), CustomerErrorCode.CUSTOMER_NOT_FOUND);
+            assertThatThrownBy(
+                    () -> customerService.search(null, PageRequest.of(0, 10, Sort.by("email")))).isInstanceOfSatisfying(
+                    DomainException.class, exception -> {
+                        assertThat(exception.getErrorCode()).isEqualTo(CustomerErrorCode.INVALID_SORT_PROPERTY);
+                        assertThat(exception.getDetail()).isEqualTo(CustomerServiceImpl.SORTABLE_PROPERTIES_DETAIL);
+                    });
+            verifyNoInteractions(customerRepository);
         }
     }
 }
