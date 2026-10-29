@@ -21,6 +21,7 @@ public enum CustomerErrorCode implements ErrorCode {
     INVALID_REPRESENTATIVE_NAMES(ErrorCategory.VALIDATION, "Representative names are invalid"),
     INVALID_REPRESENTATION_PERIOD(ErrorCategory.RULE_VIOLATION, "Representation end date precedes the start date"),
     INVALID_SEARCH_QUERY(ErrorCategory.VALIDATION, "Search query is invalid"),
+    INVALID_SORT_PROPERTY(ErrorCategory.VALIDATION, "Sort property is not allowed"),
     ;
 
     private final ErrorCategory category;
