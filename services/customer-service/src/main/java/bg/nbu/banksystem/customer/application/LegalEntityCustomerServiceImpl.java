@@ -71,6 +71,18 @@ public class LegalEntityCustomerServiceImpl implements LegalEntityCustomerServic
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public RepresentativeViewDto getRepresentative(UUID id, UUID representativeId) {
+        for (Representative representative : findOrThrow(id).getRepresentatives()) {
+            if (representative.getId().equals(representativeId)) {
+                return customerMapper.toRepresentativeView(representative);
+            }
+        }
+
+        throw new DomainException(CustomerErrorCode.REPRESENTATIVE_NOT_FOUND);
+    }
+
+    @Override
     @Transactional
     public LegalEntityCustomerViewDto updateCompanyName(UUID id, CompanyNameUpdateDto companyNameUpdateDto) {
         LegalEntityCustomer customer = findOrThrow(id);

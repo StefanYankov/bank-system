@@ -65,45 +65,6 @@ class LegalEntityCustomerServiceImplTest {
 
     private LegalEntityCustomerServiceImpl legalEntityCustomerService;
 
-    private static LegalEntityCustomerRegistrationDto registrationDto(String eik) {
-        return new LegalEntityCustomerRegistrationDto("contact@starter.example", "+35929201234", COMPANY_NAME, eik,
-                new AddressDto("bg", "Sofia", "1000", "1 Alexander Battenberg Square", null),
-                new AddressDto("BG", "Sofia", "1000", "10 Business Park Street", "Office 4"));
-    }
-
-    private static RepresentativeAdditionDto linkedAddition(UUID individualCustomerId) {
-        return new RepresentativeAdditionDto(individualCustomerId, null, null, null,
-                RepresentativeRole.LEGAL_REPRESENTATIVE, VALID_FROM);
-    }
-
-    private static Representative addUnlinkedRepresentative(LegalEntityCustomer customer) {
-        return customer.addRepresentative(null, "Serafim", "Ivanov", "Gerasimoff",
-                RepresentativeRole.LEGAL_REPRESENTATIVE, VALID_FROM);
-    }
-
-    private static LegalEntityCustomer existingCustomer() {
-        return LegalEntityCustomer.register(CUSTOMER_NUMBER, "contact@starter.example", "+35929201234", COMPANY_NAME,
-                EIK, registeredAddress(), correspondenceAddress());
-    }
-
-    private static IndividualCustomer individualCustomer() {
-        return IndividualCustomer.register("CUS-000001", "serafim.gerasimoff@example.com", "+359888123456", "Serafim",
-                "Ivanov", "Gerasimoff", "6101047500", registeredAddress());
-    }
-
-    private static Address registeredAddress() {
-        return Address.of("BG", "Sofia", "1000", "1 Alexander Battenberg Square", null);
-    }
-
-    private static Address correspondenceAddress() {
-        return Address.of("BG", "Sofia", "1000", "10 Business Park Street", "Office 4");
-    }
-
-    private static void assertDomainError(ThrowingCallable action, CustomerErrorCode expectedCode) {
-        assertThatThrownBy(action).isInstanceOfSatisfying(DomainException.class,
-                exception -> assertThat(exception.getErrorCode()).isEqualTo(expectedCode));
-    }
-
     @BeforeEach
     void setUp() {
         legalEntityCustomerService = new LegalEntityCustomerServiceImpl(legalEntityCustomerRepository,
@@ -196,6 +157,12 @@ class LegalEntityCustomerServiceImplTest {
             assertDomainError(() -> legalEntityCustomerService.getById(unknownId),
                     CustomerErrorCode.CUSTOMER_NOT_FOUND);
         }
+    }
+
+    private static LegalEntityCustomerRegistrationDto registrationDto(String eik) {
+        return new LegalEntityCustomerRegistrationDto("contact@starter.example", "+35929201234", COMPANY_NAME, eik,
+                new AddressDto("bg", "Sofia", "1000", "1 Alexander Battenberg Square", null),
+                new AddressDto("BG", "Sofia", "1000", "10 Business Park Street", "Office 4"));
     }
 
     @Nested
@@ -634,6 +601,86 @@ class LegalEntityCustomerServiceImplTest {
                             new RepresentativeCorrectionDto(null, "Jane", null, "Doe",
                                     RepresentativeRole.LEGAL_REPRESENTATIVE, VALID_TO, VALID_FROM)),
                     CustomerErrorCode.INVALID_REPRESENTATION_PERIOD);
+        }
+    }
+
+    private static RepresentativeAdditionDto linkedAddition(UUID individualCustomerId) {
+        return new RepresentativeAdditionDto(individualCustomerId, null, null, null,
+                RepresentativeRole.LEGAL_REPRESENTATIVE, VALID_FROM);
+    }
+
+    private static Representative addUnlinkedRepresentative(LegalEntityCustomer customer) {
+        return customer.addRepresentative(null, "Serafim", "Ivanov", "Gerasimoff",
+                RepresentativeRole.LEGAL_REPRESENTATIVE, VALID_FROM);
+    }
+
+    private static LegalEntityCustomer existingCustomer() {
+        return LegalEntityCustomer.register(CUSTOMER_NUMBER, "contact@starter.example", "+35929201234", COMPANY_NAME,
+                EIK, registeredAddress(), correspondenceAddress());
+    }
+
+    private static IndividualCustomer individualCustomer() {
+        return IndividualCustomer.register("CUS-000001", "serafim.gerasimoff@example.com", "+359888123456", "Serafim",
+                "Ivanov", "Gerasimoff", "6101047500", registeredAddress());
+    }
+
+    private static Address registeredAddress() {
+        return Address.of("BG", "Sofia", "1000", "1 Alexander Battenberg Square", null);
+    }
+
+    private static Address correspondenceAddress() {
+        return Address.of("BG", "Sofia", "1000", "10 Business Park Street", "Office 4");
+    }
+
+    private static void assertDomainError(ThrowingCallable action, CustomerErrorCode expectedCode) {
+        assertThatThrownBy(action).isInstanceOfSatisfying(DomainException.class,
+                exception -> assertThat(exception.getErrorCode()).isEqualTo(expectedCode));
+    }
+
+    @Nested
+    @DisplayName("Get representative")
+    class GetRepresentative {
+
+        @Test
+        @DisplayName("Happy Path: Should return one Representative of the company")
+        void shouldGetRepresentative() {
+            // Arrange
+            LegalEntityCustomer customer = existingCustomer();
+            Representative representative = addUnlinkedRepresentative(customer);
+            when(legalEntityCustomerRepository.findById(customer.getId())).thenReturn(Optional.of(customer));
+
+            // Act
+            RepresentativeViewDto view = legalEntityCustomerService.getRepresentative(customer.getId(),
+                    representative.getId());
+
+            // Assert
+            assertThat(view.id()).isEqualTo(representative.getId());
+            assertThat(view.firstName()).isEqualTo("Serafim");
+        }
+
+        @Test
+        @DisplayName("Error Case: Should report an unknown Representative")
+        void shouldReportUnknownRepresentative() {
+            // Arrange
+            LegalEntityCustomer customer = existingCustomer();
+            addUnlinkedRepresentative(customer);
+            when(legalEntityCustomerRepository.findById(customer.getId())).thenReturn(Optional.of(customer));
+
+            // Act & Assert
+            assertDomainError(() -> legalEntityCustomerService.getRepresentative(customer.getId(), UUID.randomUUID()),
+                    CustomerErrorCode.REPRESENTATIVE_NOT_FOUND);
+        }
+
+        @Test
+        @DisplayName("Error Case: Should report a missing company")
+        void shouldReportMissingCompany() {
+            // Arrange
+            UUID unknownId = UUID.randomUUID();
+            when(legalEntityCustomerRepository.findById(unknownId)).thenReturn(Optional.empty());
+
+            // Act & Assert
+            assertDomainError(() -> legalEntityCustomerService.getRepresentative(unknownId, UUID.randomUUID()),
+                    CustomerErrorCode.CUSTOMER_NOT_FOUND);
         }
     }
 }

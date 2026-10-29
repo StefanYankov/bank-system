@@ -37,6 +37,17 @@ public interface LegalEntityCustomerService {
     LegalEntityCustomerViewDto getById(UUID id);
 
     /**
+     * Retrieves one Representative of a legal-entity Customer.
+     *
+     * @param id               Customer identifier
+     * @param representativeId Representative identifier
+     * @return the Representative
+     * @throws bg.nbu.banksystem.starter.error.DomainException if the Customer does not exist, or the Representative
+     *                                                         does not belong to it
+     */
+    RepresentativeViewDto getRepresentative(UUID id, UUID representativeId);
+
+    /**
      * Updates the registered company name.
      *
      * @param id                   Customer identifier
