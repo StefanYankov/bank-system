@@ -10,14 +10,14 @@
 
 Staff-facing banking system for managing customers, accounts, and loans with annuity repayment schedules. Built as Spring Boot microservices with an Angular frontend and Keycloak for identity.
 
-Current state: `employee-service` is implemented through the persistence, application, and secured REST API layers. The Angular application includes Keycloak authentication, a generated Employee API client, and the first protected Employee profile page.
+Current state: `employee-service` is implemented through the persistence, application, and secured REST API layers. `customer-service` is implemented through the persistence, application, and secured REST API layers. The Angular application includes Keycloak authentication, a generated Employee API client, and the first protected Employee profile page.
 
 ## Architecture
 
 | Component | Owns | Status |
 |---|---|---|
 | `employee-service` | Staff profiles and employment lifecycle | Implemented |
-| `customer-service` | Individual and legal-entity customers | Planned |
+| `customer-service` | Individual and legal-entity customers | Implemented |
 | `account-service` | Accounts and balances | Planned |
 | `loan-service` | Loans, schedules, and instalment payments | Planned |
 | Angular frontend | Staff-facing web application | Employee API integration implemented |
@@ -69,6 +69,8 @@ docker compose -f infra/compose.yaml up -d
 
 Run `EmployeeServiceApplication` with the values from `infra/.env` loaded as environment variables.
 
+Run `CustomerServiceApplication` the same way.
+
 For additional local diagnostics, activate the `dev` Spring profile.
 
 ### Start the Angular frontend
@@ -83,7 +85,7 @@ Open [the local Angular application](http://localhost:4200).
 
 The frontend loads environment-specific values from `frontend/public/config.json` before Angular starts. The local file configures the Keycloak realm, the public `bank-frontend` client, and the Employee Service base URL.
 
-Authentication uses Authorization Code with PKCE. Anonymous users can open the landing page, while protected routes redirect to Keycloak. Realm roles control role-restricted routes such as the temporary ADMIN example.
+Authentication uses Authorization Code with PKCE. Anonymous users can open the landing page, while protected routes redirect to Keycloak. Realm roles control role-restricted routes such as the temporary `ADMIN` example.
 
 ### Generate the Employee API client
 
@@ -118,8 +120,11 @@ The `generated/` directory is not committed or linted. Generated files must not 
 |---|---|
 | [Angular frontend](http://localhost:4200) | Staff-facing web application |
 | [Employee Service health](http://localhost:8081/actuator/health) | Health check |
-| [Swagger UI](http://localhost:8081/swagger-ui.html) | Interactive Employee API documentation |
-| [OpenAPI JSON](http://localhost:8081/v3/api-docs) | Generated API specification |
+| [Employee Service Swagger UI](http://localhost:8081/swagger-ui.html) | Interactive Employee API documentation |
+| [Employee Service OpenAPI JSON](http://localhost:8081/v3/api-docs) | Generated API specification |
+| [Customer Service health](http://localhost:8082/actuator/health) | Health check |
+| [Customer Swagger UI](http://localhost:8082/swagger-ui.html) | Interactive Customer API documentation |
+| [Customer OpenAPI JSON](http://localhost:8082/v3/api-docs) | Generated API specification |
 | [Keycloak administration](http://localhost:8180) | Realm and client administration |
 
 ## Local Identity and API Testing
@@ -152,7 +157,10 @@ Both clients use the shared `bank-api-audience` client scope. Backend services a
 - Frontend deployment values are loaded at runtime from `config.json`, allowing the same build to be used in different environments.
 - Angular API clients are generated from committed service OpenAPI contracts. Generated TypeScript is replaceable build output and is recreated locally and in CI.
 - Employee Service holds staff profiles; Keycloak holds credentials and roles.
-- Records are disabled, never deleted.
+- Records are disabled or closed, never deleted.
+- Closed customers are kept and can be reopened; a closed customer rejects other changes until it is reopened.
+- Customer email is contact data, not a login, so it is not unique.
+- Representative names are stored as a snapshot and are not updated when a linked customer later changes name.
 
 ## Shared Libraries
 
@@ -190,6 +198,12 @@ Run Employee Service checks only:
 
 ```bash
 ./gradlew :services:employee-service:check
+```
+
+Run Customer Service checks only:
+
+```bash
+./gradlew :services:customer-service:check
 ```
 
 Run frontend checks:
