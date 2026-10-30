@@ -10,7 +10,7 @@
     "test:watch": "ng test",
     "lint": "ng lint",
     "generate:employee-api": "openapi-generator-cli generate -c openapi-generator-config.yaml && npm run generate:employee-constraints",
-    "generate:employee-constraints": "node scripts/generate-form-constraints.mjs",
+    "generate:employee-constraints": "node scripts/generate-form-constraints.mjs employee",
     "test:form-constraints": "node --test scripts/generate-form-constraints.test.mjs"
   },
   "private": true,

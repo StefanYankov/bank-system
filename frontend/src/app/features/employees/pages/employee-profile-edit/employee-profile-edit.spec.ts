@@ -4,7 +4,7 @@ import {ActivatedRoute, convertToParamMap, provideRouter, Router,} from '@angula
 import {of, Subject, throwError,} from 'rxjs';
 import {beforeEach, describe, expect, it, vi,} from 'vitest';
 import {EmployeeAPIService, EmployeeUpdateDto, EmployeeViewDto,} from '../../../../generated/employee-api';
-import {employeeSchemaConstraints,} from '../../../../generated/schema-constraints.generated';
+import {employeeSchemaConstraints,} from '../../../../generated/employee-schema-constraints.generated';
 import {EmployeeProfileEdit} from './employee-profile-edit';
 
 describe('EmployeeProfileEdit', () => {

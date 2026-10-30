@@ -4,7 +4,7 @@ import {provideRouter, Router,} from '@angular/router';
 import {of, Subject, throwError,} from 'rxjs';
 import {beforeEach, describe, expect, it, vi,} from 'vitest';
 import {EmployeeAPIService, EmployeeRegistrationDto, EmployeeViewDto,} from '../../../../generated/employee-api';
-import {employeeSchemaConstraints,} from '../../../../generated/schema-constraints.generated';
+import {employeeSchemaConstraints,} from '../../../../generated/employee-schema-constraints.generated';
 import {EmployeeRegistration} from './employee-registration';
 
 describe('EmployeeRegistration', () => {
