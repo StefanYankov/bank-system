@@ -36,7 +36,8 @@ public record LegalEntityCustomerRegistrationDto(
         @Size(max = CustomerConstraints.COMPANY_NAME_MAX_LENGTH)
         String companyName,
 
-        @Schema(description = "9-digit Bulgarian legal-entity identifier (EIK).", example = "123456786")
+        @Schema(description = "9-digit Bulgarian legal-entity identifier (EIK).", example = "123456786", minLength = 9,
+                maxLength = 9, pattern = "\\d{9}")
         @NotBlank
         @ValidEik
         String eik,

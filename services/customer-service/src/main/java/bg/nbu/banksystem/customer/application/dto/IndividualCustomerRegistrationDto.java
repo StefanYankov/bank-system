@@ -48,7 +48,8 @@ public record IndividualCustomerRegistrationDto(
         @Size(max = CustomerConstraints.NAME_MAX_LENGTH)
         String lastName,
 
-        @Schema(description = "Bulgarian personal identifier (EGN).", example = "6101047500")
+        @Schema(description = "Bulgarian personal identifier (EGN).", example = "6101047500", minLength = 10,
+                maxLength = 10, pattern = "\\d{10}")
         @NotBlank
         @ValidEgn
         String egn,
