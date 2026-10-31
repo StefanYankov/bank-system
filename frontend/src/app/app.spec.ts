@@ -10,22 +10,18 @@ describe('App', () => {
   const authenticated = signal(false);
   const username = signal<string | null>(null);
   const realmRoles = signal<readonly string[]>([]);
-
   const loginMock = vi.fn<
     () => Promise<void>
   >();
-
   const logoutMock = vi.fn<
     () => Promise<void>
   >();
-
   const hasRealmRoleMock = vi.fn<
     (role: string) => boolean
   >(
     (role: string): boolean =>
       realmRoles().includes(role),
   );
-
   const authSessionMock = {
     authenticated: authenticated.asReadonly(),
     username: username.asReadonly(),
@@ -40,7 +36,6 @@ describe('App', () => {
     username.set(null);
     realmRoles.set([]);
     vi.clearAllMocks();
-
     loginMock.mockResolvedValue(undefined);
     logoutMock.mockResolvedValue(undefined);
 
@@ -57,17 +52,22 @@ describe('App', () => {
   });
 
   it('should create the application', () => {
+    // Arrange & Act
     const fixture = TestBed.createComponent(App);
 
+    // Assert
     expect(fixture.componentInstance).toBeTruthy();
   });
 
   it('should render the application title', () => {
+    // Arrange
     const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
 
+    // Act
+    fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
 
+    // Assert
     expect(
       element.querySelector(
         '.app-header__brand',
@@ -76,221 +76,215 @@ describe('App', () => {
   });
 
   it('should provide the router outlet', () => {
+    // Arrange
     const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
 
+    // Act
+    fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
+
+    // Assert
     expect(
       element.querySelector('router-outlet'),
     ).not.toBeNull();
   });
 
   it('should render the application footer', () => {
+    // Arrange
     const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
 
+    // Act
+    fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
     const footer = element.querySelector('.app-footer');
 
+    // Assert
     expect(footer?.textContent).toContain('Bank System');
-
     expect(footer?.textContent).toContain(
       'NBU CSCB634 capstone project',
     );
   });
 
   it('should show login and no navigation for an anonymous user', () => {
+    // Arrange
     const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
 
+    // Act
+    fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
     const button = element.querySelector(
       '.session-button',
     );
 
+    // Assert
     expect(button?.textContent).toContain('Log in');
-
     expect(
       element.querySelector('.user-summary'),
     ).toBeNull();
-
     expect(
       element.querySelector('.app-navigation'),
     ).toBeNull();
-
     expect(
       hasRealmRoleMock,
     ).not.toHaveBeenCalled();
   });
 
   it('should show anonymous landing guidance', () => {
+    // Arrange
     const fixture = TestBed.createComponent(App);
 
+    // Act
     fixture.detectChanges();
-
     const element = fixture.nativeElement as HTMLElement;
 
+    // Assert
     expect(element.textContent).toContain(
       'Bank operations in one place',
     );
-
     expect(element.textContent).toContain(
       'Log in with your Bank System account',
     );
-
-    expect(element.textContent).not.toContain(
-      'Employee management will be added in the next milestone',
-    );
-
-    expect(element.textContent).not.toContain(
-      'Open protected page',
-    );
-
-    expect(element.textContent).not.toContain(
-      'Open ADMIN page',
-    );
   });
 
-  it('should show My profile for an authenticated non-ADMIN user', () => {
+  it.each([
+    ['CLERK'],
+    ['LOAN_OFFICER'],
+    ['ADMIN'],
+  ])('should show Customers for the %s role', (role) => {
+    // Arrange
+    authenticated.set(true);
+    username.set(role.toLowerCase());
+    realmRoles.set([role]);
+    const fixture = TestBed.createComponent(App);
+
+    // Act
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+
+    // Assert
+    expect(
+      element.querySelector('a[href="/customers"]'),
+    ).not.toBeNull();
+  });
+
+  it('should show My profile but not Employee administration for a non-ADMIN user', () => {
+    // Arrange
     authenticated.set(true);
     username.set('loan.officer');
     realmRoles.set(['LOAN_OFFICER']);
-
     const fixture = TestBed.createComponent(App);
 
+    // Act
     fixture.detectChanges();
-
     const element = fixture.nativeElement as HTMLElement;
     const navigation = element.querySelector(
       '.app-navigation',
     );
 
-    expect(navigation?.textContent).toContain(
-      'My profile',
-    );
-
+    // Assert
+    expect(navigation?.textContent).toContain('Customers');
+    expect(navigation?.textContent).toContain('My profile');
     expect(navigation?.textContent).not.toContain(
       'Employee administration',
     );
-
     expect(
-      element.querySelector(
-        'a[href="/current-employee"]',
-      ),
+      element.querySelector('a[href="/current-employee"]'),
     ).not.toBeNull();
-
     expect(
-      element.querySelector(
-        'a[href="/admin/employees"]',
-      ),
+      element.querySelector('a[href="/admin/employees"]'),
     ).toBeNull();
-
     expect(
       element.querySelector('.role-badge'),
     ).toBeNull();
-
-    expect(
-      hasRealmRoleMock,
-    ).toHaveBeenCalledWith('ADMIN');
   });
 
-  it('should show Employee administration and My profile for an ADMIN user', () => {
+  it('should show Employee administration, Customers, and My profile for an ADMIN user', () => {
+    // Arrange
     authenticated.set(true);
     username.set('bank.admin');
     realmRoles.set(['ADMIN']);
-
     const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
 
+    // Act
+    fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
     const navigation = element.querySelector(
       '.app-navigation',
     );
 
+    // Assert
+    expect(navigation?.textContent).toContain('Customers');
     expect(navigation?.textContent).toContain(
       'Employee administration',
     );
-
-    expect(navigation?.textContent).toContain(
-      'My profile',
-    );
-
+    expect(navigation?.textContent).toContain('My profile');
     expect(
-      element.querySelector(
-        'a[href="/admin/employees"]',
-      ),
+      element.querySelector('a[href="/customers"]'),
     ).not.toBeNull();
-
     expect(
-      element.querySelector(
-        'a[href="/current-employee"]',
-      ),
+      element.querySelector('a[href="/admin/employees"]'),
     ).not.toBeNull();
-
     expect(
-      element.querySelector(
-        '.user-summary__name',
-      )?.textContent,
+      element.querySelector('a[href="/current-employee"]'),
+    ).not.toBeNull();
+    expect(
+      element.querySelector('.user-summary__name')?.textContent,
     ).toContain('bank.admin');
-
     expect(
-      element.querySelector(
-        '.role-badge',
-      )?.textContent,
+      element.querySelector('.role-badge')?.textContent,
     ).toContain('ADMIN');
-
-    expect(
-      hasRealmRoleMock,
-    ).toHaveBeenCalledWith('ADMIN');
   });
 
-  it('should show current landing guidance for an authenticated user', () => {
+  it('should show Customer landing guidance for an authenticated user', () => {
+    // Arrange
     authenticated.set(true);
     username.set('loan.officer');
     realmRoles.set(['LOAN_OFFICER']);
-
     const fixture = TestBed.createComponent(App);
-    fixture.detectChanges();
 
+    // Act
+    fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
 
+    // Assert
     expect(element.textContent).toContain(
-      'Use the navigation above to open your Employee profile',
+      'Use the navigation above to search Customers',
     );
   });
 
   it('should delegate login to the authentication session', () => {
+    // Arrange
     const fixture = TestBed.createComponent(App);
-
     fixture.detectChanges();
-
     const element = fixture.nativeElement as HTMLElement;
-
     const button = element.querySelector(
       '.session-button',
     ) as HTMLButtonElement | null;
 
+    // Act
     button?.click();
 
+    // Assert
     expect(loginMock).toHaveBeenCalledOnce();
     expect(logoutMock).not.toHaveBeenCalled();
   });
 
   it('should delegate logout to the authentication session', () => {
+    // Arrange
     authenticated.set(true);
     username.set('bank.admin');
     realmRoles.set(['ADMIN']);
-
     const fixture = TestBed.createComponent(App);
     fixture.detectChanges();
-
     const element = fixture.nativeElement as HTMLElement;
     const button = element.querySelector(
       '.session-button',
     ) as HTMLButtonElement | null;
 
+    // Act
     button?.click();
 
+    // Assert
     expect(logoutMock).toHaveBeenCalledOnce();
     expect(loginMock).not.toHaveBeenCalled();
   });

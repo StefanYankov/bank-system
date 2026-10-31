@@ -6,12 +6,22 @@
     >
       {{ title() }}
     </a>
-
     @if (authSession.authenticated()) {
       <nav
         aria-label="Application navigation"
         class="app-navigation"
       >
+        @if (authSession.hasRealmRole('CLERK')
+        || authSession.hasRealmRole('LOAN_OFFICER')
+        || authSession.hasRealmRole('ADMIN')) {
+          <a
+            class="app-navigation__link"
+            routerLink="/customers"
+            routerLinkActive="app-navigation__link--active"
+          >
+            Customers
+          </a>
+        }
         @if (authSession.hasRealmRole('ADMIN')) {
           <a
             class="app-navigation__link"
@@ -21,7 +31,6 @@
             Employee administration
           </a>
         }
-
         <a
           class="app-navigation__link"
           routerLink="/current-employee"
@@ -31,21 +40,18 @@
         </a>
       </nav>
     }
-
     <div class="app-header__session">
       @if (authSession.authenticated()) {
         <div class="user-summary">
           <span class="user-summary__name">
             {{ authSession.username() ?? 'Authenticated user' }}
           </span>
-
           @if (authSession.hasRealmRole('ADMIN')) {
             <span class="role-badge">
               ADMIN
             </span>
           }
         </div>
-
         <button
           class="session-button session-button--secondary"
           type="button"
@@ -68,7 +74,6 @@
 
 <main class="app-content">
   <router-outlet #outlet="outlet"></router-outlet>
-
   @if (!outlet.isActivated) {
     <section
       aria-labelledby="welcome-title"
@@ -77,15 +82,13 @@
       <p class="welcome__label">
         Staff application
       </p>
-
       <h1 id="welcome-title">
         Bank operations in one place
       </h1>
-
       @if (authSession.authenticated()) {
         <p class="welcome__description">
-          Use the navigation above to open your Employee profile
-          and access the operations permitted by your role.
+          Use the navigation above to search Customers, open your Employee
+          profile, and access the operations permitted by your role.
         </p>
       } @else {
         <p class="welcome__description">
@@ -99,9 +102,7 @@
 <footer class="app-footer">
   <div class="app-footer__content">
     <span>Bank System</span>
-
     <span aria-hidden="true">·</span>
-
     <span>NBU CSCB634 capstone project</span>
   </div>
 </footer>
