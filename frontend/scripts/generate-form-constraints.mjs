@@ -18,6 +18,23 @@ export const SERVICE_CONFIGS = {
       EmployeeRegistrationDto: ['identitySubjectId', 'firstName', 'lastName', 'workEmail', 'position', 'employmentStartDate',],
       EmployeeUpdateDto: ['firstName', 'lastName', 'workEmail',],
     },
+  }, customer: {
+    openApiPath: './openapi/customer-service.json',
+    outputPath: './src/app/generated/customer-schema-constraints.generated.ts',
+    exportName: 'customerSchemaConstraints',
+    expectedSchemas: {
+      AddressDto: ['countryCode', 'city', 'postalCode', 'addressLine1', 'addressLine2',],
+      CompanyNameUpdateDto: ['companyName',],
+      CustomerContactUpdateDto: ['email', 'phone',],
+      EgnCorrectionDto: ['egn',],
+      EikCorrectionDto: ['eik',],
+      IndividualCustomerNameUpdateDto: ['firstName', 'middleName', 'lastName',],
+      IndividualCustomerRegistrationDto: ['email', 'phone', 'firstName', 'middleName', 'lastName', 'egn', 'residentialAddress',],
+      LegalEntityCustomerRegistrationDto: ['email', 'phone', 'companyName', 'eik', 'registeredAddress', 'correspondenceAddress',],
+      RepresentationEndDto: ['validTo',],
+      RepresentativeAdditionDto: ['individualCustomerId', 'firstName', 'middleName', 'lastName', 'role', 'validFrom',],
+      RepresentativeCorrectionDto: ['individualCustomerId', 'firstName', 'middleName', 'lastName', 'role', 'validFrom', 'validTo',],
+    },
   },
 };
 
@@ -214,9 +231,13 @@ export function generateFormConstraints(serviceName) {
   const config = getServiceConfig(serviceName);
 
   const openApiDocument = readOpenApiDocument(config.openApiPath,);
+
   const schemas = getSchemas(openApiDocument);
+
   const constraints = extractConstraints(schemas, config.expectedSchemas,);
+
   const fileContent = createTypeScriptSource(constraints, config.openApiPath, config.exportName,);
+
   writeGeneratedFile(config.outputPath, fileContent,);
 
   console.log(`Generated ${serviceName} form constraints: ${config.outputPath}`,);

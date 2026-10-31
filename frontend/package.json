@@ -9,8 +9,11 @@
     "test": "ng test --watch=false",
     "test:watch": "ng test",
     "lint": "ng lint",
-    "generate:employee-api": "openapi-generator-cli generate -c openapi-generator-config.yaml && npm run generate:employee-constraints",
+    "generate:apis": "npm run generate:employee-api && npm run generate:customer-api",
+    "generate:employee-api": "openapi-generator-cli generate -c openapi/config/employee-openapi-generator-config.yaml && npm run generate:employee-constraints",
     "generate:employee-constraints": "node scripts/generate-form-constraints.mjs employee",
+    "generate:customer-api": "openapi-generator-cli generate -c openapi/config/customer-openapi-generator-config.yaml && npm run generate:customer-constraints",
+    "generate:customer-constraints": "node scripts/generate-form-constraints.mjs customer",
     "test:form-constraints": "node --test scripts/generate-form-constraints.test.mjs"
   },
   "private": true,
