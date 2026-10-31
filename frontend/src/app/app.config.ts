@@ -8,9 +8,10 @@ import {
 } from 'keycloak-angular';
 
 import {routes} from './app.routes';
-import {provideApi} from './generated/employee-api';
 import {createApiUrlPattern} from './core/config/api-url-pattern';
 import {RUNTIME_CONFIG, RuntimeConfig,} from './core/config/runtime-config';
+import {provideApi as provideCustomerApi} from './generated/customer-api';
+import {provideApi as provideEmployeeApi} from './generated/employee-api';
 
 /**
  * Creates the Angular application configuration from values loaded at runtime.
@@ -32,14 +33,12 @@ export function createApplicationConfig(
           includeBearerTokenInterceptor,
         ]),
       ),
-
-      provideApi(runtimeConfig.employeeApiUrl),
-
+      provideEmployeeApi(runtimeConfig.employeeApiUrl),
+      provideCustomerApi(runtimeConfig.customerApiUrl),
       {
         provide: RUNTIME_CONFIG,
         useValue: runtimeConfig,
       },
-
       {
         provide: INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
         useValue: [
@@ -48,9 +47,13 @@ export function createApplicationConfig(
               runtimeConfig.employeeApiUrl,
             ),
           },
+          {
+            urlPattern: createApiUrlPattern(
+              runtimeConfig.customerApiUrl,
+            ),
+          },
         ],
       },
-
       provideKeycloak({
         config: runtimeConfig.keycloak,
         initOptions: {

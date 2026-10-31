@@ -4,5 +4,6 @@
     "realm": "bank-system",
     "clientId": "bank-frontend"
   },
-  "employeeApiUrl": "http://localhost:8081"
+  "employeeApiUrl": "http://localhost:8081",
+  "customerApiUrl": "http://localhost:8082"
 }

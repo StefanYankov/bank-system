@@ -15,6 +15,7 @@ export interface KeycloakRuntimeConfig {
 export interface RuntimeConfig {
   readonly keycloak: KeycloakRuntimeConfig;
   readonly employeeApiUrl: string;
+  readonly customerApiUrl: string;
 }
 
 /**

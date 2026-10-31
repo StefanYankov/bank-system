@@ -17,6 +17,7 @@ describe('loadRuntimeConfig', () => {
             clientId: '  bank-frontend  ',
           },
           employeeApiUrl: '  http://localhost:8081  ',
+          customerApiUrl: '  http://localhost:8082  ',
         }),
         {
           status: 200,
@@ -40,6 +41,7 @@ describe('loadRuntimeConfig', () => {
         clientId: 'bank-frontend',
       },
       employeeApiUrl: 'http://localhost:8081',
+      customerApiUrl: 'http://localhost:8082',
     });
 
     expect(fetchMock).toHaveBeenCalledWith(
@@ -75,6 +77,7 @@ describe('loadRuntimeConfig', () => {
         new Response(
           JSON.stringify({
             employeeApiUrl: 'http://localhost:8081',
+            customerApiUrl: 'http://localhost:8082',
           }),
           {
             status: 200,
@@ -88,7 +91,7 @@ describe('loadRuntimeConfig', () => {
 
     // Act & Assert
     await expect(loadRuntimeConfig()).rejects.toThrow(
-      "Runtime configuration field 'keycloak' must be an object",
+      'Runtime configuration field \'keycloak\' must be an object',
     );
   });
 
@@ -105,6 +108,7 @@ describe('loadRuntimeConfig', () => {
               clientId: 'bank-frontend',
             },
             employeeApiUrl: 'http://localhost:8081',
+            customerApiUrl: 'http://localhost:8082',
           }),
           {
             status: 200,
@@ -118,7 +122,37 @@ describe('loadRuntimeConfig', () => {
 
     // Act & Assert
     await expect(loadRuntimeConfig()).rejects.toThrow(
-      "Runtime configuration field 'keycloak.realm' must be a non-empty string",
+      'Runtime configuration field \'keycloak.realm\' must be a non-empty string',
+    );
+  });
+
+  it('should reject a missing Customer API URL', async () => {
+    // Arrange
+    vi.stubGlobal(
+      'fetch',
+      vi.fn().mockResolvedValue(
+        new Response(
+          JSON.stringify({
+            keycloak: {
+              url: 'http://localhost:8180',
+              realm: 'bank-system',
+              clientId: 'bank-frontend',
+            },
+            employeeApiUrl: 'http://localhost:8081',
+          }),
+          {
+            status: 200,
+            headers: {
+              'Content-Type': 'application/json',
+            },
+          },
+        ),
+      ),
+    );
+
+    // Act & Assert
+    await expect(loadRuntimeConfig()).rejects.toThrow(
+      'Runtime configuration field \'customerApiUrl\' must be a non-empty string',
     );
   });
 });

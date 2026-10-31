@@ -38,6 +38,10 @@ function parseRuntimeConfig(value: unknown): RuntimeConfig {
       root['employeeApiUrl'],
       'employeeApiUrl',
     ),
+    customerApiUrl: requireString(
+      root['customerApiUrl'],
+      'customerApiUrl',
+    ),
   };
 }
 
