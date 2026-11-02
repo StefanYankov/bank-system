@@ -2,7 +2,7 @@ import {HttpErrorResponse} from '@angular/common/http';
 import {TestBed} from '@angular/core/testing';
 import {ReactiveFormsModule} from '@angular/forms';
 import {of, Subject, throwError} from 'rxjs';
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
 
 import {
   CustomerAPIService,
@@ -59,6 +59,10 @@ describe('CustomerSearch', () => {
     }).compileComponents();
   });
 
+  afterEach(() => {
+    vi.useRealTimers();
+  });
+
   it('should request and render the initial Customer page', async () => {
     // Arrange
     const fixture = TestBed.createComponent(CustomerSearch);
@@ -109,6 +113,44 @@ describe('CustomerSearch', () => {
       size: 10,
       sort: ['customerNumber,asc'],
     });
+  });
+
+  it('should ignore an older response after a newer query starts', async () => {
+    // Arrange
+    const olderResponse = new Subject<PagedResponseCustomerSummaryDto>();
+    const newerResponse = new Subject<PagedResponseCustomerSummaryDto>();
+    const newerCustomer: CustomerSummaryDto = {
+      ...legalEntity,
+      customerNumber: 'CUS-000010',
+      displayName: 'Starter Holdings',
+    };
+    searchCustomersMock
+      .mockReturnValueOnce(olderResponse)
+      .mockReturnValueOnce(newerResponse);
+    const fixture = TestBed.createComponent(CustomerSearch);
+    fixture.detectChanges();
+    await vi.advanceTimersByTimeAsync(300);
+
+    // Act
+    fixture.componentInstance['queryControl'].setValue('Starter');
+    await vi.advanceTimersByTimeAsync(300);
+    newerResponse.next({
+      content: [newerCustomer],
+      page: 0,
+      size: 10,
+      totalElements: 1,
+      totalPages: 1,
+      last: true,
+    });
+    fixture.detectChanges();
+    olderResponse.next(page);
+    fixture.detectChanges();
+
+    // Assert
+    expect(olderResponse.observed).toBe(false);
+    const element = fixture.nativeElement as HTMLElement;
+    expect(element.textContent).toContain('Starter Holdings');
+    expect(element.textContent).not.toContain('CUS-000001');
   });
 
   it('should show a loading state while the request is pending', async () => {

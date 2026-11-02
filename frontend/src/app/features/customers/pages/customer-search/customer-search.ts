@@ -2,13 +2,28 @@ import {HttpErrorResponse} from '@angular/common/http';
 import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
-import {debounceTime, distinctUntilChanged, startWith} from 'rxjs';
+import {catchError, debounceTime, distinctUntilChanged, map, of, startWith, Subject, switchMap, tap} from 'rxjs';
 
 import {
   CustomerAPIService,
   CustomerSummaryDto,
   PagedResponseCustomerSummaryDto,
 } from '../../../../generated/customer-api';
+
+interface SearchRequest {
+  readonly query: string;
+  readonly page: number;
+}
+
+type SearchOutcome =
+  | {
+  readonly kind: 'success';
+  readonly response: PagedResponseCustomerSummaryDto;
+}
+  | {
+  readonly kind: 'error';
+  readonly error: unknown;
+};
 
 /**
  * Searches Customers of both types and displays paginated summary results.
@@ -36,22 +51,58 @@ export class CustomerSearch implements OnInit {
 
   private readonly customerApi = inject(CustomerAPIService);
   private readonly destroyRef = inject(DestroyRef);
+  private readonly requests = new Subject<SearchRequest>();
   private currentQuery = '';
 
   /**
-   * Starts the initial load and listens for debounced query changes.
+   * Starts the shared request pipeline and listens for debounced query changes.
    */
   public ngOnInit(): void {
+    this.requests
+      .pipe(
+        tap(() => {
+          this.loading.set(true);
+          this.error.set(null);
+        }),
+        switchMap((request) =>
+          this.search(request)
+            .pipe(
+              map((response): SearchOutcome => ({
+                kind: 'success',
+                response,
+              })),
+              catchError((error: unknown) =>
+                of<SearchOutcome>({
+                  kind: 'error',
+                  error,
+                }),
+              ),
+            ),
+        ),
+        takeUntilDestroyed(this.destroyRef),
+      )
+      .subscribe((outcome) => {
+        if (outcome.kind === 'success') {
+          this.applyPage(outcome.response);
+        } else {
+          this.customers.set([]);
+          this.error.set(this.errorMessage(outcome.error));
+        }
+
+        this.loading.set(false);
+      });
+
     this.queryControl.valueChanges
       .pipe(
         startWith(this.queryControl.value),
+        map((query) => query.trim()),
         debounceTime(CustomerSearch.SEARCH_DEBOUNCE_MS),
         distinctUntilChanged(),
         takeUntilDestroyed(this.destroyRef),
       )
       .subscribe((query) => {
-        this.currentQuery = query.trim();
-        this.loadPage(0);
+        this.currentQuery = query;
+        this.requestPage(0);
       });
   }
 
@@ -70,7 +121,7 @@ export class CustomerSearch implements OnInit {
       return;
     }
 
-    this.loadPage(this.page() - 1);
+    this.requestPage(this.page() - 1);
   }
 
   /**
@@ -81,14 +132,14 @@ export class CustomerSearch implements OnInit {
       return;
     }
 
-    this.loadPage(this.page() + 1);
+    this.requestPage(this.page() + 1);
   }
 
   /**
    * Repeats the request for the currently selected page and query.
    */
   protected retry(): void {
-    this.loadPage(this.page());
+    this.requestPage(this.page());
   }
 
   /**
@@ -119,30 +170,22 @@ export class CustomerSearch implements OnInit {
       : 'EIK';
   }
 
-  private loadPage(page: number): void {
-    this.loading.set(true);
-    this.error.set(null);
-
-    this.customerApi.searchCustomers({
-      ...(this.currentQuery.length > 0
-        ? {query: this.currentQuery}
-        : {}),
+  private requestPage(page: number): void {
+    this.requests.next({
+      query: this.currentQuery,
       page,
+    });
+  }
+
+  private search(request: SearchRequest) {
+    return this.customerApi.searchCustomers({
+      ...(request.query.length > 0
+        ? {query: request.query}
+        : {}),
+      page: request.page,
       size: CustomerSearch.PAGE_SIZE,
       sort: ['customerNumber,asc'],
-    })
-      .pipe(takeUntilDestroyed(this.destroyRef))
-      .subscribe({
-        next: (response: PagedResponseCustomerSummaryDto) => {
-          this.applyPage(response);
-          this.loading.set(false);
-        },
-        error: (error: unknown) => {
-          this.customers.set([]);
-          this.error.set(this.errorMessage(error));
-          this.loading.set(false);
-        },
-      });
+    });
   }
 
   private applyPage(response: PagedResponseCustomerSummaryDto): void {
