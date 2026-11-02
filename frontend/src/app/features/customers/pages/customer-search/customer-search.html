@@ -106,7 +106,18 @@
         <tbody>
           @for (customer of customers(); track customer.id) {
             <tr>
-              <td>{{ customer.customerNumber }}</td>
+              <td>
+                @if (customer.customerType === individualType) {
+                  <a
+                    [routerLink]="['/customers/individuals', customer.id]"
+                    class="customer-link"
+                  >
+                    {{ customer.customerNumber }}
+                  </a>
+                } @else {
+                  {{ customer.customerNumber }}
+                }
+              </td>
               <td>{{ customer.displayName }}</td>
               <td>{{ customerTypeLabel(customer.customerType) }}</td>
               <td>

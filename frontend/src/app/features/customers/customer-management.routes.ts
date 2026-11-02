@@ -13,4 +13,11 @@ export const customerManagementRoutes: Routes = [
       import('./pages/customer-search/customer-search')
         .then((module) => module.CustomerSearch),
   },
+  {
+    path: 'individuals/:id',
+    loadComponent: () =>
+      import(
+        './pages/individual-customer-details/individual-customer-details'
+        ).then((module) => module.IndividualCustomerDetails),
+  },
 ];

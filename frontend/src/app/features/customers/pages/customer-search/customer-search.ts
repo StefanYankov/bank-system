@@ -2,6 +2,7 @@ import {HttpErrorResponse} from '@angular/common/http';
 import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
+import {RouterLink} from '@angular/router';
 import {catchError, debounceTime, distinctUntilChanged, map, of, startWith, Subject, switchMap, tap} from 'rxjs';
 
 import {
@@ -30,7 +31,7 @@ type SearchOutcome =
  */
 @Component({
   selector: 'app-customer-search',
-  imports: [ReactiveFormsModule],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './customer-search.html',
   styleUrl: './customer-search.css',
 })
@@ -48,6 +49,8 @@ export class CustomerSearch implements OnInit {
   protected readonly totalElements = signal(0);
   protected readonly totalPages = signal(0);
   protected readonly last = signal(true);
+  protected readonly individualType =
+    CustomerSummaryDto.CustomerTypeEnum.Individual;
 
   private readonly customerApi = inject(CustomerAPIService);
   private readonly destroyRef = inject(DestroyRef);
@@ -107,7 +110,7 @@ export class CustomerSearch implements OnInit {
   }
 
   /**
-   * Clears the search query. The value-change subscription reloads page zero.
+   * Clears the search query and reloads page zero.
    */
   protected clearSearch(): void {
     this.queryControl.setValue('');

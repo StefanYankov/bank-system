@@ -111,6 +111,21 @@
   background: #fafafa;
 }
 
+.customer-link {
+  color: #8f001f;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.customer-link:hover {
+  text-decoration: underline;
+}
+
+.customer-link:focus-visible {
+  outline: 0.2rem solid #d7193f;
+  outline-offset: 0.2rem;
+}
+
 .identifier-label {
   display: inline-block;
   margin-right: 0.3rem;

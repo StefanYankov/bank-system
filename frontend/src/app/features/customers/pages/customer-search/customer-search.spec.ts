@@ -3,6 +3,7 @@ import {TestBed} from '@angular/core/testing';
 import {ReactiveFormsModule} from '@angular/forms';
 import {of, Subject, throwError} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
+import {provideRouter} from '@angular/router';
 
 import {
   CustomerAPIService,
@@ -49,6 +50,7 @@ describe('CustomerSearch', () => {
         ReactiveFormsModule,
       ],
       providers: [
+        provideRouter([]),
         {
           provide: CustomerAPIService,
           useValue: {
@@ -87,6 +89,28 @@ describe('CustomerSearch', () => {
     expect(element.textContent).toContain('Legal entity');
     expect(element.textContent).toContain('EIK');
     expect(element.textContent).toContain('CLOSED');
+  });
+
+  it('should link only Individual Customers to their details page', async () => {
+    // Arrange
+    const fixture = TestBed.createComponent(CustomerSearch);
+
+    // Act
+    fixture.detectChanges();
+    await vi.advanceTimersByTimeAsync(300);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+    const customerLinks = Array.from(
+      element.querySelectorAll<HTMLAnchorElement>('.customer-link'),
+    );
+
+    // Assert
+    expect(customerLinks).toHaveLength(1);
+    expect(customerLinks[0]?.textContent?.trim()).toBe('CUS-000001');
+    expect(customerLinks[0]?.getAttribute('href')).toBe(
+      `/customers/individuals/${individual.id}`,
+    );
+    expect(element.textContent).toContain('CUS-000002');
   });
 
   it('should debounce a trimmed query and reset to the first page', async () => {
