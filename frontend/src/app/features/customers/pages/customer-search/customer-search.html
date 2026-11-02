@@ -1,35 +1,28 @@
-<section
-  aria-labelledby="customer-search-title"
-  class="customer-search"
->
+<section aria-labelledby="customer-search-title" class="customer-search">
   <header class="customer-search__header">
     <div>
-      <p class="customer-search__label">
-        Customer management
-      </p>
-      <h1 id="customer-search-title">
-        Customers
-      </h1>
+      <p class="customer-search__label">Customer management</p>
+      <h1 id="customer-search-title">Customers</h1>
       <p class="customer-search__description">
         Search individual and legal-entity customers by customer number,
         name, EGN, or EIK.
       </p>
     </div>
+    @if (canMaintainCustomers()) {
+      <a
+        class="button button--primary"
+        routerLink="/customers/individuals/register"
+      >
+        Register individual customer
+      </a>
+    }
   </header>
 
-  <section
-    aria-labelledby="customer-search-form-title"
-    class="search-panel"
-  >
-    <h2
-      class="visually-hidden"
-      id="customer-search-form-title"
-    >
+  <section aria-labelledby="customer-search-form-title" class="search-panel">
+    <h2 class="visually-hidden" id="customer-search-form-title">
       Search customers
     </h2>
-    <label for="customer-query">
-      Search customers
-    </label>
+    <label for="customer-query">Search customers</label>
     <div class="search-panel__controls">
       <input
         [formControl]="queryControl"
@@ -54,17 +47,9 @@
   </section>
 
   @if (loading()) {
-    <p
-      class="state-message"
-      role="status"
-    >
-      Loading customers...
-    </p>
+    <p class="state-message" role="status">Loading customers...</p>
   } @else if (error(); as errorMessage) {
-    <section
-      class="state-panel state-panel--error"
-      role="alert"
-    >
+    <section class="state-panel state-panel--error" role="alert">
       <h2>Customers unavailable</h2>
       <p>{{ errorMessage }}</p>
       <button
@@ -79,21 +64,15 @@
     <section class="state-panel">
       <h2>No customers found</h2>
       @if (queryControl.value.trim().length > 0) {
-        <p>
-          Try a different customer number, name, EGN, or EIK.
-        </p>
+        <p>Try a different customer number, name, EGN, or EIK.</p>
       } @else {
-        <p>
-          No Customer records are available yet.
-        </p>
+        <p>No Customer records are available yet.</p>
       }
     </section>
   } @else {
     <div class="customer-table-container">
       <table class="customer-table">
-        <caption class="visually-hidden">
-          Customer search results
-        </caption>
+        <caption class="visually-hidden">Customer search results</caption>
         <thead>
         <tr>
           <th scope="col">Customer number</th>
@@ -140,10 +119,7 @@
       </table>
     </div>
 
-    <footer
-      aria-label="Customer search pagination"
-      class="pagination"
-    >
+    <footer aria-label="Customer search pagination" class="pagination">
       <p class="pagination__summary">
         {{ totalElements() }}
         {{ totalElements() === 1 ? 'customer' : 'customers' }}

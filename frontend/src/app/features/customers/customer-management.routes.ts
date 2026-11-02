@@ -1,17 +1,24 @@
 import {Routes} from '@angular/router';
 
-/**
- * Routes for Customer operations available to all bank roles.
- *
- * The route group is mounted below `/customers` by the root configuration and
- * inherits its role guard.
- */
+import {roleGuard, ROUTE_ROLES} from '../../core/auth/guards/role-guard';
+
 export const customerManagementRoutes: Routes = [
   {
     path: '',
     loadComponent: () =>
       import('./pages/customer-search/customer-search')
         .then((module) => module.CustomerSearch),
+  },
+  {
+    path: 'individuals/register',
+    canActivate: [roleGuard],
+    data: {
+      [ROUTE_ROLES]: ['CLERK', 'ADMIN'],
+    },
+    loadComponent: () =>
+      import(
+        './pages/individual-customer-registration/individual-customer-registration'
+        ).then((module) => module.IndividualCustomerRegistration),
   },
   {
     path: 'individuals/:id',

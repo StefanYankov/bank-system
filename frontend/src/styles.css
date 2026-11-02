@@ -1,1 +1,180 @@
-/* You can add global styles to this file, and also import other style files */
+/* Shared application styles. */
+
+.back-link {
+  width: fit-content;
+  color: #8f001f;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.back-link:hover {
+  text-decoration: underline;
+}
+
+.back-link:focus-visible,
+.button:focus-visible {
+  outline: 0.2rem solid #d7193f;
+  outline-offset: 0.2rem;
+}
+
+.registration-form {
+  display: grid;
+  gap: 1.5rem;
+}
+
+.form-section,
+.submission-error {
+  padding: 1.5rem;
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 0.5rem;
+  box-shadow: 0 0.25rem 1rem rgb(0 0 0 / 6%);
+}
+
+.form-section h2,
+.submission-error h2 {
+  margin: 0;
+  color: #650016;
+  font-size: 1.25rem;
+}
+
+.form-section__description {
+  margin: 0.6rem 0 0;
+  color: #626262;
+  line-height: 1.5;
+}
+
+.submission-error {
+  border-color: #d7193f;
+}
+
+.submission-error p {
+  margin: 0.75rem 0 0;
+  color: #7f1d1d;
+}
+
+.form-grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 1.25rem;
+  margin-top: 1.25rem;
+}
+
+.form-field {
+  display: grid;
+  align-content: start;
+  gap: 0.4rem;
+}
+
+.form-field--full-width {
+  grid-column: 1 / -1;
+  margin-top: 1.25rem;
+}
+
+.form-field label {
+  color: #242424;
+  font-size: 0.875rem;
+  font-weight: 700;
+}
+
+.form-field input,
+.form-field select {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 0.65rem 0.75rem;
+  color: #242424;
+  background: #ffffff;
+  border: 1px solid #a7a7a7;
+  border-radius: 0.3rem;
+  font: inherit;
+}
+
+.form-field input:focus,
+.form-field select:focus {
+  border-color: #8f001f;
+  outline: 0.2rem solid rgb(215 25 63 / 25%);
+  outline-offset: 0;
+}
+
+.form-field input.ng-invalid.ng-touched,
+.form-field select.ng-invalid.ng-touched {
+  border-color: #b91c1c;
+}
+
+.field-help,
+.field-error {
+  margin: 0;
+  font-size: 0.8rem;
+  line-height: 1.4;
+}
+
+.field-help {
+  color: #626262;
+}
+
+.field-error {
+  color: #b91c1c;
+  font-weight: 600;
+}
+
+.form-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 1rem;
+}
+
+.button {
+  display: inline-block;
+  padding: 0.65rem 0.9rem;
+  border: 1px solid #8f001f;
+  border-radius: 0.3rem;
+  font: inherit;
+  font-weight: 700;
+  text-align: center;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+.button:disabled {
+  cursor: not-allowed;
+  opacity: 0.55;
+}
+
+.button--primary {
+  color: #ffffff;
+  background: #8f001f;
+}
+
+.button--primary:hover:not(:disabled) {
+  background: #650016;
+}
+
+.button--secondary {
+  color: #8f001f;
+  background: #ffffff;
+}
+
+.button--secondary:hover:not(:disabled) {
+  background: #faf4f5;
+}
+
+@media (max-width: 40rem) {
+  .form-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .form-field--full-width {
+    grid-column: auto;
+  }
+
+  .form-actions {
+    align-items: stretch;
+    flex-direction: column-reverse;
+  }
+
+  .button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+}

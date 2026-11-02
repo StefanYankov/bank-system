@@ -1,0 +1,31 @@
+:host {
+  display: block;
+}
+
+.customer-registration {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 55rem;
+}
+
+.customer-registration__label {
+  margin: 0 0 0.4rem;
+  color: #8f001f;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.customer-registration h1 {
+  margin: 0;
+  color: #650016;
+  font-size: clamp(1.75rem, 4vw, 2.4rem);
+  line-height: 1.2;
+}
+
+.customer-registration__description {
+  margin: 0.75rem 0 0;
+  color: #626262;
+  line-height: 1.5;
+}

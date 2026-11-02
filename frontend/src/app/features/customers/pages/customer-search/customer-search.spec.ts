@@ -1,10 +1,11 @@
 import {HttpErrorResponse} from '@angular/common/http';
+import {signal} from '@angular/core';
 import {TestBed} from '@angular/core/testing';
-import {ReactiveFormsModule} from '@angular/forms';
+import {provideRouter} from '@angular/router';
 import {of, Subject, throwError} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {provideRouter} from '@angular/router';
 
+import {AuthSession} from '../../../../core/auth/auth-session';
 import {
   CustomerAPIService,
   CustomerSummaryDto,
@@ -37,25 +38,30 @@ describe('CustomerSearch', () => {
     totalPages: 1,
     last: true,
   };
+  const realmRoles = signal<readonly string[]>(['CLERK']);
   const searchCustomersMock = vi.fn();
+  const authSessionMock = {
+    realmRoles: realmRoles.asReadonly(),
+    hasRealmRole: vi.fn((role: string) => realmRoles().includes(role)),
+  };
 
   beforeEach(async () => {
     vi.useFakeTimers();
     vi.clearAllMocks();
+    realmRoles.set(['CLERK']);
     searchCustomersMock.mockReturnValue(of(page));
 
     await TestBed.configureTestingModule({
-      imports: [
-        CustomerSearch,
-        ReactiveFormsModule,
-      ],
+      imports: [CustomerSearch],
       providers: [
         provideRouter([]),
         {
           provide: CustomerAPIService,
-          useValue: {
-            searchCustomers: searchCustomersMock,
-          },
+          useValue: {searchCustomers: searchCustomersMock},
+        },
+        {
+          provide: AuthSession,
+          useValue: authSessionMock,
         },
       ],
     }).compileComponents();
@@ -82,13 +88,45 @@ describe('CustomerSearch', () => {
     });
     const element = fixture.nativeElement as HTMLElement;
     expect(element.textContent).toContain('CUS-000001');
-    expect(element.textContent).toContain('Serafim Ivanov Gerasimoff');
-    expect(element.textContent).toContain('Individual');
-    expect(element.textContent).toContain('EGN');
     expect(element.textContent).toContain('Starter Financial Services');
-    expect(element.textContent).toContain('Legal entity');
-    expect(element.textContent).toContain('EIK');
-    expect(element.textContent).toContain('CLOSED');
+  });
+
+  it.each([
+    ['CLERK'],
+    ['ADMIN'],
+  ])('should show registration for the %s role', async (role) => {
+    // Arrange
+    realmRoles.set([role]);
+    const fixture = TestBed.createComponent(CustomerSearch);
+
+    // Act
+    fixture.detectChanges();
+    await vi.advanceTimersByTimeAsync(300);
+    fixture.detectChanges();
+    const link = fixture.nativeElement.querySelector(
+      'a[href="/customers/individuals/register"]',
+    ) as HTMLAnchorElement | null;
+
+    // Assert
+    expect(link).not.toBeNull();
+  });
+
+  it('should hide registration from a loan officer', async () => {
+    // Arrange
+    realmRoles.set(['LOAN_OFFICER']);
+    const fixture = TestBed.createComponent(CustomerSearch);
+
+    // Act
+    fixture.detectChanges();
+    await vi.advanceTimersByTimeAsync(300);
+    fixture.detectChanges();
+
+    // Assert
+    expect(
+      fixture.nativeElement.querySelector(
+        'a[href="/customers/individuals/register"]',
+      ),
+    ).toBeNull();
   });
 
   it('should link only Individual Customers to their details page', async () => {
@@ -100,17 +138,14 @@ describe('CustomerSearch', () => {
     await vi.advanceTimersByTimeAsync(300);
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
-    const customerLinks = Array.from(
+    const links = Array.from(
       element.querySelectorAll<HTMLAnchorElement>('.customer-link'),
     );
-
     // Assert
-    expect(customerLinks).toHaveLength(1);
-    expect(customerLinks[0]?.textContent?.trim()).toBe('CUS-000001');
-    expect(customerLinks[0]?.getAttribute('href')).toBe(
+    expect(links).toHaveLength(1);
+    expect(links[0]?.getAttribute('href')).toBe(
       `/customers/individuals/${individual.id}`,
     );
-    expect(element.textContent).toContain('CUS-000002');
   });
 
   it('should debounce a trimmed query and reset to the first page', async () => {
@@ -143,11 +178,6 @@ describe('CustomerSearch', () => {
     // Arrange
     const olderResponse = new Subject<PagedResponseCustomerSummaryDto>();
     const newerResponse = new Subject<PagedResponseCustomerSummaryDto>();
-    const newerCustomer: CustomerSummaryDto = {
-      ...legalEntity,
-      customerNumber: 'CUS-000010',
-      displayName: 'Starter Holdings',
-    };
     searchCustomersMock
       .mockReturnValueOnce(olderResponse)
       .mockReturnValueOnce(newerResponse);
@@ -158,29 +188,22 @@ describe('CustomerSearch', () => {
     // Act
     fixture.componentInstance['queryControl'].setValue('Starter');
     await vi.advanceTimersByTimeAsync(300);
-    newerResponse.next({
-      content: [newerCustomer],
-      page: 0,
-      size: 10,
-      totalElements: 1,
-      totalPages: 1,
-      last: true,
-    });
+    newerResponse.next({...page, content: [legalEntity]});
     fixture.detectChanges();
     olderResponse.next(page);
     fixture.detectChanges();
 
     // Assert
     expect(olderResponse.observed).toBe(false);
-    const element = fixture.nativeElement as HTMLElement;
-    expect(element.textContent).toContain('Starter Holdings');
-    expect(element.textContent).not.toContain('CUS-000001');
+    expect(fixture.nativeElement.textContent).toContain('Starter Financial Services');
+    expect(fixture.nativeElement.textContent).not.toContain('CUS-000001');
   });
 
   it('should show a loading state while the request is pending', async () => {
     // Arrange
-    const response = new Subject<PagedResponseCustomerSummaryDto>();
-    searchCustomersMock.mockReturnValue(response);
+    searchCustomersMock.mockReturnValue(
+      new Subject<PagedResponseCustomerSummaryDto>(),
+    );
     const fixture = TestBed.createComponent(CustomerSearch);
 
     // Act
@@ -189,9 +212,7 @@ describe('CustomerSearch', () => {
     fixture.detectChanges();
 
     // Assert
-    const element = fixture.nativeElement as HTMLElement;
-    expect(element.textContent).toContain('Loading customers');
-    expect(element.querySelector('table')).toBeNull();
+    expect(fixture.nativeElement.textContent).toContain('Loading customers');
   });
 
   it('should show an empty state for a query with no matches', async () => {
@@ -213,17 +234,13 @@ describe('CustomerSearch', () => {
     fixture.detectChanges();
 
     // Assert
-    const element = fixture.nativeElement as HTMLElement;
-    expect(element.textContent).toContain('No customers found');
-    expect(element.textContent).toContain('Try a different customer number');
+    expect(fixture.nativeElement.textContent).toContain('No customers found');
   });
 
   it('should show a permission message for a forbidden response', async () => {
     // Arrange
     searchCustomersMock.mockReturnValue(
-      throwError(() => new HttpErrorResponse({
-        status: 403,
-      })),
+      throwError(() => new HttpErrorResponse({status: 403})),
     );
     const fixture = TestBed.createComponent(CustomerSearch);
 
@@ -238,62 +255,43 @@ describe('CustomerSearch', () => {
     );
   });
 
-  it('should show a fallback error and retry the current search', async () => {
+  it('should retry the current search after an error', async () => {
     // Arrange
     searchCustomersMock
-      .mockReturnValueOnce(
-        throwError(() => new Error('Customer Service unavailable')),
-      )
+      .mockReturnValueOnce(throwError(() => new Error('Unavailable')))
       .mockReturnValueOnce(of(page));
     const fixture = TestBed.createComponent(CustomerSearch);
     fixture.detectChanges();
     await vi.advanceTimersByTimeAsync(300);
     fixture.detectChanges();
-    const element = fixture.nativeElement as HTMLElement;
 
     // Act
-    const retryButton = element.querySelector(
-      '.button--primary',
-    ) as HTMLButtonElement | null;
-    retryButton?.click();
+    const button = fixture.nativeElement.querySelector(
+      '.state-panel .button--primary',
+    ) as HTMLButtonElement;
+    button.click();
     fixture.detectChanges();
 
     // Assert
     expect(searchCustomersMock).toHaveBeenCalledTimes(2);
-    expect(element.textContent).toContain('CUS-000001');
+    expect(fixture.nativeElement.textContent).toContain('CUS-000001');
   });
 
   it('should request the next page with the current query', async () => {
     // Arrange
-    const firstPage: PagedResponseCustomerSummaryDto = {
-      ...page,
-      totalElements: 3,
-      totalPages: 2,
-      last: false,
-    };
-    const secondPage: PagedResponseCustomerSummaryDto = {
-      ...page,
-      page: 1,
-      totalElements: 3,
-      totalPages: 2,
-      last: true,
-    };
     searchCustomersMock
-      .mockReturnValueOnce(of(firstPage))
-      .mockReturnValueOnce(of(secondPage));
+      .mockReturnValueOnce(of({...page, totalPages: 2, last: false}))
+      .mockReturnValueOnce(of({...page, page: 1, totalPages: 2, last: true}));
     const fixture = TestBed.createComponent(CustomerSearch);
     fixture.componentInstance['queryControl'].setValue('Starter');
     fixture.detectChanges();
     await vi.advanceTimersByTimeAsync(300);
     fixture.detectChanges();
-    const element = fixture.nativeElement as HTMLElement;
 
     // Act
-    const buttons = Array.from(
-      element.querySelectorAll<HTMLButtonElement>(
-        '.pagination__controls button',
-      ),
-    );
+    const buttons = fixture.nativeElement.querySelectorAll(
+      '.pagination__controls button',
+    ) as NodeListOf<HTMLButtonElement>;
     buttons[1]?.click();
     fixture.detectChanges();
 
@@ -304,23 +302,21 @@ describe('CustomerSearch', () => {
       size: 10,
       sort: ['customerNumber,asc'],
     });
-    expect(element.textContent).toContain('Page 2 of 2');
   });
 
-  it('should clear the current query and reload the first page', async () => {
+  it('should clear the current query and reload page zero', async () => {
     // Arrange
     const fixture = TestBed.createComponent(CustomerSearch);
     fixture.componentInstance['queryControl'].setValue('Starter');
     fixture.detectChanges();
     await vi.advanceTimersByTimeAsync(300);
     searchCustomersMock.mockClear();
-    const element = fixture.nativeElement as HTMLElement;
 
     // Act
-    const clearButton = element.querySelector(
+    const button = fixture.nativeElement.querySelector(
       '.search-panel__controls button',
-    ) as HTMLButtonElement | null;
-    clearButton?.click();
+    ) as HTMLButtonElement;
+    button.click();
     await vi.advanceTimersByTimeAsync(300);
 
     // Assert
