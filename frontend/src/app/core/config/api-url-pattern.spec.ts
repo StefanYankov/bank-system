@@ -19,6 +19,30 @@ describe('createApiUrlPattern', () => {
     ).toBe(true);
   });
 
+  it('should match the Customer API URL and its paths', () => {
+    // Arrange
+    const pattern = createApiUrlPattern(
+      'http://localhost:8082',
+    );
+
+    // Assert
+    expect(
+      pattern.test(
+        'http://localhost:8082/api/customers',
+      ),
+    ).toBe(true);
+    expect(
+      pattern.test(
+        'http://localhost:8082/api/customers/individuals/123',
+      ),
+    ).toBe(true);
+    expect(
+      pattern.test(
+        'http://localhost:8081/api/employees',
+      ),
+    ).toBe(false);
+  });
+
   it('should handle a configured URL with a trailing slash', () => {
     // Arrange
     const pattern = createApiUrlPattern(

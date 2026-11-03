@@ -1,0 +1,2670 @@
+{
+  "openapi": "3.1.0",
+  "info": {
+    "title": "Customer Service API",
+    "description": "Registration, search and maintenance of individual and legal-entity customers and their representatives.",
+    "version": "0.1.0"
+  },
+  "servers": [
+    {
+      "url": "http://localhost:8082",
+      "description": "Generated server url"
+    }
+  ],
+  "security": [
+    {
+      "bearerAuth": []
+    }
+  ],
+  "tags": [
+    {
+      "name": "Legal Entity Customer API",
+      "description": "Endpoints for registering and maintaining legal-entity customers and their representatives."
+    },
+    {
+      "name": "Customer API",
+      "description": "Endpoints for searching Customers and retrieving their summaries."
+    },
+    {
+      "name": "Individual Customer API",
+      "description": "Endpoints for registering and maintaining individual customers."
+    }
+  ],
+  "paths": {
+    "/api/customers/legal-entities/{id}/representatives/{representativeId}": {
+      "get": {
+        "tags": [
+          "Legal Entity Customer API"
+        ],
+        "summary": "Get a representative",
+        "operationId": "getRepresentative",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "representativeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Representative retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepresentativeViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      },
+      "put": {
+        "tags": [
+          "Legal Entity Customer API"
+        ],
+        "summary": "Correct a data-entry mistake in a representative",
+        "description": "Replaces every recorded value. A null validTo reopens a representation ended by mistake.",
+        "operationId": "correctRepresentative",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "representativeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RepresentativeCorrectionDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Representative corrected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepresentativeViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/legal-entities/{id}/registered-address": {
+      "put": {
+        "tags": [
+          "Legal Entity Customer API"
+        ],
+        "summary": "Replace the registered address",
+        "operationId": "changeLegalEntityCustomerRegisteredAddress",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddressDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Address replaced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegalEntityCustomerViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/legal-entities/{id}/eik": {
+      "put": {
+        "tags": [
+          "Legal Entity Customer API"
+        ],
+        "summary": "Correct a wrongly entered EIK",
+        "operationId": "correctLegalEntityCustomerEik",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EikCorrectionDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "EIK corrected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegalEntityCustomerViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/legal-entities/{id}/correspondence-address": {
+      "put": {
+        "tags": [
+          "Legal Entity Customer API"
+        ],
+        "summary": "Replace the correspondence address",
+        "operationId": "changeLegalEntityCustomerCorrespondenceAddress",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddressDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Address replaced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegalEntityCustomerViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/legal-entities/{id}/contact": {
+      "put": {
+        "tags": [
+          "Legal Entity Customer API"
+        ],
+        "summary": "Update the customer's email and phone",
+        "operationId": "updateLegalEntityCustomerContact",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerContactUpdateDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Contact information updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegalEntityCustomerViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/legal-entities/{id}/company-name": {
+      "put": {
+        "tags": [
+          "Legal Entity Customer API"
+        ],
+        "summary": "Update the registered company name",
+        "operationId": "updateLegalEntityCustomerCompanyName",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CompanyNameUpdateDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Company name updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegalEntityCustomerViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/individuals/{id}/residential-address": {
+      "put": {
+        "tags": [
+          "Individual Customer API"
+        ],
+        "summary": "Replace the customer's residential address",
+        "operationId": "changeIndividualCustomerResidentialAddress",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/AddressDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Address replaced",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndividualCustomerViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/individuals/{id}/name": {
+      "put": {
+        "tags": [
+          "Individual Customer API"
+        ],
+        "summary": "Update the customer's name",
+        "operationId": "updateIndividualCustomerName",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IndividualCustomerNameUpdateDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Name updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndividualCustomerViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/individuals/{id}/egn": {
+      "put": {
+        "tags": [
+          "Individual Customer API"
+        ],
+        "summary": "Correct a wrongly entered EGN",
+        "operationId": "correctIndividualCustomerEgn",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/EgnCorrectionDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "EGN corrected",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndividualCustomerViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/individuals/{id}/contact": {
+      "put": {
+        "tags": [
+          "Individual Customer API"
+        ],
+        "summary": "Update the customer's email and phone",
+        "operationId": "updateIndividualCustomerContact",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/CustomerContactUpdateDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Contact information updated",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndividualCustomerViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/legal-entities": {
+      "post": {
+        "tags": [
+          "Legal Entity Customer API"
+        ],
+        "summary": "Register a legal-entity customer",
+        "description": "The customer number is generated by the service. Representatives are added separately.",
+        "operationId": "registerLegalEntityCustomer",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/LegalEntityCustomerRegistrationDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Customer registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegalEntityCustomerViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/legal-entities/{id}/representatives": {
+      "post": {
+        "tags": [
+          "Legal Entity Customer API"
+        ],
+        "summary": "Add a representative",
+        "description": "Supply either individualCustomerId, whose names are copied, or the names, but not both.",
+        "operationId": "addRepresentative",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RepresentativeAdditionDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Representative added",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepresentativeViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/legal-entities/{id}/representatives/{representativeId}/end": {
+      "post": {
+        "tags": [
+          "Legal Entity Customer API"
+        ],
+        "summary": "End a representative's authority",
+        "operationId": "endRepresentation",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          },
+          {
+            "name": "representativeId",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RepresentationEndDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Representation ended",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/RepresentativeViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/legal-entities/{id}/reopen": {
+      "post": {
+        "tags": [
+          "Legal Entity Customer API"
+        ],
+        "summary": "Reopen a closed customer relationship",
+        "operationId": "reopenLegalEntityCustomer",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer reopened",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegalEntityCustomerViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/legal-entities/{id}/close": {
+      "post": {
+        "tags": [
+          "Legal Entity Customer API"
+        ],
+        "summary": "Close the customer relationship",
+        "description": "Representations are left unchanged.",
+        "operationId": "closeLegalEntityCustomer",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer closed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegalEntityCustomerViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/individuals": {
+      "post": {
+        "tags": [
+          "Individual Customer API"
+        ],
+        "summary": "Register an individual customer",
+        "description": "The customer number is generated by the service.",
+        "operationId": "registerIndividualCustomer",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/IndividualCustomerRegistrationDto"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "201": {
+            "description": "Customer registered",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndividualCustomerViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/individuals/{id}/reopen": {
+      "post": {
+        "tags": [
+          "Individual Customer API"
+        ],
+        "summary": "Reopen a closed customer relationship",
+        "operationId": "reopenIndividualCustomer",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer reopened",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndividualCustomerViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/individuals/{id}/close": {
+      "post": {
+        "tags": [
+          "Individual Customer API"
+        ],
+        "summary": "Close the customer relationship",
+        "operationId": "closeIndividualCustomer",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer closed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndividualCustomerViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers": {
+      "get": {
+        "tags": [
+          "Customer API"
+        ],
+        "summary": "Search customers",
+        "description": "Every term must match the customer number, the start of the EGN or EIK, or a name. Sortable by customerNumber, status and createdAt; the default is customerNumber ascending.",
+        "operationId": "searchCustomers",
+        "parameters": [
+          {
+            "name": "query",
+            "in": "query",
+            "description": "Free-text search query",
+            "required": false,
+            "schema": {
+              "type": "string",
+              "maxLength": 100,
+              "minLength": 0
+            },
+            "example": "Gerasimoff 6101"
+          },
+          {
+            "name": "page",
+            "in": "query",
+            "description": "Zero-based page index (0..N)",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 0,
+              "minimum": 0
+            }
+          },
+          {
+            "name": "size",
+            "in": "query",
+            "description": "The size of the page to be returned",
+            "required": false,
+            "schema": {
+              "type": "integer",
+              "default": 20,
+              "minimum": 1
+            }
+          },
+          {
+            "name": "sort",
+            "in": "query",
+            "description": "Sorting criteria in the format: property,(asc|desc). Default sort order is ascending. Multiple sort criteria are supported.",
+            "required": false,
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customers retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/PagedResponseCustomerSummaryDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/{id}": {
+      "get": {
+        "tags": [
+          "Customer API"
+        ],
+        "summary": "Get a customer summary",
+        "description": "Retrieves the summary of a customer of either type, including its type.",
+        "operationId": "getCustomerSummary",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Technical customer UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer summary retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/CustomerSummaryDto"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Customer not found",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/legal-entities/{id}": {
+      "get": {
+        "tags": [
+          "Legal Entity Customer API"
+        ],
+        "summary": "Get a legal-entity customer",
+        "description": "Includes current and ended representatives.",
+        "operationId": "getLegalEntityCustomer",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Technical customer UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/LegalEntityCustomerViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/api/customers/individuals/{id}": {
+      "get": {
+        "tags": [
+          "Individual Customer API"
+        ],
+        "summary": "Get an individual customer",
+        "operationId": "getIndividualCustomer",
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Technical customer UUID",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "format": "uuid"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Customer retrieved",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/IndividualCustomerViewDto"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Request validation failed or the request is malformed",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Authentication is missing or invalid",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "403": {
+            "description": "The authenticated caller does not have sufficient permission",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "An unexpected server error occurred",
+            "content": {
+              "application/problem+json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ProblemDetail"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "schemas": {
+      "RepresentativeCorrectionDto": {
+        "type": "object",
+        "properties": {
+          "individualCustomerId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of an existing individual Customer, if linked.",
+            "example": "01923b7c-8f6d-7a12-9d1e-4b2f8c3e5a10"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "First name. Required when no Customer is linked; must be empty otherwise.",
+            "example": "Serafim",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "middleName": {
+            "type": "string",
+            "description": "Optional middle name. Must be empty when a Customer is linked.",
+            "example": "Ivanov",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name. Required when no Customer is linked; must be empty otherwise.",
+            "example": "Gerasimoff",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "role": {
+            "type": "string",
+            "description": "Corrected representation role.",
+            "enum": [
+              "LEGAL_REPRESENTATIVE",
+              "AUTHORIZED_REPRESENTATIVE"
+            ],
+            "example": "LEGAL_REPRESENTATIVE"
+          },
+          "validFrom": {
+            "type": "string",
+            "format": "date",
+            "description": "Corrected first valid date.",
+            "example": "2026-01-01"
+          },
+          "validTo": {
+            "type": "string",
+            "format": "date",
+            "description": "Corrected final valid date, inclusive. Null if the representation has not ended.",
+            "example": "2026-12-31"
+          }
+        },
+        "required": [
+          "role",
+          "validFrom"
+        ]
+      },
+      "ProblemDetail": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "format": "uri"
+          },
+          "title": {
+            "type": "string"
+          },
+          "status": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "detail": {
+            "type": "string"
+          },
+          "instance": {
+            "type": "string",
+            "format": "uri"
+          },
+          "properties": {
+            "type": "object",
+            "additionalProperties": {}
+          }
+        }
+      },
+      "RepresentativeViewDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Technical Representative identifier.",
+            "example": "01923b7c-8f6d-7a12-9d1e-4b2f8c3e5a11"
+          },
+          "individualCustomerId": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "uuid",
+            "description": "Identifier of the linked individual Customer, if any.",
+            "example": "01923b7c-8f6d-7a12-9d1e-4b2f8c3e5a10"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "Recorded first name.",
+            "example": "Serafim"
+          },
+          "middleName": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Recorded middle name, if any.",
+            "example": "Ivanov"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Recorded last name.",
+            "example": "Gerasimoff"
+          },
+          "role": {
+            "type": "string",
+            "description": "Representation role.",
+            "enum": [
+              "LEGAL_REPRESENTATIVE",
+              "AUTHORIZED_REPRESENTATIVE"
+            ],
+            "example": "LEGAL_REPRESENTATIVE"
+          },
+          "validFrom": {
+            "type": "string",
+            "format": "date",
+            "description": "First valid date, inclusive.",
+            "example": "2026-01-01"
+          },
+          "validTo": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "format": "date",
+            "description": "Final valid date, inclusive, if the representation has ended.",
+            "example": "2026-12-31"
+          }
+        },
+        "required": [
+          "firstName",
+          "id",
+          "individualCustomerId",
+          "lastName",
+          "middleName",
+          "role",
+          "validFrom",
+          "validTo"
+        ]
+      },
+      "AddressDto": {
+        "type": "object",
+        "properties": {
+          "countryCode": {
+            "type": "string",
+            "description": "Two-letter country code.",
+            "example": "BG",
+            "minLength": 1,
+            "pattern": "[A-Za-z]{2}"
+          },
+          "city": {
+            "type": "string",
+            "description": "City or locality.",
+            "example": "Sofia",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "Postal routing code.",
+            "example": "1000",
+            "maxLength": 20,
+            "minLength": 0
+          },
+          "addressLine1": {
+            "type": "string",
+            "description": "Primary address description.",
+            "example": "1 Alexander Battenberg Square",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "addressLine2": {
+            "type": "string",
+            "description": "Optional additional address description.",
+            "example": "Floor 2",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "addressLine1",
+          "city",
+          "countryCode",
+          "postalCode"
+        ]
+      },
+      "AddressViewDto": {
+        "type": "object",
+        "properties": {
+          "countryCode": {
+            "type": "string",
+            "description": "Two-letter country code.",
+            "example": "BG"
+          },
+          "city": {
+            "type": "string",
+            "description": "City or locality.",
+            "example": "Sofia"
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "Postal routing code.",
+            "example": "1000"
+          },
+          "addressLine1": {
+            "type": "string",
+            "description": "Primary address description.",
+            "example": "1 Alexander Battenberg Square"
+          },
+          "addressLine2": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Additional address description, if any.",
+            "example": "Floor 2"
+          }
+        },
+        "required": [
+          "addressLine1",
+          "addressLine2",
+          "city",
+          "countryCode",
+          "postalCode"
+        ]
+      },
+      "LegalEntityCustomerViewDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Technical Customer identifier.",
+            "example": "01923b7c-8f6d-7a12-9d1e-4b2f8c3e5a12"
+          },
+          "customerNumber": {
+            "type": "string",
+            "description": "Business Customer number.",
+            "example": "CUS-000002"
+          },
+          "status": {
+            "type": "string",
+            "description": "Customer status.",
+            "enum": [
+              "ACTIVE",
+              "CLOSED"
+            ],
+            "example": "ACTIVE"
+          },
+          "email": {
+            "type": "string",
+            "description": "Customer email.",
+            "example": "contact@starter.example"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Customer phone.",
+            "example": "+35929201234"
+          },
+          "companyName": {
+            "type": "string",
+            "description": "Registered company name.",
+            "example": "Starter Financial Services"
+          },
+          "eik": {
+            "type": "string",
+            "description": "9-digit Bulgarian legal-entity identifier (EIK).",
+            "example": "123456786"
+          },
+          "registeredAddress": {
+            "$ref": "#/components/schemas/AddressViewDto",
+            "description": "Registered company address."
+          },
+          "correspondenceAddress": {
+            "$ref": "#/components/schemas/AddressViewDto",
+            "description": "Correspondence address."
+          },
+          "representatives": {
+            "type": "array",
+            "description": "Current and ended Representatives.",
+            "items": {
+              "$ref": "#/components/schemas/RepresentativeViewDto"
+            }
+          }
+        },
+        "required": [
+          "companyName",
+          "correspondenceAddress",
+          "customerNumber",
+          "eik",
+          "email",
+          "id",
+          "phone",
+          "registeredAddress",
+          "representatives",
+          "status"
+        ]
+      },
+      "EikCorrectionDto": {
+        "type": "object",
+        "properties": {
+          "eik": {
+            "type": "string",
+            "description": "Correct 9-digit Bulgarian legal-entity identifier (EIK).",
+            "example": "123456786",
+            "maxLength": 9,
+            "minLength": 9,
+            "pattern": "\\d{9}"
+          }
+        },
+        "required": [
+          "eik"
+        ]
+      },
+      "CustomerContactUpdateDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Customer email.",
+            "example": "serafim.gerasimoff@example.com",
+            "maxLength": 254,
+            "minLength": 0
+          },
+          "phone": {
+            "type": "string",
+            "description": "Customer phone.",
+            "example": "+359888123456",
+            "maxLength": 30,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "email",
+          "phone"
+        ]
+      },
+      "CompanyNameUpdateDto": {
+        "type": "object",
+        "properties": {
+          "companyName": {
+            "type": "string",
+            "description": "Registered company name.",
+            "example": "Starter Financial Services",
+            "maxLength": 200,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "companyName"
+        ]
+      },
+      "IndividualCustomerViewDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Technical Customer identifier.",
+            "example": "01923b7c-8f6d-7a12-9d1e-4b2f8c3e5a10"
+          },
+          "customerNumber": {
+            "type": "string",
+            "description": "Business Customer number.",
+            "example": "CUS-000001"
+          },
+          "status": {
+            "type": "string",
+            "description": "Customer status.",
+            "enum": [
+              "ACTIVE",
+              "CLOSED"
+            ],
+            "example": "ACTIVE"
+          },
+          "email": {
+            "type": "string",
+            "description": "Customer email.",
+            "example": "serafim.gerasimoff@example.com"
+          },
+          "phone": {
+            "type": "string",
+            "description": "Customer phone.",
+            "example": "+359888123456"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "First name.",
+            "example": "Serafim"
+          },
+          "middleName": {
+            "type": [
+              "string",
+              "null"
+            ],
+            "description": "Middle name, if any.",
+            "example": "Ivanov"
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name.",
+            "example": "Gerasimoff"
+          },
+          "egn": {
+            "type": "string",
+            "description": "Bulgarian personal identifier (EGN).",
+            "example": "6101047500"
+          },
+          "residentialAddress": {
+            "$ref": "#/components/schemas/AddressViewDto",
+            "description": "Residential postal address."
+          }
+        },
+        "required": [
+          "customerNumber",
+          "egn",
+          "email",
+          "firstName",
+          "id",
+          "lastName",
+          "middleName",
+          "phone",
+          "residentialAddress",
+          "status"
+        ]
+      },
+      "IndividualCustomerNameUpdateDto": {
+        "type": "object",
+        "properties": {
+          "firstName": {
+            "type": "string",
+            "description": "First name.",
+            "example": "Serafim",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "middleName": {
+            "type": "string",
+            "description": "Optional middle name.",
+            "example": "Ivanov",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name.",
+            "example": "Gerasimoff",
+            "maxLength": 100,
+            "minLength": 0
+          }
+        },
+        "required": [
+          "firstName",
+          "lastName"
+        ]
+      },
+      "EgnCorrectionDto": {
+        "type": "object",
+        "properties": {
+          "egn": {
+            "type": "string",
+            "description": "Correct Bulgarian personal identifier (EGN).",
+            "example": "6101047500",
+            "maxLength": 10,
+            "minLength": 10,
+            "pattern": "\\d{10}"
+          }
+        },
+        "required": [
+          "egn"
+        ]
+      },
+      "LegalEntityCustomerRegistrationDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Customer email.",
+            "example": "contact@starter.example",
+            "maxLength": 254,
+            "minLength": 0
+          },
+          "phone": {
+            "type": "string",
+            "description": "Customer phone.",
+            "example": "+35929201234",
+            "maxLength": 30,
+            "minLength": 0
+          },
+          "companyName": {
+            "type": "string",
+            "description": "Registered company name.",
+            "example": "Starter Financial Services",
+            "maxLength": 200,
+            "minLength": 0
+          },
+          "eik": {
+            "type": "string",
+            "description": "9-digit Bulgarian legal-entity identifier (EIK).",
+            "example": "123456786",
+            "maxLength": 9,
+            "minLength": 9,
+            "pattern": "\\d{9}"
+          },
+          "registeredAddress": {
+            "$ref": "#/components/schemas/AddressDto",
+            "description": "Registered company address."
+          },
+          "correspondenceAddress": {
+            "$ref": "#/components/schemas/AddressDto",
+            "description": "Correspondence address."
+          }
+        },
+        "required": [
+          "companyName",
+          "correspondenceAddress",
+          "eik",
+          "email",
+          "phone",
+          "registeredAddress"
+        ]
+      },
+      "RepresentativeAdditionDto": {
+        "type": "object",
+        "properties": {
+          "individualCustomerId": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Identifier of an existing individual Customer, if linked.",
+            "example": "01923b7c-8f6d-7a12-9d1e-4b2f8c3e5a10"
+          },
+          "firstName": {
+            "type": "string",
+            "description": "First name. Required when no Customer is linked; must be empty otherwise.",
+            "example": "Serafim",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "middleName": {
+            "type": "string",
+            "description": "Optional middle name. Must be empty when a Customer is linked.",
+            "example": "Ivanov",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name. Required when no Customer is linked; must be empty otherwise.",
+            "example": "Gerasimoff",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "role": {
+            "type": "string",
+            "description": "Representation role.",
+            "enum": [
+              "LEGAL_REPRESENTATIVE",
+              "AUTHORIZED_REPRESENTATIVE"
+            ],
+            "example": "LEGAL_REPRESENTATIVE"
+          },
+          "validFrom": {
+            "type": "string",
+            "format": "date",
+            "description": "First valid date of the representation.",
+            "example": "2026-01-01"
+          }
+        },
+        "required": [
+          "role",
+          "validFrom"
+        ]
+      },
+      "RepresentationEndDto": {
+        "type": "object",
+        "properties": {
+          "validTo": {
+            "type": "string",
+            "format": "date",
+            "description": "Final valid date of the representation, inclusive.",
+            "example": "2026-12-31"
+          }
+        },
+        "required": [
+          "validTo"
+        ]
+      },
+      "IndividualCustomerRegistrationDto": {
+        "type": "object",
+        "properties": {
+          "email": {
+            "type": "string",
+            "format": "email",
+            "description": "Customer email.",
+            "example": "serafim.gerasimoff@example.com",
+            "maxLength": 254,
+            "minLength": 0
+          },
+          "phone": {
+            "type": "string",
+            "description": "Customer phone.",
+            "example": "+359888123456",
+            "maxLength": 30,
+            "minLength": 0
+          },
+          "firstName": {
+            "type": "string",
+            "description": "First name.",
+            "example": "Serafim",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "middleName": {
+            "type": "string",
+            "description": "Optional middle name.",
+            "example": "Ivanov",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "lastName": {
+            "type": "string",
+            "description": "Last name.",
+            "example": "Gerasimoff",
+            "maxLength": 100,
+            "minLength": 0
+          },
+          "egn": {
+            "type": "string",
+            "description": "Bulgarian personal identifier (EGN).",
+            "example": "6101047500",
+            "maxLength": 10,
+            "minLength": 10,
+            "pattern": "\\d{10}"
+          },
+          "residentialAddress": {
+            "$ref": "#/components/schemas/AddressDto",
+            "description": "Residential postal address."
+          }
+        },
+        "required": [
+          "egn",
+          "email",
+          "firstName",
+          "lastName",
+          "phone",
+          "residentialAddress"
+        ]
+      },
+      "CustomerSummaryDto": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "format": "uuid",
+            "description": "Technical Customer identifier.",
+            "example": "01923b7c-8f6d-7a12-9d1e-4b2f8c3e5a10"
+          },
+          "customerNumber": {
+            "type": "string",
+            "description": "Business Customer number.",
+            "example": "CUS-000001"
+          },
+          "customerType": {
+            "type": "string",
+            "description": "Customer type.",
+            "enum": [
+              "INDIVIDUAL",
+              "LEGAL_ENTITY"
+            ],
+            "example": "INDIVIDUAL"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "Full name for individuals, company name for legal entities.",
+            "example": "Serafim Ivanov Gerasimoff"
+          },
+          "identifier": {
+            "type": "string",
+            "description": "EGN for individuals, EIK for legal entities.",
+            "example": "6101047500"
+          },
+          "status": {
+            "type": "string",
+            "description": "Customer status.",
+            "enum": [
+              "ACTIVE",
+              "CLOSED"
+            ],
+            "example": "ACTIVE"
+          }
+        },
+        "required": [
+          "customerNumber",
+          "customerType",
+          "displayName",
+          "id",
+          "identifier",
+          "status"
+        ]
+      },
+      "PagedResponseCustomerSummaryDto": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "array",
+            "description": "Items contained in the current page.",
+            "items": {
+              "$ref": "#/components/schemas/CustomerSummaryDto"
+            }
+          },
+          "page": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Zero-based page number.",
+            "example": 0
+          },
+          "size": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of items requested per page.",
+            "example": 20
+          },
+          "totalElements": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Total number of matching items.",
+            "example": 42
+          },
+          "totalPages": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Total number of available pages.",
+            "example": 3
+          },
+          "last": {
+            "type": "boolean",
+            "description": "Whether this is the final page.",
+            "example": false
+          }
+        },
+        "required": [
+          "content",
+          "last",
+          "page",
+          "size",
+          "totalElements",
+          "totalPages"
+        ]
+      }
+    },
+    "securitySchemes": {
+      "bearerAuth": {
+        "type": "http",
+        "scheme": "bearer",
+        "bearerFormat": "JWT"
+      }
+    }
+  }
+}

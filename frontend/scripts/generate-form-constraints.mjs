@@ -2,31 +2,59 @@ import {mkdirSync, readFileSync, writeFileSync,} from 'node:fs';
 import {dirname} from 'node:path';
 import {pathToFileURL} from 'node:url';
 
-const OPENAPI_PATH = './openapi/employee-service.json';
-
-const OUTPUT_PATH = './src/app/generated/schema-constraints.generated.ts';
+/**
+ * Form-constraint generation settings per service.
+ *
+ * Each entry names the OpenAPI contract to read, the TypeScript file to
+ * write, the exported constant, and the schemas and properties the frontend
+ * forms depend on.
+ */
+export const SERVICE_CONFIGS = {
+  employee: {
+    openApiPath: './openapi/employee-service.json',
+    outputPath: './src/app/generated/employee-schema-constraints.generated.ts',
+    exportName: 'employeeSchemaConstraints',
+    expectedSchemas: {
+      EmployeeRegistrationDto: ['identitySubjectId', 'firstName', 'lastName', 'workEmail', 'position', 'employmentStartDate',],
+      EmployeeUpdateDto: ['firstName', 'lastName', 'workEmail',],
+    },
+  }, customer: {
+    openApiPath: './openapi/customer-service.json',
+    outputPath: './src/app/generated/customer-schema-constraints.generated.ts',
+    exportName: 'customerSchemaConstraints',
+    expectedSchemas: {
+      AddressDto: ['countryCode', 'city', 'postalCode', 'addressLine1', 'addressLine2',],
+      CompanyNameUpdateDto: ['companyName',],
+      CustomerContactUpdateDto: ['email', 'phone',],
+      EgnCorrectionDto: ['egn',],
+      EikCorrectionDto: ['eik',],
+      IndividualCustomerNameUpdateDto: ['firstName', 'middleName', 'lastName',],
+      IndividualCustomerRegistrationDto: ['email', 'phone', 'firstName', 'middleName', 'lastName', 'egn', 'residentialAddress',],
+      LegalEntityCustomerRegistrationDto: ['email', 'phone', 'companyName', 'eik', 'registeredAddress', 'correspondenceAddress',],
+      RepresentationEndDto: ['validTo',],
+      RepresentativeAdditionDto: ['individualCustomerId', 'firstName', 'middleName', 'lastName', 'role', 'validFrom',],
+      RepresentativeCorrectionDto: ['individualCustomerId', 'firstName', 'middleName', 'lastName', 'role', 'validFrom', 'validTo',],
+    },
+  },
+};
 
 /**
- * OpenAPI schemas and properties required by Employee frontend forms.
+ * Returns the generation settings for a service.
  *
- * Keeping the expected contract explicit makes generation fail when the
- * backend removes or renames a schema property used by the frontend.
+ * @param {string | undefined} serviceName service key, for example "employee"
+ * @returns {{openApiPath: string, outputPath: string, exportName: string,
+ * expectedSchemas: Record<string, readonly string[]>}} service settings
+ * @throws {Error} when the service name is missing or unknown
  */
-export const EXPECTED_SCHEMAS = {
-  EmployeeRegistrationDto: [
-    'identitySubjectId',
-    'firstName',
-    'lastName',
-    'workEmail',
-    'position',
-    'employmentStartDate',
-  ],
-  EmployeeUpdateDto: [
-    'firstName',
-    'lastName',
-    'workEmail',
-  ],
-};
+export function getServiceConfig(serviceName) {
+  const config = serviceName === undefined ? undefined : SERVICE_CONFIGS[serviceName];
+
+  if (config === undefined) {
+    throw new Error(`Unknown service "${serviceName}". Expected one of: ` + `${Object.keys(SERVICE_CONFIGS).join(', ')}.`,);
+  }
+
+  return config;
+}
 
 /**
  * Reads and parses an OpenAPI JSON document.
@@ -52,24 +80,20 @@ export function getSchemas(openApiDocument) {
   const components = openApiDocument.components;
 
   if (!isRecord(components)) {
-    throw new Error(
-      'OpenAPI contract does not contain a valid components object.',
-    );
+    throw new Error('OpenAPI contract does not contain a valid components object.',);
   }
 
   const schemas = components.schemas;
 
   if (!isRecordOfRecords(schemas)) {
-    throw new Error(
-      'OpenAPI contract does not contain valid components.schemas.',
-    );
+    throw new Error('OpenAPI contract does not contain valid components.schemas.',);
   }
 
   return schemas;
 }
 
 /**
- * Extracts validation metadata from the expected Employee schemas.
+ * Extracts validation metadata from the expected schemas.
  *
  * Constraint values are copied faithfully from OpenAPI. The extractor does
  * not decide whether a particular value should create an Angular validator.
@@ -81,37 +105,23 @@ export function getSchemas(openApiDocument) {
  * generated constraint metadata
  * @throws {Error} when an expected schema or property is missing
  */
-export function extractConstraints(
-  schemas,
-  expectedSchemas = EXPECTED_SCHEMAS,
-) {
+export function extractConstraints(schemas, expectedSchemas,) {
   const constraints = {};
 
-  for (
-    const [schemaName, expectedProperties]
-    of Object.entries(expectedSchemas)
-    ) {
+  for (const [schemaName, expectedProperties] of Object.entries(expectedSchemas)) {
     const schema = schemas[schemaName];
 
     if (schema === undefined) {
-      throw new Error(
-        `Expected OpenAPI schema "${schemaName}" was not found.`,
-      );
+      throw new Error(`Expected OpenAPI schema "${schemaName}" was not found.`,);
     }
 
     const properties = schema.properties;
 
     if (!isRecordOfRecords(properties)) {
-      throw new Error(
-        `OpenAPI schema "${schemaName}" has no valid properties.`,
-      );
+      throw new Error(`OpenAPI schema "${schemaName}" has no valid properties.`,);
     }
 
-    const requiredProperties = new Set(
-      Array.isArray(schema.required)
-        ? schema.required.filter(isString)
-        : [],
-    );
+    const requiredProperties = new Set(Array.isArray(schema.required) ? schema.required.filter(isString) : [],);
 
     const schemaConstraints = {};
 
@@ -119,38 +129,11 @@ export function extractConstraints(
       const property = properties[propertyName];
 
       if (property === undefined) {
-        throw new Error(
-          `Expected property "${schemaName}.${propertyName}" `
-          + 'was not found.',
-        );
+        throw new Error(`Expected property "${schemaName}.${propertyName}" ` + 'was not found.',);
       }
 
       schemaConstraints[propertyName] = {
-        required: requiredProperties.has(propertyName),
-
-        ...(isNumber(property.maxLength)
-          ? {maxLength: property.maxLength}
-          : {}),
-
-        ...(isNumber(property.minLength)
-          ? {minLength: property.minLength}
-          : {}),
-
-        ...(isString(property.pattern)
-          ? {pattern: property.pattern}
-          : {}),
-
-        ...(isNumber(property.minimum)
-          ? {minimum: property.minimum}
-          : {}),
-
-        ...(isNumber(property.maximum)
-          ? {maximum: property.maximum}
-          : {}),
-
-        ...(isString(property.format)
-          ? {format: property.format}
-          : {}),
+        required: requiredProperties.has(propertyName), ...(isNumber(property.maxLength) ? {maxLength: property.maxLength} : {}), ...(isNumber(property.minLength) ? {minLength: property.minLength} : {}), ...(isString(property.pattern) ? {pattern: property.pattern} : {}), ...(isNumber(property.minimum) ? {minimum: property.minimum} : {}), ...(isNumber(property.maximum) ? {maximum: property.maximum} : {}), ...(isString(property.format) ? {format: property.format} : {}),
       };
     }
 
@@ -165,19 +148,18 @@ export function extractConstraints(
  *
  * @param {Record<string, Record<string, Record<string, unknown>>>} constraints
  * extracted OpenAPI constraints
+ * @param {string} openApiPath source contract, recorded in the file header
+ * @param {string} exportName name of the exported constant
  * @returns {string} generated TypeScript source
  */
-export function createTypeScriptSource(constraints) {
+export function createTypeScriptSource(constraints, openApiPath, exportName,) {
+  const sourceName = openApiPath.replace(/^\.\//, '');
+
   return `/*
- * Auto-generated from openapi/employee-service.json.
+ * Auto-generated from ${sourceName}.
  * Do not edit manually.
  */
-
-export const employeeSchemaConstraints = ${JSON.stringify(
-    constraints,
-    null,
-    2,
-  )} as const;
+export const ${exportName} = ${JSON.stringify(constraints, null, 2,)} as const;
 `;
 }
 
@@ -187,19 +169,12 @@ export const employeeSchemaConstraints = ${JSON.stringify(
  * @param {string} outputPath generated file path
  * @param {string} fileContent generated TypeScript source
  */
-export function writeGeneratedFile(
-  outputPath,
-  fileContent,
-) {
+export function writeGeneratedFile(outputPath, fileContent,) {
   mkdirSync(dirname(outputPath), {
     recursive: true,
   });
 
-  writeFileSync(
-    outputPath,
-    fileContent,
-    'utf8',
-  );
+  writeFileSync(outputPath, fileContent, 'utf8',);
 }
 
 /**
@@ -210,9 +185,7 @@ export function writeGeneratedFile(
  * true when the value is a record-like object
  */
 export function isRecord(value) {
-  return value !== null
-    && typeof value === 'object'
-    && !Array.isArray(value);
+  return value !== null && typeof value === 'object' && !Array.isArray(value);
 }
 
 /**
@@ -223,8 +196,7 @@ export function isRecord(value) {
  * true when the value contains only record-like values
  */
 export function isRecordOfRecords(value) {
-  return isRecord(value)
-    && Object.values(value).every(isRecord);
+  return isRecord(value) && Object.values(value).every(isRecord);
 }
 
 /**
@@ -247,49 +219,32 @@ export function isString(value) {
  * @returns {value is number} true when the value is a finite number
  */
 export function isNumber(value) {
-  return typeof value === 'number'
-    && Number.isFinite(value);
+  return typeof value === 'number' && Number.isFinite(value);
 }
 
 /**
- * Generates Employee form constraints from an OpenAPI contract.
+ * Generates form constraints for one service from its OpenAPI contract.
  *
- * @param {string} openApiPath input OpenAPI document
- * @param {string} outputPath generated TypeScript destination
+ * @param {string | undefined} serviceName service key, for example "employee"
  */
-export function generateFormConstraints(
-  openApiPath = OPENAPI_PATH,
-  outputPath = OUTPUT_PATH,
-) {
-  const openApiDocument = readOpenApiDocument(
-    openApiPath,
-  );
+export function generateFormConstraints(serviceName) {
+  const config = getServiceConfig(serviceName);
+
+  const openApiDocument = readOpenApiDocument(config.openApiPath,);
 
   const schemas = getSchemas(openApiDocument);
 
-  const constraints = extractConstraints(
-    schemas,
-  );
+  const constraints = extractConstraints(schemas, config.expectedSchemas,);
 
-  const fileContent = createTypeScriptSource(
-    constraints,
-  );
+  const fileContent = createTypeScriptSource(constraints, config.openApiPath, config.exportName,);
 
-  writeGeneratedFile(
-    outputPath,
-    fileContent,
-  );
+  writeGeneratedFile(config.outputPath, fileContent,);
 
-  console.log(
-    `Generated Employee form constraints: ${outputPath}`,
-  );
+  console.log(`Generated ${serviceName} form constraints: ${config.outputPath}`,);
 }
 
 const executedFile = process.argv[1];
 
-if (
-  executedFile !== undefined
-  && import.meta.url === pathToFileURL(executedFile).href
-) {
-  generateFormConstraints();
+if (executedFile !== undefined && import.meta.url === pathToFileURL(executedFile).href) {
+  generateFormConstraints(process.argv[2]);
 }

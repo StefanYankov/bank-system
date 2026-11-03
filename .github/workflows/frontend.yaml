@@ -20,7 +20,7 @@ permissions:
 
 jobs:
   frontend-check:
-    name: Generate client, lint, test and build
+    name: Generate clients, lint, test and build
     runs-on: ubuntu-latest
 
     defaults:
@@ -44,8 +44,8 @@ jobs:
       - name: Test form constraint generation
         run: npm run test:form-constraints
 
-      - name: Generate Employee API client
-        run: npm run generate:employee-api
+      - name: Generate API clients
+        run: npm run generate:apis
 
       - name: Lint
         run: npm run lint

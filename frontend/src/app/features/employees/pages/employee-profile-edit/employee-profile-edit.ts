@@ -6,7 +6,7 @@ import {ActivatedRoute, Router, RouterLink,} from '@angular/router';
 
 import {notBlankValidator,} from '../../../../core/forms/not-blank-validator';
 import {EmployeeAPIService, EmployeeUpdateDto, EmployeeViewDto,} from '../../../../generated/employee-api';
-import {employeeSchemaConstraints,} from '../../../../generated/schema-constraints.generated';
+import {employeeSchemaConstraints,} from '../../../../generated/employee-schema-constraints.generated';
 
 /**
  * Edits the profile information of an existing Employee.

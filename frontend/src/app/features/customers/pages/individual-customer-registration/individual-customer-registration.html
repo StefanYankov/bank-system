@@ -1,0 +1,254 @@
+<section
+  aria-labelledby="individual-registration-title"
+  class="customer-registration"
+>
+  <a class="back-link" routerLink="/customers">← Back to customers</a>
+
+  <header>
+    <p class="customer-registration__label">Customer management</p>
+    <h1 id="individual-registration-title">Register Individual Customer</h1>
+    <p class="customer-registration__description">
+      Create an Individual Customer with contact details and a residential address.
+    </p>
+  </header>
+
+  @if (submissionError(); as errorMessage) {
+    <section class="submission-error" role="alert">
+      <h2>Registration unsuccessful</h2>
+      <p>{{ errorMessage }}</p>
+    </section>
+  }
+
+  <form
+    (ngSubmit)="submit()"
+    [formGroup]="registrationForm"
+    class="registration-form"
+    novalidate
+  >
+    <section aria-labelledby="personal-title" class="form-section">
+      <h2 id="personal-title">Personal details</h2>
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="first-name">First name</label>
+          <input
+            aria-describedby="first-name-error"
+            autocomplete="given-name"
+            formControlName="firstName"
+            id="first-name"
+            type="text"
+          >
+          @if (shouldShowError('firstName')) {
+            <p class="field-error" id="first-name-error">
+              First name is required and must not exceed 100 characters.
+            </p>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="middle-name">Middle name</label>
+          <input
+            aria-describedby="middle-name-error"
+            autocomplete="additional-name"
+            formControlName="middleName"
+            id="middle-name"
+            type="text"
+          >
+          @if (shouldShowError('middleName')) {
+            <p class="field-error" id="middle-name-error">
+              Middle name must not exceed 100 characters.
+            </p>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="last-name">Last name</label>
+          <input
+            aria-describedby="last-name-error"
+            autocomplete="family-name"
+            formControlName="lastName"
+            id="last-name"
+            type="text"
+          >
+          @if (shouldShowError('lastName')) {
+            <p class="field-error" id="last-name-error">
+              Last name is required and must not exceed 100 characters.
+            </p>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="egn">EGN</label>
+          <input
+            aria-describedby="egn-help egn-error"
+            autocomplete="off"
+            formControlName="egn"
+            id="egn"
+            inputmode="numeric"
+            maxlength="10"
+            type="text"
+          >
+          <p class="field-help" id="egn-help">
+            Enter the 10-digit Bulgarian personal identifier.
+          </p>
+          @if (shouldShowError('egn')) {
+            <p class="field-error" id="egn-error">
+              @if (registrationForm.controls.egn.hasError('required')) {
+                EGN is required.
+              } @else {
+                Enter a valid 10-digit EGN with a real birth date and check digit.
+              }
+            </p>
+          }
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="contact-title" class="form-section">
+      <h2 id="contact-title">Contact details</h2>
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="email">Email</label>
+          <input
+            aria-describedby="email-error"
+            autocomplete="email"
+            formControlName="email"
+            id="email"
+            type="email"
+          >
+          @if (shouldShowError('email')) {
+            <p class="field-error" id="email-error">
+              @if (registrationForm.controls.email.hasError('required')) {
+                Email is required.
+              } @else if (registrationForm.controls.email.hasError('email')) {
+                Enter a valid email address.
+              } @else {
+                Email must not exceed 254 characters.
+              }
+            </p>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="phone">Phone</label>
+          <input
+            aria-describedby="phone-error"
+            autocomplete="tel"
+            formControlName="phone"
+            id="phone"
+            type="tel"
+          >
+          @if (shouldShowError('phone')) {
+            <p class="field-error" id="phone-error">
+              Phone is required and must not exceed 30 characters.
+            </p>
+          }
+        </div>
+      </div>
+    </section>
+
+    <section
+      aria-labelledby="address-title"
+      class="form-section"
+      formGroupName="residentialAddress"
+    >
+      <h2 id="address-title">Residential address</h2>
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="country-code">Country code</label>
+          <input
+            aria-describedby="country-code-error"
+            autocomplete="country"
+            formControlName="countryCode"
+            id="country-code"
+            maxlength="2"
+            type="text"
+          >
+          @if (shouldShowAddressError('countryCode')) {
+            <p class="field-error" id="country-code-error">
+              Enter a two-letter country code.
+            </p>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="city">City</label>
+          <input
+            aria-describedby="city-error"
+            autocomplete="address-level2"
+            formControlName="city"
+            id="city"
+            type="text"
+          >
+          @if (shouldShowAddressError('city')) {
+            <p class="field-error" id="city-error">
+              City is required and must not exceed 100 characters.
+            </p>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="postal-code">Postal code</label>
+          <input
+            aria-describedby="postal-code-error"
+            autocomplete="postal-code"
+            formControlName="postalCode"
+            id="postal-code"
+            type="text"
+          >
+          @if (shouldShowAddressError('postalCode')) {
+            <p class="field-error" id="postal-code-error">
+              Postal code is required and must not exceed 20 characters.
+            </p>
+          }
+        </div>
+
+        <div class="form-field form-field--full-width">
+          <label for="address-line-1">Address line 1</label>
+          <input
+            aria-describedby="address-line-1-error"
+            autocomplete="address-line1"
+            formControlName="addressLine1"
+            id="address-line-1"
+            type="text"
+          >
+          @if (shouldShowAddressError('addressLine1')) {
+            <p class="field-error" id="address-line-1-error">
+              Address line 1 is required and must not exceed 200 characters.
+            </p>
+          }
+        </div>
+
+        <div class="form-field form-field--full-width">
+          <label for="address-line-2">Address line 2</label>
+          <input
+            aria-describedby="address-line-2-error"
+            autocomplete="address-line2"
+            formControlName="addressLine2"
+            id="address-line-2"
+            type="text"
+          >
+          @if (shouldShowAddressError('addressLine2')) {
+            <p class="field-error" id="address-line-2-error">
+              Address line 2 must not exceed 200 characters.
+            </p>
+          }
+        </div>
+      </div>
+    </section>
+
+    <footer class="form-actions">
+      <a class="button button--secondary" routerLink="/customers">Cancel</a>
+      <button
+        [disabled]="submitting()"
+        class="button button--primary"
+        type="submit"
+      >
+        @if (submitting()) {
+          Registering...
+        } @else {
+          Register Individual Customer
+        }
+      </button>
+    </footer>
+  </form>
+</section>

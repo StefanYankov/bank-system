@@ -1,0 +1,93 @@
+<section
+  aria-labelledby="reopen-title"
+  class="customer-maintenance"
+>
+  <a
+    [routerLink]="customerLink()"
+    class="back-link"
+  >
+    ← Back to customer
+  </a>
+
+  <header>
+    <p class="customer-maintenance__label">Individual Customer</p>
+    <h1 id="reopen-title">Reopen Customer</h1>
+    <p class="customer-maintenance__description">
+      Reopening restores the Customer with the same Customer number and identifiers.
+    </p>
+  </header>
+
+  @if (loading()) {
+    <p
+      class="customer-maintenance__status"
+      role="status"
+    >
+      Loading Individual Customer...
+    </p>
+  } @else if (loadError(); as errorMessage) {
+    <section
+      class="submission-error"
+      role="alert"
+    >
+      <h2>Customer unavailable</h2>
+      <p>{{ errorMessage }}</p>
+    </section>
+  } @else if (customer(); as customerRecord) {
+    @if (customerRecord.status !== 'CLOSED') {
+      <section
+        class="submission-error"
+        role="alert"
+      >
+        <h2>Customer is already active</h2>
+        <p>This Customer is active and does not need to be reopened.</p>
+      </section>
+    } @else {
+      @if (submissionError(); as errorMessage) {
+        <section
+          class="submission-error"
+          role="alert"
+        >
+          <h2>Reopen unsuccessful</h2>
+          <p>{{ errorMessage }}</p>
+        </section>
+      }
+
+      <section
+        aria-labelledby="reopen-confirmation-title"
+        class="form-section"
+      >
+        <h2 id="reopen-confirmation-title">Confirm</h2>
+        <p class="customer-maintenance__summary">
+          {{ customerRecord.customerNumber }}
+          ·
+          {{ customerRecord.firstName }}
+          @if (customerRecord.middleName) {
+            {{ customerRecord.middleName }}
+          }
+          {{ customerRecord.lastName }}
+        </p>
+      </section>
+
+      <footer class="form-actions">
+        <a
+          [routerLink]="customerLink()"
+          class="button button--secondary"
+        >
+          Cancel
+        </a>
+        <button
+          (click)="confirm()"
+          [disabled]="submitting()"
+          class="button button--primary"
+          type="button"
+        >
+          @if (submitting()) {
+            Reopening...
+          } @else {
+            Reopen Customer
+          }
+        </button>
+      </footer>
+    }
+  }
+</section>

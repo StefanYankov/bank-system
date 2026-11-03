@@ -1,0 +1,126 @@
+<section
+  aria-labelledby="egn-correction-title"
+  class="customer-maintenance"
+>
+  <a
+    [routerLink]="customerLink()"
+    class="back-link"
+  >
+    ← Back to customer
+  </a>
+
+  <header>
+    <p class="customer-maintenance__label">Individual Customer</p>
+    <h1 id="egn-correction-title">Correct EGN</h1>
+    <p class="customer-maintenance__description">
+      Use this only to fix an identifier entered incorrectly. It does not transfer the Customer record to another
+      person.
+    </p>
+  </header>
+
+  @if (loading()) {
+    <p
+      class="customer-maintenance__status"
+      role="status"
+    >
+      Loading Individual Customer...
+    </p>
+  } @else if (loadError(); as errorMessage) {
+    <section
+      class="submission-error"
+      role="alert"
+    >
+      <h2>Customer unavailable</h2>
+      <p>{{ errorMessage }}</p>
+    </section>
+  } @else if (customer(); as customerRecord) {
+    @if (customerRecord.status === 'CLOSED') {
+      <section
+        class="submission-error"
+        role="alert"
+      >
+        <h2>Customer is closed</h2>
+        <p>A closed Customer cannot be changed. Reopen the Customer first.</p>
+      </section>
+    } @else {
+      @if (submissionError(); as errorMessage) {
+        <section
+          class="submission-error"
+          role="alert"
+        >
+          <h2>Update unsuccessful</h2>
+          <p>{{ errorMessage }}</p>
+        </section>
+      }
+
+      <form
+        (ngSubmit)="submit()"
+        [formGroup]="updateForm"
+        class="registration-form"
+        novalidate
+      >
+        <section
+          aria-labelledby="egn-section-title"
+          class="form-section"
+        >
+          <h2 id="egn-section-title">Personal identifier</h2>
+          <p class="form-section__description">
+            The EGN must encode a real birth date and have a valid check digit.
+          </p>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="egn">EGN</label>
+              <input
+                aria-describedby="egn-help egn-error"
+                autocomplete="off"
+                formControlName="egn"
+                id="egn"
+                inputmode="numeric"
+                maxlength="10"
+                type="text"
+              >
+              <p
+                class="field-help"
+                id="egn-help"
+              >
+                Enter the correct 10-digit Bulgarian personal identifier.
+              </p>
+              @if (shouldShowError()) {
+                <p
+                  class="field-error"
+                  id="egn-error"
+                >
+                  @if (updateForm.controls.egn.hasError('required')) {
+                    EGN is required.
+                  } @else {
+                    Enter a valid 10-digit EGN with a real birth date and check digit.
+                  }
+                </p>
+              }
+            </div>
+          </div>
+        </section>
+
+        <footer class="form-actions">
+          <a
+            [routerLink]="customerLink()"
+            class="button button--secondary"
+          >
+            Cancel
+          </a>
+          <button
+            [disabled]="submitting()"
+            class="button button--primary"
+            type="submit"
+          >
+            @if (submitting()) {
+              Correcting...
+            } @else {
+              Correct EGN
+            }
+          </button>
+        </footer>
+      </form>
+    }
+  }
+</section>

@@ -10,7 +10,8 @@ import jakarta.validation.constraints.NotBlank;
  * @param egn the correct EGN
  */
 public record EgnCorrectionDto(
-        @Schema(description = "Correct Bulgarian personal identifier (EGN).", example = "6101047500")
+        @Schema(description = "Correct Bulgarian personal identifier (EGN).", example = "6101047500", minLength = 10,
+                maxLength = 10, pattern = "\\d{10}")
         @NotBlank
         @ValidEgn
         String egn

@@ -1,0 +1,151 @@
+<section
+  aria-labelledby="individual-customer-details-title"
+  class="customer-details"
+>
+  <a
+    class="back-link"
+    routerLink="/customers"
+  >
+    ← Back to customers
+  </a>
+
+  @if (loading()) {
+    <p
+      class="state-message"
+      role="status"
+    >
+      Loading Individual Customer...
+    </p>
+  } @else if (error(); as errorMessage) {
+    <section
+      class="state-panel state-panel--error"
+      role="alert"
+    >
+      <h1 id="individual-customer-details-title">Customer unavailable</h1>
+      <p>{{ errorMessage }}</p>
+      <button
+        (click)="retry()"
+        class="button button--primary"
+        type="button"
+      >
+        Try again
+      </button>
+    </section>
+  } @else if (customer(); as customerRecord) {
+    <header class="customer-details__header">
+      <div>
+        <p class="customer-details__section-label">Individual Customer</p>
+        <p class="customer-details__field-label">Customer name</p>
+        <h1 id="individual-customer-details-title">
+          {{ customerRecord.firstName }}
+          @if (customerRecord.middleName) {
+            {{ customerRecord.middleName }}
+          }
+          {{ customerRecord.lastName }}
+        </h1>
+        <p class="customer-details__field-label customer-details__number-label">
+          Customer number
+        </p>
+        <p class="customer-details__number">
+          {{ customerRecord.customerNumber }}
+        </p>
+      </div>
+      <span
+        [class.status-badge--closed]="customerRecord.status === 'CLOSED'"
+        class="status-badge"
+      >
+        {{ customerRecord.status }}
+      </span>
+    </header>
+
+    @if (canMaintainCustomers) {
+      <nav
+        aria-label="Individual Customer actions"
+        class="customer-actions"
+      >
+        @if (customerRecord.status === 'ACTIVE') {
+          <a
+            [routerLink]="['/customers/individuals', customerRecord.id, 'name']"
+            class="button button--secondary"
+            id="update-name-action"
+          >
+            Update name
+          </a>
+          <a
+            [routerLink]="['/customers/individuals', customerRecord.id, 'contact']"
+            class="button button--secondary"
+            id="update-contact-action"
+          >
+            Update contact
+          </a>
+          <a
+            [routerLink]="['/customers/individuals', customerRecord.id, 'residential-address']"
+            class="button button--secondary"
+            id="update-address-action"
+          >
+            Update address
+          </a>
+          <a
+            [routerLink]="['/customers/individuals', customerRecord.id, 'egn']"
+            class="button button--secondary"
+            id="correct-egn-action"
+          >
+            Correct EGN
+          </a>
+          <a
+            [routerLink]="['/customers/individuals', customerRecord.id, 'close']"
+            class="button button--secondary"
+            id="close-action"
+          >
+            Close customer
+          </a>
+        } @else {
+          <a
+            [routerLink]="['/customers/individuals', customerRecord.id, 'reopen']"
+            class="button button--secondary"
+            id="reopen-action"
+          >
+            Reopen customer
+          </a>
+        }
+      </nav>
+    }
+
+    <section
+      aria-labelledby="personal-details-title"
+      class="details-card"
+    >
+      <h2 id="personal-details-title">Personal and contact details</h2>
+      <dl class="details-grid">
+        <div class="details-grid__item">
+          <dt>EGN</dt>
+          <dd>{{ customerRecord.egn }}</dd>
+        </div>
+        <div class="details-grid__item">
+          <dt>Email</dt>
+          <dd>{{ customerRecord.email }}</dd>
+        </div>
+        <div class="details-grid__item">
+          <dt>Phone</dt>
+          <dd>{{ customerRecord.phone }}</dd>
+        </div>
+      </dl>
+    </section>
+
+    <section
+      aria-labelledby="residential-address-title"
+      class="details-card"
+    >
+      <h2 id="residential-address-title">Residential address</h2>
+      <address class="address">
+        {{ customerRecord.residentialAddress.addressLine1 }}<br>
+        @if (customerRecord.residentialAddress.addressLine2) {
+          {{ customerRecord.residentialAddress.addressLine2 }}<br>
+        }
+        {{ customerRecord.residentialAddress.postalCode }}
+        {{ customerRecord.residentialAddress.city }}<br>
+        {{ customerRecord.residentialAddress.countryCode }}
+      </address>
+    </section>
+  }
+</section>

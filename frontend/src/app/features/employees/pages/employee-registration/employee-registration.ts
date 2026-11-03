@@ -5,7 +5,7 @@ import {NonNullableFormBuilder, ReactiveFormsModule, Validators,} from '@angular
 import {Router, RouterLink,} from '@angular/router';
 import {notBlankValidator,} from '../../../../core/forms/not-blank-validator';
 import {EmployeeAPIService, EmployeeRegistrationDto, EmployeeViewDto,} from '../../../../generated/employee-api';
-import {employeeSchemaConstraints,} from '../../../../generated/schema-constraints.generated';
+import {employeeSchemaConstraints,} from '../../../../generated/employee-schema-constraints.generated';
 
 const registrationConstraints =
   employeeSchemaConstraints.EmployeeRegistrationDto;

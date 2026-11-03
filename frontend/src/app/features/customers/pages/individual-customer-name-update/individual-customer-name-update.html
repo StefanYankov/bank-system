@@ -1,0 +1,146 @@
+<section
+  aria-labelledby="name-update-title"
+  class="customer-maintenance"
+>
+  <a
+    [routerLink]="customerLink()"
+    class="back-link"
+  >
+    ← Back to customer
+  </a>
+
+  <header>
+    <p class="customer-maintenance__label">Individual Customer</p>
+    <h1 id="name-update-title">Update Customer name</h1>
+    <p class="customer-maintenance__description">
+      Replace the recorded first, middle, and last names.
+    </p>
+  </header>
+
+  @if (loading()) {
+    <p
+      class="customer-maintenance__status"
+      role="status"
+    >
+      Loading Individual Customer...
+    </p>
+  } @else if (loadError(); as errorMessage) {
+    <section
+      class="submission-error"
+      role="alert"
+    >
+      <h2>Customer unavailable</h2>
+      <p>{{ errorMessage }}</p>
+    </section>
+  } @else if (customer(); as customerRecord) {
+    @if (customerRecord.status === 'CLOSED') {
+      <section
+        class="submission-error"
+        role="alert"
+      >
+        <h2>Customer is closed</h2>
+        <p>A closed Customer cannot be changed. Reopen the Customer first.</p>
+      </section>
+    } @else {
+      @if (submissionError(); as errorMessage) {
+        <section
+          class="submission-error"
+          role="alert"
+        >
+          <h2>Update unsuccessful</h2>
+          <p>{{ errorMessage }}</p>
+        </section>
+      }
+
+      <form
+        (ngSubmit)="submit()"
+        [formGroup]="updateForm"
+        class="registration-form"
+        novalidate
+      >
+        <section
+          aria-labelledby="name-section-title"
+          class="form-section"
+        >
+          <h2 id="name-section-title">Name</h2>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="first-name">First name</label>
+              <input
+                aria-describedby="first-name-error"
+                autocomplete="given-name"
+                formControlName="firstName"
+                id="first-name"
+                type="text"
+              >
+              @if (shouldShowError('firstName')) {
+                <p
+                  class="field-error"
+                  id="first-name-error"
+                >
+                  First name is required and must not exceed 100 characters.
+                </p>
+              }
+            </div>
+            <div class="form-field">
+              <label for="middle-name">Middle name</label>
+              <input
+                aria-describedby="middle-name-error"
+                autocomplete="additional-name"
+                formControlName="middleName"
+                id="middle-name"
+                type="text"
+              >
+              @if (shouldShowError('middleName')) {
+                <p
+                  class="field-error"
+                  id="middle-name-error"
+                >
+                  Middle name must not exceed 100 characters.
+                </p>
+              }
+            </div>
+            <div class="form-field">
+              <label for="last-name">Last name</label>
+              <input
+                aria-describedby="last-name-error"
+                autocomplete="family-name"
+                formControlName="lastName"
+                id="last-name"
+                type="text"
+              >
+              @if (shouldShowError('lastName')) {
+                <p
+                  class="field-error"
+                  id="last-name-error"
+                >
+                  Last name is required and must not exceed 100 characters.
+                </p>
+              }
+            </div>
+          </div>
+        </section>
+
+        <footer class="form-actions">
+          <a
+            [routerLink]="customerLink()"
+            class="button button--secondary"
+          >
+            Cancel
+          </a>
+          <button
+            [disabled]="submitting()"
+            class="button button--primary"
+            type="submit"
+          >
+            @if (submitting()) {
+              Updating...
+            } @else {
+              Update name
+            }
+          </button>
+        </footer>
+      </form>
+    }
+  }
+</section>
