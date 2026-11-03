@@ -2,6 +2,8 @@ import {Routes} from '@angular/router';
 
 import {roleGuard, ROUTE_ROLES} from '../../core/auth/guards/role-guard';
 
+const CUSTOMER_MAINTENANCE_ROLES = ['CLERK', 'ADMIN'];
+
 export const customerManagementRoutes: Routes = [
   {
     path: '',
@@ -13,12 +15,78 @@ export const customerManagementRoutes: Routes = [
     path: 'individuals/register',
     canActivate: [roleGuard],
     data: {
-      [ROUTE_ROLES]: ['CLERK', 'ADMIN'],
+      [ROUTE_ROLES]: CUSTOMER_MAINTENANCE_ROLES,
     },
     loadComponent: () =>
       import(
         './pages/individual-customer-registration/individual-customer-registration'
         ).then((module) => module.IndividualCustomerRegistration),
+  },
+  {
+    path: 'individuals/:id/name',
+    canActivate: [roleGuard],
+    data: {
+      [ROUTE_ROLES]: CUSTOMER_MAINTENANCE_ROLES,
+    },
+    loadComponent: () =>
+      import(
+        './pages/individual-customer-name-update/individual-customer-name-update'
+        ).then((module) => module.IndividualCustomerNameUpdate),
+  },
+  {
+    path: 'individuals/:id/contact',
+    canActivate: [roleGuard],
+    data: {
+      [ROUTE_ROLES]: CUSTOMER_MAINTENANCE_ROLES,
+    },
+    loadComponent: () =>
+      import(
+        './pages/individual-customer-contact-update/individual-customer-contact-update'
+        ).then((module) => module.IndividualCustomerContactUpdate),
+  },
+  {
+    path: 'individuals/:id/residential-address',
+    canActivate: [roleGuard],
+    data: {
+      [ROUTE_ROLES]: CUSTOMER_MAINTENANCE_ROLES,
+    },
+    loadComponent: () =>
+      import(
+        './pages/individual-customer-address-update/individual-customer-address-update'
+        ).then((module) => module.IndividualCustomerAddressUpdate),
+  },
+  {
+    path: 'individuals/:id/egn',
+    canActivate: [roleGuard],
+    data: {
+      [ROUTE_ROLES]: CUSTOMER_MAINTENANCE_ROLES,
+    },
+    loadComponent: () =>
+      import(
+        './pages/individual-customer-egn-correction/individual-customer-egn-correction'
+        ).then((module) => module.IndividualCustomerEgnCorrection),
+  },
+  {
+    path: 'individuals/:id/close',
+    canActivate: [roleGuard],
+    data: {
+      CUSTOMER_MAINTENANCE_ROLES,
+    },
+    loadComponent: () =>
+      import(
+        './pages/individual-customer-close/individual-customer-close'
+        ).then((module) => module.IndividualCustomerClose),
+  },
+  {
+    path: 'individuals/:id/reopen',
+    canActivate: [roleGuard],
+    data: {
+      CUSTOMER_MAINTENANCE_ROLES,
+    },
+    loadComponent: () =>
+      import(
+        './pages/individual-customer-reopen/individual-customer-reopen'
+        ).then((module) => module.IndividualCustomerReopen),
   },
   {
     path: 'individuals/:id',

@@ -58,6 +58,59 @@
       </span>
     </header>
 
+    @if (canMaintainCustomers) {
+      <nav
+        aria-label="Individual Customer actions"
+        class="customer-actions"
+      >
+        @if (customerRecord.status === 'ACTIVE') {
+          <a
+            [routerLink]="['/customers/individuals', customerRecord.id, 'name']"
+            class="button button--secondary"
+            id="update-name-action"
+          >
+            Update name
+          </a>
+          <a
+            [routerLink]="['/customers/individuals', customerRecord.id, 'contact']"
+            class="button button--secondary"
+            id="update-contact-action"
+          >
+            Update contact
+          </a>
+          <a
+            [routerLink]="['/customers/individuals', customerRecord.id, 'residential-address']"
+            class="button button--secondary"
+            id="update-address-action"
+          >
+            Update address
+          </a>
+          <a
+            [routerLink]="['/customers/individuals', customerRecord.id, 'egn']"
+            class="button button--secondary"
+            id="correct-egn-action"
+          >
+            Correct EGN
+          </a>
+          <a
+            [routerLink]="['/customers/individuals', customerRecord.id, 'close']"
+            class="button button--secondary"
+            id="close-action"
+          >
+            Close customer
+          </a>
+        } @else {
+          <a
+            [routerLink]="['/customers/individuals', customerRecord.id, 'reopen']"
+            class="button button--secondary"
+            id="reopen-action"
+          >
+            Reopen customer
+          </a>
+        }
+      </nav>
+    }
+
     <section
       aria-labelledby="personal-details-title"
       class="details-card"

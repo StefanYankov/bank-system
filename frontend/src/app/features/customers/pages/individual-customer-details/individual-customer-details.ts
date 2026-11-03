@@ -3,10 +3,18 @@ import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, RouterLink} from '@angular/router';
 
-import {IndividualCustomerAPIService, IndividualCustomerViewDto,} from '../../../../generated/customer-api';
+import {AuthSession} from '../../../../core/auth/auth-session';
+import {IndividualCustomerAPIService, IndividualCustomerViewDto} from '../../../../generated/customer-api';
 
 /**
- *  Displays the details of one Individual Customer.
+ * Displays the details of one Individual Customer.
+ *
+ * Every authenticated bank role may read the page. Maintenance actions are
+ * shown only to clerks and administrators: an active Customer exposes the
+ * update operations and closing, while a closed Customer exposes only
+ * reopening, because Customer Service rejects other changes to closed
+ * Customers. Hiding actions is a usability measure; Customer Service remains
+ * the authorization boundary.
  */
 @Component({
   selector: 'app-individual-customer-details',
@@ -21,15 +29,20 @@ export class IndividualCustomerDetails implements OnInit {
 
   private readonly customerApi = inject(IndividualCustomerAPIService);
   private readonly route = inject(ActivatedRoute);
+  private readonly authSession = inject(AuthSession);
   private readonly destroyRef = inject(DestroyRef);
 
   /**
-   *  Loads the Individual Customer identified by the active route.
+   * Whether the authenticated user may change Customer records.
+   *
+   * Clerks and administrators maintain Customers; loan officers read only.
    */
-  public ngOnInit(): void {
-    const customerId = this.route.snapshot.paramMap.get('id');
+  protected readonly canMaintainCustomers =
+    this.authSession.hasRealmRole('CLERK') || this.authSession.hasRealmRole('ADMIN');
 
-    if (customerId === null || customerId.length === 0) {
+  public ngOnInit(): void {
+    const customerId = this.customerId();
+    if (customerId === null) {
       this.loading.set(false);
       this.error.set('The Customer identifier is missing.');
       return;
@@ -39,16 +52,20 @@ export class IndividualCustomerDetails implements OnInit {
   }
 
   /**
-   *  Repeats the request for the current route.
+   * Repeats the request for the Customer identified by the current route.
    */
   protected retry(): void {
-    const customerId = this.route.snapshot.paramMap.get('id');
-
-    if (customerId === null || customerId.length === 0) {
+    const customerId = this.customerId();
+    if (customerId === null) {
       return;
     }
 
     this.loadCustomer(customerId);
+  }
+
+  private customerId(): string | null {
+    const customerId = this.route.snapshot.paramMap.get('id');
+    return customerId !== null && customerId.length > 0 ? customerId : null;
   }
 
   private loadCustomer(customerId: string): void {
@@ -56,9 +73,7 @@ export class IndividualCustomerDetails implements OnInit {
     this.error.set(null);
     this.customer.set(null);
 
-    this.customerApi.getIndividualCustomer({
-      id: customerId,
-    })
+    this.customerApi.getIndividualCustomer({id: customerId})
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (customer: IndividualCustomerViewDto) => {
@@ -77,7 +92,6 @@ export class IndividualCustomerDetails implements OnInit {
       if (error.status === 404) {
         return 'The requested Individual Customer could not be found.';
       }
-
       if (error.status === 403) {
         return 'You do not have permission to view this Customer.';
       }

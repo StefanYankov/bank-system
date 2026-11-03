@@ -17,6 +17,52 @@
   outline-offset: 0.2rem;
 }
 
+/* Customer maintenance page shell shared by every single-operation page. */
+
+.customer-maintenance {
+  display: grid;
+  gap: 1.5rem;
+  max-width: 55rem;
+}
+
+.customer-maintenance__label {
+  margin: 0 0 0.4rem;
+  color: #8f001f;
+  font-size: 0.8rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+}
+
+.customer-maintenance h1 {
+  margin: 0;
+  color: #650016;
+  font-size: clamp(1.75rem, 4vw, 2.4rem);
+  line-height: 1.2;
+}
+
+.customer-maintenance__description {
+  margin: 0.75rem 0 0;
+  color: #626262;
+  line-height: 1.5;
+}
+
+.customer-maintenance__status {
+  margin: 0;
+  padding: 1.5rem;
+  background: #ffffff;
+  border: 1px solid #dddddd;
+  border-radius: 0.5rem;
+}
+
+.customer-maintenance__summary {
+  margin: 1rem 0 0;
+  color: #242424;
+  font-weight: 700;
+}
+
+/* Shared form primitives. */
+
 .registration-form {
   display: grid;
   gap: 1.5rem;
@@ -68,7 +114,6 @@
 
 .form-field--full-width {
   grid-column: 1 / -1;
-  margin-top: 1.25rem;
 }
 
 .form-field label {
@@ -162,10 +207,6 @@
 @media (max-width: 40rem) {
   .form-grid {
     grid-template-columns: 1fr;
-  }
-
-  .form-field--full-width {
-    grid-column: auto;
   }
 
   .form-actions {
