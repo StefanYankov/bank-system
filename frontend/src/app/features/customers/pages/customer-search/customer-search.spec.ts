@@ -4,7 +4,6 @@ import {TestBed} from '@angular/core/testing';
 import {provideRouter} from '@angular/router';
 import {of, Subject, throwError} from 'rxjs';
 import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-
 import {AuthSession} from '../../../../core/auth/auth-session';
 import {
   CustomerAPIService,
@@ -22,6 +21,7 @@ describe('CustomerSearch', () => {
     identifier: '6101047500',
     status: CustomerSummaryDto.StatusEnum.Active,
   };
+
   const legalEntity: CustomerSummaryDto = {
     id: '0199e65a-35b1-7000-8000-000000000102',
     customerNumber: 'CUS-000002',
@@ -30,6 +30,7 @@ describe('CustomerSearch', () => {
     identifier: '123456786',
     status: CustomerSummaryDto.StatusEnum.Closed,
   };
+
   const page: PagedResponseCustomerSummaryDto = {
     content: [individual, legalEntity],
     page: 0,
@@ -38,6 +39,10 @@ describe('CustomerSearch', () => {
     totalPages: 1,
     last: true,
   };
+
+  const individualRegistrationSelector = 'a[href="/customers/individuals/register"]';
+  const legalEntityRegistrationSelector = 'a[href="/customers/legal-entities/register"]';
+
   const realmRoles = signal<readonly string[]>(['CLERK']);
   const searchCustomersMock = vi.fn();
   const authSessionMock = {
@@ -94,7 +99,7 @@ describe('CustomerSearch', () => {
   it.each([
     ['CLERK'],
     ['ADMIN'],
-  ])('should show registration for the %s role', async (role) => {
+  ])('should show both registration links for the %s role', async (role) => {
     // Arrange
     realmRoles.set([role]);
     const fixture = TestBed.createComponent(CustomerSearch);
@@ -103,15 +108,14 @@ describe('CustomerSearch', () => {
     fixture.detectChanges();
     await vi.advanceTimersByTimeAsync(300);
     fixture.detectChanges();
-    const link = fixture.nativeElement.querySelector(
-      'a[href="/customers/individuals/register"]',
-    ) as HTMLAnchorElement | null;
+    const element = fixture.nativeElement as HTMLElement;
 
     // Assert
-    expect(link).not.toBeNull();
+    expect(element.querySelector(individualRegistrationSelector)).not.toBeNull();
+    expect(element.querySelector(legalEntityRegistrationSelector)).not.toBeNull();
   });
 
-  it('should hide registration from a loan officer', async () => {
+  it('should hide registration links from a loan officer', async () => {
     // Arrange
     realmRoles.set(['LOAN_OFFICER']);
     const fixture = TestBed.createComponent(CustomerSearch);
@@ -120,16 +124,14 @@ describe('CustomerSearch', () => {
     fixture.detectChanges();
     await vi.advanceTimersByTimeAsync(300);
     fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
 
     // Assert
-    expect(
-      fixture.nativeElement.querySelector(
-        'a[href="/customers/individuals/register"]',
-      ),
-    ).toBeNull();
+    expect(element.querySelector(individualRegistrationSelector)).toBeNull();
+    expect(element.querySelector(legalEntityRegistrationSelector)).toBeNull();
   });
 
-  it('should link only Individual Customers to their details page', async () => {
+  it('should link each Customer to the details page for its type', async () => {
     // Arrange
     const fixture = TestBed.createComponent(CustomerSearch);
 
@@ -141,10 +143,14 @@ describe('CustomerSearch', () => {
     const links = Array.from(
       element.querySelectorAll<HTMLAnchorElement>('.customer-link'),
     );
+
     // Assert
-    expect(links).toHaveLength(1);
+    expect(links).toHaveLength(2);
     expect(links[0]?.getAttribute('href')).toBe(
       `/customers/individuals/${individual.id}`,
+    );
+    expect(links[1]?.getAttribute('href')).toBe(
+      `/customers/legal-entities/${legalEntity.id}`,
     );
   });
 

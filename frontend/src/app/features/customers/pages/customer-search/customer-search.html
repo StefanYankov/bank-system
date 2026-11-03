@@ -8,13 +8,22 @@
         name, EGN, or EIK.
       </p>
     </div>
+
     @if (canMaintainCustomers()) {
-      <a
-        class="button button--primary"
-        routerLink="/customers/individuals/register"
-      >
-        Register individual customer
-      </a>
+      <div class="customer-search__actions">
+        <a
+          class="button button--primary"
+          routerLink="/customers/individuals/register"
+        >
+          Register individual customer
+        </a>
+        <a
+          class="button button--primary"
+          routerLink="/customers/legal-entities/register"
+        >
+          Register legal-entity customer
+        </a>
+      </div>
     }
   </header>
 
@@ -22,6 +31,7 @@
     <h2 class="visually-hidden" id="customer-search-form-title">
       Search customers
     </h2>
+
     <label for="customer-query">Search customers</label>
     <div class="search-panel__controls">
       <input
@@ -86,16 +96,12 @@
           @for (customer of customers(); track customer.id) {
             <tr>
               <td>
-                @if (customer.customerType === individualType) {
-                  <a
-                    [routerLink]="['/customers/individuals', customer.id]"
-                    class="customer-link"
-                  >
-                    {{ customer.customerNumber }}
-                  </a>
-                } @else {
+                <a
+                  [routerLink]="detailsLink(customer)"
+                  class="customer-link"
+                >
                   {{ customer.customerNumber }}
-                }
+                </a>
               </td>
               <td>{{ customer.displayName }}</td>
               <td>{{ customerTypeLabel(customer.customerType) }}</td>

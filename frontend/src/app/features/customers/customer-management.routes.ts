@@ -1,5 +1,4 @@
 import {Routes} from '@angular/router';
-
 import {roleGuard, ROUTE_ROLES} from '../../core/auth/guards/role-guard';
 
 const CUSTOMER_MAINTENANCE_ROLES = ['CLERK', 'ADMIN'];
@@ -70,7 +69,7 @@ export const customerManagementRoutes: Routes = [
     path: 'individuals/:id/close',
     canActivate: [roleGuard],
     data: {
-      CUSTOMER_MAINTENANCE_ROLES,
+      [ROUTE_ROLES]: CUSTOMER_MAINTENANCE_ROLES,
     },
     loadComponent: () =>
       import(
@@ -81,7 +80,7 @@ export const customerManagementRoutes: Routes = [
     path: 'individuals/:id/reopen',
     canActivate: [roleGuard],
     data: {
-      CUSTOMER_MAINTENANCE_ROLES,
+      [ROUTE_ROLES]: CUSTOMER_MAINTENANCE_ROLES,
     },
     loadComponent: () =>
       import(
@@ -94,5 +93,23 @@ export const customerManagementRoutes: Routes = [
       import(
         './pages/individual-customer-details/individual-customer-details'
         ).then((module) => module.IndividualCustomerDetails),
+  },
+  {
+    path: 'legal-entities/register',
+    canActivate: [roleGuard],
+    data: {
+      [ROUTE_ROLES]: CUSTOMER_MAINTENANCE_ROLES,
+    },
+    loadComponent: () =>
+      import(
+        './pages/legal-entity-customer-registration/legal-entity-customer-registration'
+        ).then((module) => module.LegalEntityCustomerRegistration),
+  },
+  {
+    path: 'legal-entities/:id',
+    loadComponent: () =>
+      import(
+        './pages/legal-entity-customer-details/legal-entity-customer-details'
+        ).then((module) => module.LegalEntityCustomerDetails),
   },
 ];

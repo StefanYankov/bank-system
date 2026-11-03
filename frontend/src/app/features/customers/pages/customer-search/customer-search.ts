@@ -4,7 +4,6 @@ import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {FormControl, ReactiveFormsModule} from '@angular/forms';
 import {RouterLink} from '@angular/router';
 import {catchError, debounceTime, distinctUntilChanged, map, of, startWith, Subject, switchMap, tap} from 'rxjs';
-
 import {AuthSession} from '../../../../core/auth/auth-session';
 import {
   CustomerAPIService,
@@ -39,8 +38,10 @@ type SearchOutcome =
 export class CustomerSearch implements OnInit {
   private static readonly PAGE_SIZE = 10;
   private static readonly SEARCH_DEBOUNCE_MS = 300;
+
   protected readonly queryControl = new FormControl('', {nonNullable: true});
   private readonly authSession = inject(AuthSession);
+
   protected readonly customers = signal<readonly CustomerSummaryDto[]>([]);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
@@ -48,8 +49,7 @@ export class CustomerSearch implements OnInit {
   protected readonly totalElements = signal(0);
   protected readonly totalPages = signal(0);
   protected readonly last = signal(true);
-  protected readonly individualType =
-    CustomerSummaryDto.CustomerTypeEnum.Individual;
+
   protected readonly canMaintainCustomers = computed(() =>
     this.authSession.hasRealmRole('CLERK')
     || this.authSession.hasRealmRole('ADMIN'),
@@ -122,6 +122,18 @@ export class CustomerSearch implements OnInit {
 
   protected retry(): void {
     this.requestPage(this.page());
+  }
+
+  /**
+   * Builds the router link to the details page for the Customer type.
+   *
+   * @param customer Customer summary
+   * @returns router link commands
+   */
+  protected detailsLink(customer: CustomerSummaryDto): readonly string[] {
+    return customer.customerType === CustomerSummaryDto.CustomerTypeEnum.Individual
+      ? ['/customers/individuals', customer.id]
+      : ['/customers/legal-entities', customer.id];
   }
 
   protected customerTypeLabel(

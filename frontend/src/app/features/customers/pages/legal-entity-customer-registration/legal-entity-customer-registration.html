@@ -1,0 +1,307 @@
+<section
+  aria-labelledby="legal-entity-registration-title"
+  class="customer-maintenance"
+>
+  <a class="back-link" routerLink="/customers">← Back to customers</a>
+
+  <header>
+    <p class="customer-maintenance__label">Customer management</p>
+    <h1 id="legal-entity-registration-title">Register Legal Entity Customer</h1>
+    <p class="customer-maintenance__description">
+      Create a Legal Entity Customer with contact details, a registered address,
+      and a correspondence address. Representatives are added after registration.
+    </p>
+  </header>
+
+  @if (submissionError(); as errorMessage) {
+    <section class="submission-error" role="alert">
+      <h2>Registration unsuccessful</h2>
+      <p>{{ errorMessage }}</p>
+    </section>
+  }
+
+  <form
+    (ngSubmit)="submit()"
+    [formGroup]="registrationForm"
+    class="registration-form"
+    novalidate
+  >
+    <section aria-labelledby="company-title" class="form-section">
+      <h2 id="company-title">Company details</h2>
+
+      <div class="form-grid">
+        <div class="form-field form-field--full-width">
+          <label for="company-name">Company name</label>
+          <input
+            aria-describedby="company-name-error"
+            autocomplete="organization"
+            formControlName="companyName"
+            id="company-name"
+            type="text"
+          >
+          @if (shouldShowError('companyName')) {
+            <p class="field-error" id="company-name-error">
+              Company name is required and must not exceed 200 characters.
+            </p>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="eik">EIK</label>
+          <input
+            aria-describedby="eik-help eik-error"
+            autocomplete="off"
+            formControlName="eik"
+            id="eik"
+            inputmode="numeric"
+            maxlength="9"
+            type="text"
+          >
+          <p class="field-help" id="eik-help">
+            Enter the 9-digit Bulgarian company identifier.
+          </p>
+          @if (shouldShowError('eik')) {
+            <p class="field-error" id="eik-error">
+              @if (registrationForm.controls.eik.hasError('required')) {
+                EIK is required.
+              } @else {
+                Enter a valid 9-digit EIK with a correct check digit.
+              }
+            </p>
+          }
+        </div>
+      </div>
+    </section>
+
+    <section aria-labelledby="contact-title" class="form-section">
+      <h2 id="contact-title">Contact details</h2>
+
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="email">Email</label>
+          <input
+            aria-describedby="email-error"
+            autocomplete="email"
+            formControlName="email"
+            id="email"
+            type="email"
+          >
+          @if (shouldShowError('email')) {
+            <p class="field-error" id="email-error">
+              @if (registrationForm.controls.email.hasError('required')) {
+                Email is required.
+              } @else if (registrationForm.controls.email.hasError('email')) {
+                Enter a valid email address.
+              } @else {
+                Email must not exceed 254 characters.
+              }
+            </p>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="phone">Phone</label>
+          <input
+            aria-describedby="phone-error"
+            autocomplete="tel"
+            formControlName="phone"
+            id="phone"
+            type="tel"
+          >
+          @if (shouldShowError('phone')) {
+            <p class="field-error" id="phone-error">
+              Phone is required and must not exceed 30 characters.
+            </p>
+          }
+        </div>
+      </div>
+    </section>
+
+    <section
+      aria-labelledby="registered-address-title"
+      class="form-section"
+      formGroupName="registeredAddress"
+    >
+      <h2 id="registered-address-title">Registered address</h2>
+
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="registered-country-code">Country code</label>
+          <input
+            aria-describedby="registered-country-code-error"
+            formControlName="countryCode"
+            id="registered-country-code"
+            maxlength="2"
+            type="text"
+          >
+          @if (shouldShowAddressError('registeredAddress', 'countryCode')) {
+            <p class="field-error" id="registered-country-code-error">
+              Enter a two-letter country code.
+            </p>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="registered-city">City</label>
+          <input
+            aria-describedby="registered-city-error"
+            formControlName="city"
+            id="registered-city"
+            type="text"
+          >
+          @if (shouldShowAddressError('registeredAddress', 'city')) {
+            <p class="field-error" id="registered-city-error">
+              City is required and must not exceed 100 characters.
+            </p>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="registered-postal-code">Postal code</label>
+          <input
+            aria-describedby="registered-postal-code-error"
+            formControlName="postalCode"
+            id="registered-postal-code"
+            type="text"
+          >
+          @if (shouldShowAddressError('registeredAddress', 'postalCode')) {
+            <p class="field-error" id="registered-postal-code-error">
+              Postal code is required and must not exceed 20 characters.
+            </p>
+          }
+        </div>
+
+        <div class="form-field form-field--full-width">
+          <label for="registered-address-line-1">Address line 1</label>
+          <input
+            aria-describedby="registered-address-line-1-error"
+            formControlName="addressLine1"
+            id="registered-address-line-1"
+            type="text"
+          >
+          @if (shouldShowAddressError('registeredAddress', 'addressLine1')) {
+            <p class="field-error" id="registered-address-line-1-error">
+              Address line 1 is required and must not exceed 200 characters.
+            </p>
+          }
+        </div>
+
+        <div class="form-field form-field--full-width">
+          <label for="registered-address-line-2">Address line 2</label>
+          <input
+            aria-describedby="registered-address-line-2-error"
+            formControlName="addressLine2"
+            id="registered-address-line-2"
+            type="text"
+          >
+          @if (shouldShowAddressError('registeredAddress', 'addressLine2')) {
+            <p class="field-error" id="registered-address-line-2-error">
+              Address line 2 must not exceed 200 characters.
+            </p>
+          }
+        </div>
+      </div>
+    </section>
+
+    <section
+      aria-labelledby="correspondence-address-title"
+      class="form-section"
+      formGroupName="correspondenceAddress"
+    >
+      <h2 id="correspondence-address-title">Correspondence address</h2>
+
+      <div class="form-grid">
+        <div class="form-field">
+          <label for="correspondence-country-code">Country code</label>
+          <input
+            aria-describedby="correspondence-country-code-error"
+            formControlName="countryCode"
+            id="correspondence-country-code"
+            maxlength="2"
+            type="text"
+          >
+          @if (shouldShowAddressError('correspondenceAddress', 'countryCode')) {
+            <p class="field-error" id="correspondence-country-code-error">
+              Enter a two-letter country code.
+            </p>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="correspondence-city">City</label>
+          <input
+            aria-describedby="correspondence-city-error"
+            formControlName="city"
+            id="correspondence-city"
+            type="text"
+          >
+          @if (shouldShowAddressError('correspondenceAddress', 'city')) {
+            <p class="field-error" id="correspondence-city-error">
+              City is required and must not exceed 100 characters.
+            </p>
+          }
+        </div>
+
+        <div class="form-field">
+          <label for="correspondence-postal-code">Postal code</label>
+          <input
+            aria-describedby="correspondence-postal-code-error"
+            formControlName="postalCode"
+            id="correspondence-postal-code"
+            type="text"
+          >
+          @if (shouldShowAddressError('correspondenceAddress', 'postalCode')) {
+            <p class="field-error" id="correspondence-postal-code-error">
+              Postal code is required and must not exceed 20 characters.
+            </p>
+          }
+        </div>
+
+        <div class="form-field form-field--full-width">
+          <label for="correspondence-address-line-1">Address line 1</label>
+          <input
+            aria-describedby="correspondence-address-line-1-error"
+            formControlName="addressLine1"
+            id="correspondence-address-line-1"
+            type="text"
+          >
+          @if (shouldShowAddressError('correspondenceAddress', 'addressLine1')) {
+            <p class="field-error" id="correspondence-address-line-1-error">
+              Address line 1 is required and must not exceed 200 characters.
+            </p>
+          }
+        </div>
+
+        <div class="form-field form-field--full-width">
+          <label for="correspondence-address-line-2">Address line 2</label>
+          <input
+            aria-describedby="correspondence-address-line-2-error"
+            formControlName="addressLine2"
+            id="correspondence-address-line-2"
+            type="text"
+          >
+          @if (shouldShowAddressError('correspondenceAddress', 'addressLine2')) {
+            <p class="field-error" id="correspondence-address-line-2-error">
+              Address line 2 must not exceed 200 characters.
+            </p>
+          }
+        </div>
+      </div>
+    </section>
+
+    <footer class="form-actions">
+      <a class="button button--secondary" routerLink="/customers">Cancel</a>
+      <button
+        [disabled]="submitting()"
+        class="button button--primary"
+        type="submit"
+      >
+        @if (submitting()) {
+          Registering...
+        } @else {
+          Register Legal Entity Customer
+        }
+      </button>
+    </footer>
+  </form>
+</section>
