@@ -1,0 +1,27 @@
+:host {
+  display: block;
+}
+
+.representative-summary {
+  display: grid;
+  gap: 1rem;
+  margin: 1rem 0 0;
+}
+
+.representative-summary div {
+  padding: 1rem;
+  background: #faf4f5;
+  border: 1px solid #d7b7be;
+  border-radius: 0.4rem;
+}
+
+.representative-summary dt {
+  color: #650016;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.representative-summary dd {
+  margin: 0.35rem 0 0;
+}

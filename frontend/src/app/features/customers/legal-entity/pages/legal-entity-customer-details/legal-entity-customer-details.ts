@@ -22,11 +22,13 @@ export class LegalEntityCustomerDetails implements OnInit {
   protected readonly customer = signal<LegalEntityCustomerViewDto | null>(null);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
+
   private readonly customerApi = inject(LegalEntityCustomerAPIService);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly today = localIsoDate(new Date());
   private readonly authSession = inject(AuthSession);
+
   protected readonly canMaintainCustomers =
     this.authSession.hasRealmRole('CLERK') || this.authSession.hasRealmRole('ADMIN');
 
@@ -70,9 +72,10 @@ export class LegalEntityCustomerDetails implements OnInit {
    * @returns display label
    */
   protected roleLabel(role: RepresentativeViewDto.RoleEnum): string {
-    return role === RepresentativeViewDto.RoleEnum.LegalRepresentative
-      ? 'Legal representative'
-      : 'Authorized representative';
+    if (role === RepresentativeViewDto.RoleEnum.LegalRepresentative) {
+      return 'Legal representative';
+    }
+    return 'Authorized representative';
   }
 
   /**
@@ -87,7 +90,10 @@ export class LegalEntityCustomerDetails implements OnInit {
 
   private customerId(): string | null {
     const customerId = this.route.snapshot.paramMap.get('id');
-    return customerId !== null && customerId.length > 0 ? customerId : null;
+    if (customerId === null || customerId.length === 0) {
+      return null;
+    }
+    return customerId;
   }
 
   private loadCustomer(customerId: string): void {

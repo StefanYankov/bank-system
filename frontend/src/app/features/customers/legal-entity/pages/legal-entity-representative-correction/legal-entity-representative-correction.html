@@ -1,0 +1,130 @@
+<section aria-labelledby="representative-correction-title" class="customer-maintenance">
+  <a [routerLink]="customerLink()" class="back-link">← Back to customer</a>
+
+  <header>
+    <p class="customer-maintenance__label">Legal Entity Customer</p>
+    <h1 id="representative-correction-title">Correct Representative</h1>
+    <p class="customer-maintenance__description">
+      Correct recorded Representative data. Clearing the valid-to date reopens a representation
+      ended by mistake.
+    </p>
+  </header>
+
+  @if (loading()) {
+    <p class="customer-maintenance__status" role="status">Loading Representative...</p>
+  } @else if (loadError(); as errorMessage) {
+    <section class="submission-error" role="alert">
+      <h2>Representative unavailable</h2>
+      <p>{{ errorMessage }}</p>
+    </section>
+  } @else if (customer(); as customerRecord) {
+    @if (customerRecord.status === 'CLOSED') {
+      <section class="submission-error" role="alert">
+        <h2>Customer is closed</h2>
+        <p>A closed Customer cannot be changed. Reopen the Customer first.</p>
+      </section>
+    } @else if (representative(); as representativeRecord) {
+      @if (submissionError(); as errorMessage) {
+        <section class="submission-error" role="alert">
+          <h2>Correction unsuccessful</h2>
+          <p>{{ errorMessage }}</p>
+        </section>
+      }
+
+      <form (ngSubmit)="submit()" [formGroup]="correctionForm" class="registration-form" novalidate>
+        <section aria-labelledby="identity-title" class="form-section">
+          <h2 id="identity-title">Representative identity</h2>
+
+          @if (isLinkedRepresentative()) {
+            <p class="form-section__description">
+              This Representative is linked to an Individual Customer. The recorded name snapshot
+              remains read-only.
+            </p>
+            <dl class="representative-summary">
+              <div>
+                <dt>Name</dt>
+                <dd>
+                  {{ representativeRecord.firstName }}
+                  @if (representativeRecord.middleName) {
+                    {{ representativeRecord.middleName }}
+                  }
+                  {{ representativeRecord.lastName }}
+                </dd>
+              </div>
+              <div>
+                <dt>Individual Customer</dt>
+                <dd>
+                  <a
+                    [routerLink]="[
+                      '/customers/individuals',
+                      representativeRecord.individualCustomerId,
+                    ]"
+                  >
+                    View linked Customer
+                  </a>
+                </dd>
+              </div>
+            </dl>
+          } @else {
+            <div class="form-grid">
+              <div class="form-field">
+                <label for="first-name">First name</label>
+                <input formControlName="firstName" id="first-name" type="text"/>
+                @if (shouldShowNameError('firstName')) {
+                  <p class="field-error">
+                    First name is required and must not exceed 100 characters.
+                  </p>
+                }
+              </div>
+              <div class="form-field">
+                <label for="middle-name">Middle name</label>
+                <input formControlName="middleName" id="middle-name" type="text"/>
+                @if (shouldShowNameError('middleName')) {
+                  <p class="field-error">Middle name must not exceed 100 characters.</p>
+                }
+              </div>
+              <div class="form-field">
+                <label for="last-name">Last name</label>
+                <input formControlName="lastName" id="last-name" type="text"/>
+                @if (shouldShowNameError('lastName')) {
+                  <p class="field-error">
+                    Last name is required and must not exceed 100 characters.
+                  </p>
+                }
+              </div>
+            </div>
+          }
+        </section>
+
+        <section aria-labelledby="authority-title" class="form-section">
+          <h2 id="authority-title">Authority</h2>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="role">Role</label>
+              <select formControlName="role" id="role">
+                <option value="LEGAL_REPRESENTATIVE">Legal representative</option>
+                <option value="AUTHORIZED_REPRESENTATIVE">Authorized representative</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="valid-from">Valid from</label>
+              <input formControlName="validFrom" id="valid-from" type="date"/>
+            </div>
+            <div class="form-field">
+              <label for="valid-to">Valid to</label>
+              <input formControlName="validTo" id="valid-to" type="date"/>
+              <p class="field-help">Leave blank when the representation is current.</p>
+            </div>
+          </div>
+        </section>
+
+        <footer class="form-actions">
+          <a [routerLink]="customerLink()" class="button button--secondary">Cancel</a>
+          <button [disabled]="submitting()" class="button button--primary" type="submit">
+            {{ submitting() ? 'Correcting...' : 'Correct Representative' }}
+          </button>
+        </footer>
+      </form>
+    }
+  }
+</section>
