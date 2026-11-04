@@ -1,11 +1,14 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {TestBed} from '@angular/core/testing';
-import {ActivatedRoute, convertToParamMap, provideRouter, Router} from '@angular/router';
-import {of, throwError} from 'rxjs';
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import { HttpErrorResponse } from '@angular/common/http';
+import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { of, throwError } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {LegalEntityCustomerAPIService, LegalEntityCustomerViewDto} from '../../../../../generated/customer-api';
-import {LegalEntityEikCorrection} from './legal-entity-eik-correction';
+import {
+  LegalEntityCustomerAPIService,
+  LegalEntityCustomerViewDto,
+} from '../../../../../generated/customer-api';
+import { LegalEntityEikCorrection } from './legal-entity-eik-correction';
 
 describe('LegalEntityEikCorrection', () => {
   const customerId = '0199e65a-35b1-7000-8000-000000000102';
@@ -52,7 +55,7 @@ describe('LegalEntityEikCorrection', () => {
         provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: {snapshot: {paramMap: convertToParamMap({id: customerId})}},
+          useValue: { snapshot: { paramMap: convertToParamMap({ id: customerId }) } },
         },
         {
           provide: LegalEntityCustomerAPIService,
@@ -91,7 +94,7 @@ describe('LegalEntityEikCorrection', () => {
     // Assert
     expect(correctLegalEntityCustomerEikMock).toHaveBeenCalledWith({
       id: customerId,
-      eikCorrectionDto: {eik: '100000086'}
+      eikCorrectionDto: { eik: '100000086' },
     });
   });
 
@@ -138,7 +141,9 @@ describe('LegalEntityEikCorrection', () => {
 
   it('should show the duplicate or closed message for a conflict', () => {
     // Arrange
-    correctLegalEntityCustomerEikMock.mockReturnValue(throwError(() => new HttpErrorResponse({status: 409})));
+    correctLegalEntityCustomerEikMock.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 409 })),
+    );
     const fixture = TestBed.createComponent(LegalEntityEikCorrection);
     fixture.detectChanges();
 
@@ -147,6 +152,8 @@ describe('LegalEntityEikCorrection', () => {
     fixture.detectChanges();
 
     // Assert
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('This EIK is already registered to another Customer');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'This EIK is already registered to another Customer',
+    );
   });
 });

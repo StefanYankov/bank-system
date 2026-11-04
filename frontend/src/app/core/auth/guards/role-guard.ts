@@ -1,6 +1,12 @@
-import {inject} from '@angular/core';
-import {ActivatedRouteSnapshot, CanActivateFn, Router, RouterStateSnapshot, UrlTree,} from '@angular/router';
-import {AuthGuardData, createAuthGuard,} from 'keycloak-angular';
+import { inject } from '@angular/core';
+import {
+  ActivatedRouteSnapshot,
+  CanActivateFn,
+  Router,
+  RouterStateSnapshot,
+  UrlTree,
+} from '@angular/router';
+import { AuthGuardData, createAuthGuard } from 'keycloak-angular';
 
 /**
  * Route-data key containing the accepted Keycloak realm roles.
@@ -16,10 +22,7 @@ export async function hasRequiredRole(
   authData: AuthGuardData,
 ): Promise<boolean | UrlTree> {
   if (!authData.authenticated) {
-    const redirectUri = new URL(
-      state.url,
-      window.location.origin,
-    ).toString();
+    const redirectUri = new URL(state.url, window.location.origin).toString();
 
     await authData.keycloak.login({
       redirectUri,
@@ -28,8 +31,7 @@ export async function hasRequiredRole(
     return false;
   }
 
-  const requiredRoles =
-    route.data[ROUTE_ROLES] as readonly string[] | undefined;
+  const requiredRoles = route.data[ROUTE_ROLES] as readonly string[] | undefined;
 
   if (!requiredRoles || requiredRoles.length === 0) {
     return true;
@@ -46,5 +48,4 @@ export async function hasRequiredRole(
   return inject(Router).createUrlTree(['/forbidden']);
 }
 
-export const roleGuard: CanActivateFn =
-  createAuthGuard<CanActivateFn>(hasRequiredRole);
+export const roleGuard: CanActivateFn = createAuthGuard<CanActivateFn>(hasRequiredRole);

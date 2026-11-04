@@ -1,11 +1,14 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {TestBed} from '@angular/core/testing';
-import {provideRouter, Router} from '@angular/router';
-import {of, Subject, throwError} from 'rxjs';
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import { HttpErrorResponse } from '@angular/common/http';
+import { TestBed } from '@angular/core/testing';
+import { provideRouter, Router } from '@angular/router';
+import { of, Subject, throwError } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {IndividualCustomerAPIService, IndividualCustomerViewDto,} from '../../../../../generated/customer-api';
-import {IndividualCustomerRegistration} from './individual-customer-registration';
+import {
+  IndividualCustomerAPIService,
+  IndividualCustomerViewDto,
+} from '../../../../../generated/customer-api';
+import { IndividualCustomerRegistration } from './individual-customer-registration';
 
 describe('IndividualCustomerRegistration', () => {
   const registeredCustomer: IndividualCustomerViewDto = {
@@ -114,9 +117,9 @@ describe('IndividualCustomerRegistration', () => {
 
     // Assert
     expect(component['registrationForm'].controls.firstName.touched).toBe(true);
-    expect(
-      component['registrationForm'].controls.residentialAddress.controls.city.touched,
-    ).toBe(true);
+    expect(component['registrationForm'].controls.residentialAddress.controls.city.touched).toBe(
+      true,
+    );
     expect(registerMock).not.toHaveBeenCalled();
   });
 
@@ -175,10 +178,7 @@ describe('IndividualCustomerRegistration', () => {
         },
       },
     });
-    expect(navigateMock).toHaveBeenCalledWith([
-      '/customers/individuals',
-      registeredCustomer.id,
-    ]);
+    expect(navigateMock).toHaveBeenCalledWith(['/customers/individuals', registeredCustomer.id]);
   });
 
   it('should disable repeat submission while the request is pending', () => {
@@ -215,9 +215,7 @@ describe('IndividualCustomerRegistration', () => {
 
   it('should show the duplicate-EGN message for a conflict', () => {
     // Arrange
-    registerMock.mockReturnValue(
-      throwError(() => new HttpErrorResponse({status: 409})),
-    );
+    registerMock.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
     const fixture = TestBed.createComponent(IndividualCustomerRegistration);
     fixture.detectChanges();
     const component = fixture.componentInstance;

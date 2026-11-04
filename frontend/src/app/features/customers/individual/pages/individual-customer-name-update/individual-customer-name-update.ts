@@ -1,16 +1,16 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import {notBlankValidator} from '../../../../../core/forms/not-blank-validator';
+import { notBlankValidator } from '../../../../../core/forms/not-blank-validator';
 import {
   IndividualCustomerAPIService,
   IndividualCustomerNameUpdateDto,
   IndividualCustomerViewDto,
 } from '../../../../../generated/customer-api';
-import {customerSchemaConstraints} from '../../../../../generated/customer-schema-constraints.generated';
+import { customerSchemaConstraints } from '../../../../../generated/customer-schema-constraints.generated';
 
 const nameConstraints = customerSchemaConstraints.IndividualCustomerNameUpdateDto;
 
@@ -63,7 +63,8 @@ export class IndividualCustomerNameUpdate implements OnInit {
       return;
     }
 
-    this.customerApi.getIndividualCustomer({id: customerId})
+    this.customerApi
+      .getIndividualCustomer({ id: customerId })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (customer: IndividualCustomerViewDto) => {
@@ -98,10 +99,11 @@ export class IndividualCustomerNameUpdate implements OnInit {
     this.submitting.set(true);
     this.submissionError.set(null);
 
-    this.customerApi.updateIndividualCustomerName({
-      id: customer.id,
-      individualCustomerNameUpdateDto: this.createRequest(),
-    })
+    this.customerApi
+      .updateIndividualCustomerName({
+        id: customer.id,
+        individualCustomerNameUpdateDto: this.createRequest(),
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updated: IndividualCustomerViewDto) => {
@@ -136,20 +138,23 @@ export class IndividualCustomerNameUpdate implements OnInit {
 
   private normalizeFormValues(): void {
     const value = this.updateForm.getRawValue();
-    this.updateForm.setValue({
-      firstName: value.firstName.trim(),
-      middleName: value.middleName.trim(),
-      lastName: value.lastName.trim(),
-    }, {
-      emitEvent: false,
-    });
+    this.updateForm.setValue(
+      {
+        firstName: value.firstName.trim(),
+        middleName: value.middleName.trim(),
+        lastName: value.lastName.trim(),
+      },
+      {
+        emitEvent: false,
+      },
+    );
   }
 
   private createRequest(): IndividualCustomerNameUpdateDto {
     const value = this.updateForm.getRawValue();
     return {
       firstName: value.firstName,
-      ...(value.middleName.length > 0 ? {middleName: value.middleName} : {}),
+      ...(value.middleName.length > 0 ? { middleName: value.middleName } : {}),
       lastName: value.lastName,
     };
   }

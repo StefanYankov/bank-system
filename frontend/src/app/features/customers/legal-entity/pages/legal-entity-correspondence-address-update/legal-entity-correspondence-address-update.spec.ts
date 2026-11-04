@@ -1,11 +1,14 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {TestBed} from '@angular/core/testing';
-import {ActivatedRoute, convertToParamMap, provideRouter, Router} from '@angular/router';
-import {of, Subject, throwError} from 'rxjs';
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import { HttpErrorResponse } from '@angular/common/http';
+import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { of, Subject, throwError } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {LegalEntityCustomerAPIService, LegalEntityCustomerViewDto} from '../../../../../generated/customer-api';
-import {LegalEntityCorrespondenceAddressUpdate} from './legal-entity-correspondence-address-update';
+import {
+  LegalEntityCustomerAPIService,
+  LegalEntityCustomerViewDto,
+} from '../../../../../generated/customer-api';
+import { LegalEntityCorrespondenceAddressUpdate } from './legal-entity-correspondence-address-update';
 
 describe('LegalEntityCorrespondenceAddressUpdate', () => {
   const customerId = '0199e65a-35b1-7000-8000-000000000102';
@@ -52,13 +55,14 @@ describe('LegalEntityCorrespondenceAddressUpdate', () => {
         provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: {snapshot: {paramMap: convertToParamMap({id: customerId})}},
+          useValue: { snapshot: { paramMap: convertToParamMap({ id: customerId }) } },
         },
         {
           provide: LegalEntityCustomerAPIService,
           useValue: {
             getLegalEntityCustomer: getLegalEntityCustomerMock,
-            changeLegalEntityCustomerCorrespondenceAddress: changeLegalEntityCustomerCorrespondenceAddressMock,
+            changeLegalEntityCustomerCorrespondenceAddress:
+              changeLegalEntityCustomerCorrespondenceAddressMock,
           },
         },
       ],
@@ -74,7 +78,9 @@ describe('LegalEntityCorrespondenceAddressUpdate', () => {
     fixture.detectChanges();
 
     // Assert
-    expect(fixture.componentInstance['updateForm'].controls.addressLine1.value).toBe('10 Main Street');
+    expect(fixture.componentInstance['updateForm'].controls.addressLine1.value).toBe(
+      '10 Main Street',
+    );
   });
 
   it('should normalize, submit, and navigate to details', () => {
@@ -88,7 +94,7 @@ describe('LegalEntityCorrespondenceAddressUpdate', () => {
       city: ' Troyan ',
       postalCode: ' 5600 ',
       addressLine1: ' 41 Rakovski Street ',
-      addressLine2: '   '
+      addressLine2: '   ',
     });
 
     // Act
@@ -97,7 +103,12 @@ describe('LegalEntityCorrespondenceAddressUpdate', () => {
     // Assert
     expect(changeLegalEntityCustomerCorrespondenceAddressMock).toHaveBeenCalledWith({
       id: customerId,
-      addressDto: {countryCode: 'BG', city: 'Troyan', postalCode: '5600', addressLine1: '41 Rakovski Street'}
+      addressDto: {
+        countryCode: 'BG',
+        city: 'Troyan',
+        postalCode: '5600',
+        addressLine1: '41 Rakovski Street',
+      },
     });
     expect(navigateMock).toHaveBeenCalledWith(['/customers/legal-entities', customerId]);
   });
@@ -130,7 +141,9 @@ describe('LegalEntityCorrespondenceAddressUpdate', () => {
 
   it('should prevent repeat submission while pending', () => {
     // Arrange
-    changeLegalEntityCustomerCorrespondenceAddressMock.mockReturnValue(new Subject<LegalEntityCustomerViewDto>());
+    changeLegalEntityCustomerCorrespondenceAddressMock.mockReturnValue(
+      new Subject<LegalEntityCustomerViewDto>(),
+    );
     const fixture = TestBed.createComponent(LegalEntityCorrespondenceAddressUpdate);
     fixture.detectChanges();
     const component = fixture.componentInstance;
@@ -145,7 +158,9 @@ describe('LegalEntityCorrespondenceAddressUpdate', () => {
 
   it('should show a conflict message', () => {
     // Arrange
-    changeLegalEntityCustomerCorrespondenceAddressMock.mockReturnValue(throwError(() => new HttpErrorResponse({status: 409})));
+    changeLegalEntityCustomerCorrespondenceAddressMock.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 409 })),
+    );
     const fixture = TestBed.createComponent(LegalEntityCorrespondenceAddressUpdate);
     fixture.detectChanges();
 
@@ -154,6 +169,8 @@ describe('LegalEntityCorrespondenceAddressUpdate', () => {
     fixture.detectChanges();
 
     // Assert
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('A closed Customer cannot be changed.');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'A closed Customer cannot be changed.',
+    );
   });
 });

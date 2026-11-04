@@ -1,17 +1,13 @@
 // @ts-check
 
 const eslint = require('@eslint/js');
-const {
-  defineConfig,
-  globalIgnores,
-} = require('eslint/config');
+const { defineConfig, globalIgnores } = require('eslint/config');
 const tseslint = require('typescript-eslint');
 const angular = require('angular-eslint');
+const eslintConfigPrettier = require('eslint-config-prettier');
 
 module.exports = defineConfig([
-  globalIgnores([
-    'src/app/generated/**',
-  ]),
+  globalIgnores(['src/app/generated/**']),
   {
     files: ['**/*.ts'],
     extends: [
@@ -22,6 +18,8 @@ module.exports = defineConfig([
     ],
     processor: angular.processInlineTemplates,
     rules: {
+      curly: ['error', 'all'],
+      'no-nested-ternary': 'error',
       '@angular-eslint/directive-selector': [
         'error',
         {
@@ -42,10 +40,8 @@ module.exports = defineConfig([
   },
   {
     files: ['**/*.html'],
-    extends: [
-      angular.configs.templateRecommended,
-      angular.configs.templateAccessibility,
-    ],
+    extends: [angular.configs.templateRecommended, angular.configs.templateAccessibility],
     rules: {},
   },
+  eslintConfigPrettier,
 ]);

@@ -1,5 +1,5 @@
-import {afterEach, describe, expect, it, vi} from 'vitest';
-import {loadRuntimeConfig} from './runtime-config-loader';
+import { afterEach, describe, expect, it, vi } from 'vitest';
+import { loadRuntimeConfig } from './runtime-config-loader';
 
 describe('loadRuntimeConfig', () => {
   afterEach(() => {
@@ -44,12 +44,9 @@ describe('loadRuntimeConfig', () => {
       customerApiUrl: 'http://localhost:8082',
     });
 
-    expect(fetchMock).toHaveBeenCalledWith(
-      new URL('config.json', document.baseURI),
-      {
-        cache: 'no-store',
-      },
-    );
+    expect(fetchMock).toHaveBeenCalledWith(new URL('config.json', document.baseURI), {
+      cache: 'no-store',
+    });
   });
 
   it('should reject an unsuccessful HTTP response', async () => {
@@ -91,7 +88,7 @@ describe('loadRuntimeConfig', () => {
 
     // Act & Assert
     await expect(loadRuntimeConfig()).rejects.toThrow(
-      'Runtime configuration field \'keycloak\' must be an object',
+      "Runtime configuration field 'keycloak' must be an object",
     );
   });
 
@@ -122,7 +119,7 @@ describe('loadRuntimeConfig', () => {
 
     // Act & Assert
     await expect(loadRuntimeConfig()).rejects.toThrow(
-      'Runtime configuration field \'keycloak.realm\' must be a non-empty string',
+      "Runtime configuration field 'keycloak.realm' must be a non-empty string",
     );
   });
 
@@ -152,7 +149,7 @@ describe('loadRuntimeConfig', () => {
 
     // Act & Assert
     await expect(loadRuntimeConfig()).rejects.toThrow(
-      'Runtime configuration field \'customerApiUrl\' must be a non-empty string',
+      "Runtime configuration field 'customerApiUrl' must be a non-empty string",
     );
   });
 });

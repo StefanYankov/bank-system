@@ -1,4 +1,4 @@
-import {AbstractControl, ValidationErrors, ValidatorFn} from '@angular/forms';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 const EIK_PATTERN = /^\d{9}$/;
 const FIRST_PASS_WEIGHTS = [1, 2, 3, 4, 5, 6, 7, 8];
@@ -21,7 +21,7 @@ export function eikValidator(): ValidatorFn {
     if (value === null || value === undefined || value.length === 0) {
       return null;
     }
-    return isValidEik(value) ? null : {eik: true};
+    return isValidEik(value) ? null : { eik: true };
   };
 }
 

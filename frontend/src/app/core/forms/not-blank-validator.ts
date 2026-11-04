@@ -1,4 +1,4 @@
-import {AbstractControl, ValidationErrors, ValidatorFn,} from '@angular/forms';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 /**
  * Rejects string values that are empty or contain only whitespace.
@@ -9,14 +9,12 @@ import {AbstractControl, ValidationErrors, ValidatorFn,} from '@angular/forms';
  * @returns Angular validator for non-blank string controls
  */
 export function notBlankValidator(): ValidatorFn {
-  return (
-    control: AbstractControl<string>,
-  ): ValidationErrors | null => {
+  return (control: AbstractControl<string>): ValidationErrors | null => {
     const value = control.value;
 
     if (value.trim().length === 0) {
       return {
-        notBlank: true
+        notBlank: true,
       };
     } else {
       return null;

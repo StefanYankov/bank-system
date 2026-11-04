@@ -1,10 +1,13 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import {IndividualCustomerAPIService, IndividualCustomerViewDto} from '../../../../../generated/customer-api';
-import {ReactiveFormsModule} from '@angular/forms';
+import {
+  IndividualCustomerAPIService,
+  IndividualCustomerViewDto,
+} from '../../../../../generated/customer-api';
+import { ReactiveFormsModule } from '@angular/forms';
 
 /**
  * Confirms and reopens the relationship with a closed Individual Customer.
@@ -40,7 +43,8 @@ export class IndividualCustomerReopen implements OnInit {
       return;
     }
 
-    this.customerApi.getIndividualCustomer({id: customerId})
+    this.customerApi
+      .getIndividualCustomer({ id: customerId })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (customer: IndividualCustomerViewDto) => {
@@ -70,7 +74,8 @@ export class IndividualCustomerReopen implements OnInit {
     this.submitting.set(true);
     this.submissionError.set(null);
 
-    this.customerApi.reopenIndividualCustomer({id: customer.id})
+    this.customerApi
+      .reopenIndividualCustomer({ id: customer.id })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updated: IndividualCustomerViewDto) => {

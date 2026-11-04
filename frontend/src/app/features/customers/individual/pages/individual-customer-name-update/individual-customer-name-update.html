@@ -1,13 +1,5 @@
-<section
-  aria-labelledby="name-update-title"
-  class="customer-maintenance"
->
-  <a
-    [routerLink]="customerLink()"
-    class="back-link"
-  >
-    ← Back to customer
-  </a>
+<section aria-labelledby="name-update-title" class="customer-maintenance">
+  <a [routerLink]="customerLink()" class="back-link"> ← Back to customer </a>
 
   <header>
     <p class="customer-maintenance__label">Individual Customer</p>
@@ -18,50 +10,28 @@
   </header>
 
   @if (loading()) {
-    <p
-      class="customer-maintenance__status"
-      role="status"
-    >
-      Loading Individual Customer...
-    </p>
+    <p class="customer-maintenance__status" role="status">Loading Individual Customer...</p>
   } @else if (loadError(); as errorMessage) {
-    <section
-      class="submission-error"
-      role="alert"
-    >
+    <section class="submission-error" role="alert">
       <h2>Customer unavailable</h2>
       <p>{{ errorMessage }}</p>
     </section>
   } @else if (customer(); as customerRecord) {
     @if (customerRecord.status === 'CLOSED') {
-      <section
-        class="submission-error"
-        role="alert"
-      >
+      <section class="submission-error" role="alert">
         <h2>Customer is closed</h2>
         <p>A closed Customer cannot be changed. Reopen the Customer first.</p>
       </section>
     } @else {
       @if (submissionError(); as errorMessage) {
-        <section
-          class="submission-error"
-          role="alert"
-        >
+        <section class="submission-error" role="alert">
           <h2>Update unsuccessful</h2>
           <p>{{ errorMessage }}</p>
         </section>
       }
 
-      <form
-        (ngSubmit)="submit()"
-        [formGroup]="updateForm"
-        class="registration-form"
-        novalidate
-      >
-        <section
-          aria-labelledby="name-section-title"
-          class="form-section"
-        >
+      <form (ngSubmit)="submit()" [formGroup]="updateForm" class="registration-form" novalidate>
+        <section aria-labelledby="name-section-title" class="form-section">
           <h2 id="name-section-title">Name</h2>
           <div class="form-grid">
             <div class="form-field">
@@ -72,12 +42,9 @@
                 formControlName="firstName"
                 id="first-name"
                 type="text"
-              >
+              />
               @if (shouldShowError('firstName')) {
-                <p
-                  class="field-error"
-                  id="first-name-error"
-                >
+                <p class="field-error" id="first-name-error">
                   First name is required and must not exceed 100 characters.
                 </p>
               }
@@ -90,12 +57,9 @@
                 formControlName="middleName"
                 id="middle-name"
                 type="text"
-              >
+              />
               @if (shouldShowError('middleName')) {
-                <p
-                  class="field-error"
-                  id="middle-name-error"
-                >
+                <p class="field-error" id="middle-name-error">
                   Middle name must not exceed 100 characters.
                 </p>
               }
@@ -108,12 +72,9 @@
                 formControlName="lastName"
                 id="last-name"
                 type="text"
-              >
+              />
               @if (shouldShowError('lastName')) {
-                <p
-                  class="field-error"
-                  id="last-name-error"
-                >
+                <p class="field-error" id="last-name-error">
                   Last name is required and must not exceed 100 characters.
                 </p>
               }
@@ -122,17 +83,8 @@
         </section>
 
         <footer class="form-actions">
-          <a
-            [routerLink]="customerLink()"
-            class="button button--secondary"
-          >
-            Cancel
-          </a>
-          <button
-            [disabled]="submitting()"
-            class="button button--primary"
-            type="submit"
-          >
+          <a [routerLink]="customerLink()" class="button button--secondary"> Cancel </a>
+          <button [disabled]="submitting()" class="button button--primary" type="submit">
             @if (submitting()) {
               Updating...
             } @else {

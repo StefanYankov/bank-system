@@ -1,15 +1,13 @@
-import {provideRouter} from '@angular/router';
-import {TestBed} from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { TestBed } from '@angular/core/testing';
 
-import {Forbidden} from './forbidden';
+import { Forbidden } from './forbidden';
 
 describe('Forbidden', () => {
   beforeEach(async () => {
     await TestBed.configureTestingModule({
       imports: [Forbidden],
-      providers: [
-        provideRouter([]),
-      ],
+      providers: [provideRouter([])],
     }).compileComponents();
   });
 
@@ -26,7 +24,6 @@ describe('Forbidden', () => {
 
     const element = fixture.nativeElement as HTMLElement;
 
-    expect(element.querySelector('h1')?.textContent)
-      .toContain('Access denied');
+    expect(element.querySelector('h1')?.textContent).toContain('Access denied');
   });
 });

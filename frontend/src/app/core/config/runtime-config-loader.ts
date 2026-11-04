@@ -1,4 +1,4 @@
-import {RuntimeConfig} from './runtime-config';
+import { RuntimeConfig } from './runtime-config';
 
 /**
  * Loads and validates the public runtime configuration.
@@ -14,9 +14,7 @@ export async function loadRuntimeConfig(): Promise<RuntimeConfig> {
   });
 
   if (!response.ok) {
-    throw new Error(
-      `Could not load runtime configuration: HTTP ${response.status}`,
-    );
+    throw new Error(`Could not load runtime configuration: HTTP ${response.status}`);
   }
 
   const data: unknown = await response.json();
@@ -34,25 +32,14 @@ function parseRuntimeConfig(value: unknown): RuntimeConfig {
       realm: requireString(keycloak['realm'], 'keycloak.realm'),
       clientId: requireString(keycloak['clientId'], 'keycloak.clientId'),
     },
-    employeeApiUrl: requireString(
-      root['employeeApiUrl'],
-      'employeeApiUrl',
-    ),
-    customerApiUrl: requireString(
-      root['customerApiUrl'],
-      'customerApiUrl',
-    ),
+    employeeApiUrl: requireString(root['employeeApiUrl'], 'employeeApiUrl'),
+    customerApiUrl: requireString(root['customerApiUrl'], 'customerApiUrl'),
   };
 }
 
-function requireObject(
-  value: unknown,
-  fieldName: string,
-): Record<string, unknown> {
+function requireObject(value: unknown, fieldName: string): Record<string, unknown> {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) {
-    throw new Error(
-      `Runtime configuration field '${fieldName}' must be an object`,
-    );
+    throw new Error(`Runtime configuration field '${fieldName}' must be an object`);
   }
 
   return value as Record<string, unknown>;
@@ -60,9 +47,7 @@ function requireObject(
 
 function requireString(value: unknown, fieldName: string): string {
   if (typeof value !== 'string' || value.trim().length === 0) {
-    throw new Error(
-      `Runtime configuration field '${fieldName}' must be a non-empty string`,
-    );
+    throw new Error(`Runtime configuration field '${fieldName}' must be a non-empty string`);
   }
 
   return value.trim();

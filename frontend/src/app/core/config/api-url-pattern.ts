@@ -7,10 +7,7 @@
 export function createApiUrlPattern(baseUrl: string): RegExp {
   const normalizedUrl = baseUrl.replace(/\/+$/, '');
 
-  const escapedUrl = normalizedUrl.replace(
-    /[.*+?^${}()|[\]\\]/g,
-    '\\$&',
-  );
+  const escapedUrl = normalizedUrl.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
   return new RegExp(`^${escapedUrl}(?:/|$)`);
 }

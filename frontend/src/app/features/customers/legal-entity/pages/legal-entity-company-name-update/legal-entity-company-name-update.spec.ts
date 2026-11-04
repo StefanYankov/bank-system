@@ -1,11 +1,14 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {TestBed} from '@angular/core/testing';
-import {ActivatedRoute, convertToParamMap, provideRouter, Router} from '@angular/router';
-import {of, Subject, throwError} from 'rxjs';
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import { HttpErrorResponse } from '@angular/common/http';
+import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { of, Subject, throwError } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {LegalEntityCustomerAPIService, LegalEntityCustomerViewDto} from '../../../../../generated/customer-api';
-import {LegalEntityCompanyNameUpdate} from './legal-entity-company-name-update';
+import {
+  LegalEntityCustomerAPIService,
+  LegalEntityCustomerViewDto,
+} from '../../../../../generated/customer-api';
+import { LegalEntityCompanyNameUpdate } from './legal-entity-company-name-update';
 
 describe('LegalEntityCompanyNameUpdate', () => {
   const customerId = '0199e65a-35b1-7000-8000-000000000102';
@@ -52,7 +55,7 @@ describe('LegalEntityCompanyNameUpdate', () => {
         provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: {snapshot: {paramMap: convertToParamMap({id: customerId})}},
+          useValue: { snapshot: { paramMap: convertToParamMap({ id: customerId }) } },
         },
         {
           provide: LegalEntityCustomerAPIService,
@@ -91,7 +94,7 @@ describe('LegalEntityCompanyNameUpdate', () => {
     // Assert
     expect(updateLegalEntityCustomerCompanyNameMock).toHaveBeenCalledWith({
       id: customerId,
-      companyNameUpdateDto: {companyName: 'Starter Financial Services'},
+      companyNameUpdateDto: { companyName: 'Starter Financial Services' },
     });
     expect(navigateMock).toHaveBeenCalledWith(['/customers/legal-entities', customerId]);
   });
@@ -125,7 +128,9 @@ describe('LegalEntityCompanyNameUpdate', () => {
 
   it('should prevent repeat submission while pending', () => {
     // Arrange
-    updateLegalEntityCustomerCompanyNameMock.mockReturnValue(new Subject<LegalEntityCustomerViewDto>());
+    updateLegalEntityCustomerCompanyNameMock.mockReturnValue(
+      new Subject<LegalEntityCustomerViewDto>(),
+    );
     const fixture = TestBed.createComponent(LegalEntityCompanyNameUpdate);
     fixture.detectChanges();
     const component = fixture.componentInstance;
@@ -141,7 +146,7 @@ describe('LegalEntityCompanyNameUpdate', () => {
   it('should show a conflict message', () => {
     // Arrange
     updateLegalEntityCustomerCompanyNameMock.mockReturnValue(
-      throwError(() => new HttpErrorResponse({status: 409})),
+      throwError(() => new HttpErrorResponse({ status: 409 })),
     );
     const fixture = TestBed.createComponent(LegalEntityCompanyNameUpdate);
     fixture.detectChanges();
@@ -151,6 +156,8 @@ describe('LegalEntityCompanyNameUpdate', () => {
     fixture.detectChanges();
 
     // Assert
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('A closed Customer cannot be changed.');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'A closed Customer cannot be changed.',
+    );
   });
 });

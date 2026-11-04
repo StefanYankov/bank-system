@@ -1,7 +1,4 @@
-<section
-  aria-labelledby="individual-registration-title"
-  class="customer-registration"
->
+<section aria-labelledby="individual-registration-title" class="customer-registration">
   <a class="back-link" routerLink="/customers">← Back to customers</a>
 
   <header>
@@ -19,12 +16,7 @@
     </section>
   }
 
-  <form
-    (ngSubmit)="submit()"
-    [formGroup]="registrationForm"
-    class="registration-form"
-    novalidate
-  >
+  <form (ngSubmit)="submit()" [formGroup]="registrationForm" class="registration-form" novalidate>
     <section aria-labelledby="personal-title" class="form-section">
       <h2 id="personal-title">Personal details</h2>
       <div class="form-grid">
@@ -36,7 +28,7 @@
             formControlName="firstName"
             id="first-name"
             type="text"
-          >
+          />
           @if (shouldShowError('firstName')) {
             <p class="field-error" id="first-name-error">
               First name is required and must not exceed 100 characters.
@@ -52,7 +44,7 @@
             formControlName="middleName"
             id="middle-name"
             type="text"
-          >
+          />
           @if (shouldShowError('middleName')) {
             <p class="field-error" id="middle-name-error">
               Middle name must not exceed 100 characters.
@@ -68,7 +60,7 @@
             formControlName="lastName"
             id="last-name"
             type="text"
-          >
+          />
           @if (shouldShowError('lastName')) {
             <p class="field-error" id="last-name-error">
               Last name is required and must not exceed 100 characters.
@@ -86,10 +78,8 @@
             inputmode="numeric"
             maxlength="10"
             type="text"
-          >
-          <p class="field-help" id="egn-help">
-            Enter the 10-digit Bulgarian personal identifier.
-          </p>
+          />
+          <p class="field-help" id="egn-help">Enter the 10-digit Bulgarian personal identifier.</p>
           @if (shouldShowError('egn')) {
             <p class="field-error" id="egn-error">
               @if (registrationForm.controls.egn.hasError('required')) {
@@ -114,7 +104,7 @@
             formControlName="email"
             id="email"
             type="email"
-          >
+          />
           @if (shouldShowError('email')) {
             <p class="field-error" id="email-error">
               @if (registrationForm.controls.email.hasError('required')) {
@@ -136,7 +126,7 @@
             formControlName="phone"
             id="phone"
             type="tel"
-          >
+          />
           @if (shouldShowError('phone')) {
             <p class="field-error" id="phone-error">
               Phone is required and must not exceed 30 characters.
@@ -162,11 +152,9 @@
             id="country-code"
             maxlength="2"
             type="text"
-          >
+          />
           @if (shouldShowAddressError('countryCode')) {
-            <p class="field-error" id="country-code-error">
-              Enter a two-letter country code.
-            </p>
+            <p class="field-error" id="country-code-error">Enter a two-letter country code.</p>
           }
         </div>
 
@@ -178,7 +166,7 @@
             formControlName="city"
             id="city"
             type="text"
-          >
+          />
           @if (shouldShowAddressError('city')) {
             <p class="field-error" id="city-error">
               City is required and must not exceed 100 characters.
@@ -194,7 +182,7 @@
             formControlName="postalCode"
             id="postal-code"
             type="text"
-          >
+          />
           @if (shouldShowAddressError('postalCode')) {
             <p class="field-error" id="postal-code-error">
               Postal code is required and must not exceed 20 characters.
@@ -210,7 +198,7 @@
             formControlName="addressLine1"
             id="address-line-1"
             type="text"
-          >
+          />
           @if (shouldShowAddressError('addressLine1')) {
             <p class="field-error" id="address-line-1-error">
               Address line 1 is required and must not exceed 200 characters.
@@ -226,7 +214,7 @@
             formControlName="addressLine2"
             id="address-line-2"
             type="text"
-          >
+          />
           @if (shouldShowAddressError('addressLine2')) {
             <p class="field-error" id="address-line-2-error">
               Address line 2 must not exceed 200 characters.
@@ -238,11 +226,7 @@
 
     <footer class="form-actions">
       <a class="button button--secondary" routerLink="/customers">Cancel</a>
-      <button
-        [disabled]="submitting()"
-        class="button button--primary"
-        type="submit"
-      >
+      <button [disabled]="submitting()" class="button button--primary" type="submit">
         @if (submitting()) {
           Registering...
         } @else {

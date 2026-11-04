@@ -1,15 +1,15 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {TestBed} from '@angular/core/testing';
-import {ActivatedRoute, convertToParamMap, provideRouter} from '@angular/router';
-import {of, Subject, throwError} from 'rxjs';
-import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {AuthSession} from '../../../../../core/auth/auth-session';
+import { HttpErrorResponse } from '@angular/common/http';
+import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { of, Subject, throwError } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { AuthSession } from '../../../../../core/auth/auth-session';
 import {
   LegalEntityCustomerAPIService,
   LegalEntityCustomerViewDto,
   RepresentativeViewDto,
 } from '../../../../../generated/customer-api';
-import {LegalEntityCustomerDetails} from './legal-entity-customer-details';
+import { LegalEntityCustomerDetails } from './legal-entity-customer-details';
 
 describe('LegalEntityCustomerDetails', () => {
   const customerId = '0199e65a-35b1-7000-8000-000000000102';
@@ -77,7 +77,7 @@ describe('LegalEntityCustomerDetails', () => {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
-              paramMap: convertToParamMap({id: customerId}),
+              paramMap: convertToParamMap({ id: customerId }),
             },
           },
         },
@@ -103,7 +103,7 @@ describe('LegalEntityCustomerDetails', () => {
     const element = fixture.nativeElement as HTMLElement;
 
     expect(getLegalEntityCustomerMock).toHaveBeenCalledOnce();
-    expect(getLegalEntityCustomerMock).toHaveBeenCalledWith({id: customerId});
+    expect(getLegalEntityCustomerMock).toHaveBeenCalledWith({ id: customerId });
     expect(element.querySelector('h1')?.textContent?.trim()).toBe('Starter Ltd');
     expect(element.textContent).toContain('CUS-000002');
     expect(element.textContent).toContain('123456786');
@@ -117,18 +117,24 @@ describe('LegalEntityCustomerDetails', () => {
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
 
-    expect(element.querySelector('#update-company-name-action')?.getAttribute('href'))
-      .toBe(`/customers/legal-entities/${customerId}/company-name`);
-    expect(element.querySelector('#update-contact-action')?.getAttribute('href'))
-      .toBe(`/customers/legal-entities/${customerId}/contact`);
-    expect(element.querySelector('#update-registered-address-action')?.getAttribute('href'))
-      .toBe(`/customers/legal-entities/${customerId}/registered-address`);
-    expect(element.querySelector('#update-correspondence-address-action')?.getAttribute('href'))
-      .toBe(`/customers/legal-entities/${customerId}/correspondence-address`);
-    expect(element.querySelector('#correct-eik-action')?.getAttribute('href'))
-      .toBe(`/customers/legal-entities/${customerId}/eik`);
-    expect(element.querySelector('#close-action')?.getAttribute('href'))
-      .toBe(`/customers/legal-entities/${customerId}/close`);
+    expect(element.querySelector('#update-company-name-action')?.getAttribute('href')).toBe(
+      `/customers/legal-entities/${customerId}/company-name`,
+    );
+    expect(element.querySelector('#update-contact-action')?.getAttribute('href')).toBe(
+      `/customers/legal-entities/${customerId}/contact`,
+    );
+    expect(element.querySelector('#update-registered-address-action')?.getAttribute('href')).toBe(
+      `/customers/legal-entities/${customerId}/registered-address`,
+    );
+    expect(
+      element.querySelector('#update-correspondence-address-action')?.getAttribute('href'),
+    ).toBe(`/customers/legal-entities/${customerId}/correspondence-address`);
+    expect(element.querySelector('#correct-eik-action')?.getAttribute('href')).toBe(
+      `/customers/legal-entities/${customerId}/eik`,
+    );
+    expect(element.querySelector('#close-action')?.getAttribute('href')).toBe(
+      `/customers/legal-entities/${customerId}/close`,
+    );
     expect(element.querySelector('#reopen-action')).toBeNull();
   });
 
@@ -136,7 +142,9 @@ describe('LegalEntityCustomerDetails', () => {
     realmRoles = ['ADMIN'];
     const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
     fixture.detectChanges();
-    expect((fixture.nativeElement as HTMLElement).querySelector('.customer-actions')).not.toBeNull();
+    expect(
+      (fixture.nativeElement as HTMLElement).querySelector('.customer-actions'),
+    ).not.toBeNull();
   });
 
   it('should hide every action from a loan officer', () => {
@@ -154,8 +162,9 @@ describe('LegalEntityCustomerDetails', () => {
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
 
-    expect(element.querySelector('#reopen-action')?.getAttribute('href'))
-      .toBe(`/customers/legal-entities/${customerId}/reopen`);
+    expect(element.querySelector('#reopen-action')?.getAttribute('href')).toBe(
+      `/customers/legal-entities/${customerId}/reopen`,
+    );
     expect(element.querySelector('#update-company-name-action')).toBeNull();
     expect(element.querySelector('#close-action')).toBeNull();
   });
@@ -197,7 +206,7 @@ describe('LegalEntityCustomerDetails', () => {
   });
 
   it('should show an empty message when no Representatives are recorded', () => {
-    getLegalEntityCustomerMock.mockReturnValue(of({...customer, representatives: []}));
+    getLegalEntityCustomerMock.mockReturnValue(of({ ...customer, representatives: [] }));
     const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
@@ -223,18 +232,20 @@ describe('LegalEntityCustomerDetails', () => {
 
   it('should show a not-found message for a missing Customer', () => {
     getLegalEntityCustomerMock.mockReturnValue(
-      throwError(() => new HttpErrorResponse({status: 404})),
+      throwError(() => new HttpErrorResponse({ status: 404 })),
     );
     const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
-    expect(element.textContent).toContain('The requested Legal Entity Customer could not be found.');
+    expect(element.textContent).toContain(
+      'The requested Legal Entity Customer could not be found.',
+    );
     expect(element.querySelector('.details-card')).toBeNull();
   });
 
   it('should show an authorization message for a forbidden response', () => {
     getLegalEntityCustomerMock.mockReturnValue(
-      throwError(() => new HttpErrorResponse({status: 403})),
+      throwError(() => new HttpErrorResponse({ status: 403 })),
     );
     const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
     fixture.detectChanges();

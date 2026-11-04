@@ -1,5 +1,5 @@
-import {ActivatedRouteSnapshot, CanActivateFn, RouterStateSnapshot,} from '@angular/router';
-import {AuthGuardData, createAuthGuard,} from 'keycloak-angular';
+import { ActivatedRouteSnapshot, CanActivateFn, RouterStateSnapshot } from '@angular/router';
+import { AuthGuardData, createAuthGuard } from 'keycloak-angular';
 
 /**
  * Requires Keycloak authentication before activating a route.
@@ -13,10 +13,7 @@ export async function isAuthenticated(
     return true;
   }
 
-  const redirectUri = new URL(
-    state.url,
-    window.location.origin,
-  ).toString();
+  const redirectUri = new URL(state.url, window.location.origin).toString();
 
   await authData.keycloak.login({
     redirectUri,
@@ -25,5 +22,4 @@ export async function isAuthenticated(
   return false;
 }
 
-export const authGuard: CanActivateFn =
-  createAuthGuard<CanActivateFn>(isAuthenticated);
+export const authGuard: CanActivateFn = createAuthGuard<CanActivateFn>(isAuthenticated);

@@ -1,16 +1,16 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {signal} from '@angular/core';
-import {TestBed} from '@angular/core/testing';
-import {provideRouter} from '@angular/router';
-import {of, Subject, throwError} from 'rxjs';
-import {afterEach, beforeEach, describe, expect, it, vi} from 'vitest';
-import {AuthSession} from '../../../../core/auth/auth-session';
+import { HttpErrorResponse } from '@angular/common/http';
+import { signal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { provideRouter } from '@angular/router';
+import { of, Subject, throwError } from 'rxjs';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
+import { AuthSession } from '../../../../core/auth/auth-session';
 import {
   CustomerAPIService,
   CustomerSummaryDto,
   PagedResponseCustomerSummaryDto,
 } from '../../../../generated/customer-api';
-import {CustomerSearch} from './customer-search';
+import { CustomerSearch } from './customer-search';
 
 describe('CustomerSearch', () => {
   const individual: CustomerSummaryDto = {
@@ -62,7 +62,7 @@ describe('CustomerSearch', () => {
         provideRouter([]),
         {
           provide: CustomerAPIService,
-          useValue: {searchCustomers: searchCustomersMock},
+          useValue: { searchCustomers: searchCustomersMock },
         },
         {
           provide: AuthSession,
@@ -96,24 +96,24 @@ describe('CustomerSearch', () => {
     expect(element.textContent).toContain('Starter Financial Services');
   });
 
-  it.each([
-    ['CLERK'],
-    ['ADMIN'],
-  ])('should show both registration links for the %s role', async (role) => {
-    // Arrange
-    realmRoles.set([role]);
-    const fixture = TestBed.createComponent(CustomerSearch);
+  it.each([['CLERK'], ['ADMIN']])(
+    'should show both registration links for the %s role',
+    async (role) => {
+      // Arrange
+      realmRoles.set([role]);
+      const fixture = TestBed.createComponent(CustomerSearch);
 
-    // Act
-    fixture.detectChanges();
-    await vi.advanceTimersByTimeAsync(300);
-    fixture.detectChanges();
-    const element = fixture.nativeElement as HTMLElement;
+      // Act
+      fixture.detectChanges();
+      await vi.advanceTimersByTimeAsync(300);
+      fixture.detectChanges();
+      const element = fixture.nativeElement as HTMLElement;
 
-    // Assert
-    expect(element.querySelector(individualRegistrationSelector)).not.toBeNull();
-    expect(element.querySelector(legalEntityRegistrationSelector)).not.toBeNull();
-  });
+      // Assert
+      expect(element.querySelector(individualRegistrationSelector)).not.toBeNull();
+      expect(element.querySelector(legalEntityRegistrationSelector)).not.toBeNull();
+    },
+  );
 
   it('should hide registration links from a loan officer', async () => {
     // Arrange
@@ -140,18 +140,12 @@ describe('CustomerSearch', () => {
     await vi.advanceTimersByTimeAsync(300);
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
-    const links = Array.from(
-      element.querySelectorAll<HTMLAnchorElement>('.customer-link'),
-    );
+    const links = Array.from(element.querySelectorAll<HTMLAnchorElement>('.customer-link'));
 
     // Assert
     expect(links).toHaveLength(2);
-    expect(links[0]?.getAttribute('href')).toBe(
-      `/customers/individuals/${individual.id}`,
-    );
-    expect(links[1]?.getAttribute('href')).toBe(
-      `/customers/legal-entities/${legalEntity.id}`,
-    );
+    expect(links[0]?.getAttribute('href')).toBe(`/customers/individuals/${individual.id}`);
+    expect(links[1]?.getAttribute('href')).toBe(`/customers/legal-entities/${legalEntity.id}`);
   });
 
   it('should debounce a trimmed query and reset to the first page', async () => {
@@ -184,9 +178,7 @@ describe('CustomerSearch', () => {
     // Arrange
     const olderResponse = new Subject<PagedResponseCustomerSummaryDto>();
     const newerResponse = new Subject<PagedResponseCustomerSummaryDto>();
-    searchCustomersMock
-      .mockReturnValueOnce(olderResponse)
-      .mockReturnValueOnce(newerResponse);
+    searchCustomersMock.mockReturnValueOnce(olderResponse).mockReturnValueOnce(newerResponse);
     const fixture = TestBed.createComponent(CustomerSearch);
     fixture.detectChanges();
     await vi.advanceTimersByTimeAsync(300);
@@ -194,7 +186,7 @@ describe('CustomerSearch', () => {
     // Act
     fixture.componentInstance['queryControl'].setValue('Starter');
     await vi.advanceTimersByTimeAsync(300);
-    newerResponse.next({...page, content: [legalEntity]});
+    newerResponse.next({ ...page, content: [legalEntity] });
     fixture.detectChanges();
     olderResponse.next(page);
     fixture.detectChanges();
@@ -207,9 +199,7 @@ describe('CustomerSearch', () => {
 
   it('should show a loading state while the request is pending', async () => {
     // Arrange
-    searchCustomersMock.mockReturnValue(
-      new Subject<PagedResponseCustomerSummaryDto>(),
-    );
+    searchCustomersMock.mockReturnValue(new Subject<PagedResponseCustomerSummaryDto>());
     const fixture = TestBed.createComponent(CustomerSearch);
 
     // Act
@@ -223,14 +213,16 @@ describe('CustomerSearch', () => {
 
   it('should show an empty state for a query with no matches', async () => {
     // Arrange
-    searchCustomersMock.mockReturnValue(of({
-      content: [],
-      page: 0,
-      size: 10,
-      totalElements: 0,
-      totalPages: 0,
-      last: true,
-    }));
+    searchCustomersMock.mockReturnValue(
+      of({
+        content: [],
+        page: 0,
+        size: 10,
+        totalElements: 0,
+        totalPages: 0,
+        last: true,
+      }),
+    );
     const fixture = TestBed.createComponent(CustomerSearch);
     fixture.componentInstance['queryControl'].setValue('Unknown');
 
@@ -245,9 +237,7 @@ describe('CustomerSearch', () => {
 
   it('should show a permission message for a forbidden response', async () => {
     // Arrange
-    searchCustomersMock.mockReturnValue(
-      throwError(() => new HttpErrorResponse({status: 403})),
-    );
+    searchCustomersMock.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 403 })));
     const fixture = TestBed.createComponent(CustomerSearch);
 
     // Act
@@ -286,8 +276,8 @@ describe('CustomerSearch', () => {
   it('should request the next page with the current query', async () => {
     // Arrange
     searchCustomersMock
-      .mockReturnValueOnce(of({...page, totalPages: 2, last: false}))
-      .mockReturnValueOnce(of({...page, page: 1, totalPages: 2, last: true}));
+      .mockReturnValueOnce(of({ ...page, totalPages: 2, last: false }))
+      .mockReturnValueOnce(of({ ...page, page: 1, totalPages: 2, last: true }));
     const fixture = TestBed.createComponent(CustomerSearch);
     fixture.componentInstance['queryControl'].setValue('Starter');
     fixture.detectChanges();

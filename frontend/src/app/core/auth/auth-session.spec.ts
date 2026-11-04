@@ -1,10 +1,10 @@
-import {signal, WritableSignal,} from '@angular/core';
-import {TestBed} from '@angular/core/testing';
-import {KEYCLOAK_EVENT_SIGNAL, KeycloakEvent, KeycloakEventType,} from 'keycloak-angular';
+import { signal, WritableSignal } from '@angular/core';
+import { TestBed } from '@angular/core/testing';
+import { KEYCLOAK_EVENT_SIGNAL, KeycloakEvent, KeycloakEventType } from 'keycloak-angular';
 import Keycloak from 'keycloak-js';
-import {afterEach, beforeEach, describe, expect, it, vi,} from 'vitest';
+import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {AuthSession} from './auth-session';
+import { AuthSession } from './auth-session';
 
 describe('AuthSession', () => {
   let keycloakMock: Keycloak;
@@ -78,10 +78,7 @@ describe('AuthSession', () => {
     // Assert
     expect(session.authenticated()).toBe(true);
     expect(session.username()).toBe('bank.admin');
-    expect(session.realmRoles()).toEqual([
-      'ADMIN',
-      'offline_access',
-    ]);
+    expect(session.realmRoles()).toEqual(['ADMIN', 'offline_access']);
     expect(session.hasRealmRole('ADMIN')).toBe(true);
     expect(session.hasRealmRole('CLERK')).toBe(false);
   });

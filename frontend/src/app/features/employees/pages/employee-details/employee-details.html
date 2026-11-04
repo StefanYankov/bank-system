@@ -1,64 +1,29 @@
-<section
-  aria-labelledby="employee-details-title"
-  class="employee-details"
->
-  <a
-    class="back-link"
-    routerLink="/admin/employees"
-  >
-    ← Back to employees
-  </a>
+<section aria-labelledby="employee-details-title" class="employee-details">
+  <a class="back-link" routerLink="/admin/employees"> ← Back to employees </a>
 
   @if (loading()) {
-    <p
-      class="state-message"
-      role="status"
-    >
-      Loading Employee...
-    </p>
+    <p class="state-message" role="status">Loading Employee...</p>
   } @else if (error(); as errorMessage) {
-    <section
-      class="state-panel state-panel--error"
-      role="alert"
-    >
-      <h1 id="employee-details-title">
-        Employee unavailable
-      </h1>
+    <section class="state-panel state-panel--error" role="alert">
+      <h1 id="employee-details-title">Employee unavailable</h1>
 
       <p>{{ errorMessage }}</p>
 
-      <button
-        class="button button--primary"
-        type="button"
-        (click)="retry()"
-      >
-        Try again
-      </button>
+      <button (click)="retry()" class="button button--primary" type="button">Try again</button>
     </section>
   } @else if (employee(); as employeeRecord) {
     <header class="employee-details__header">
       <div>
-        <p class="employee-details__section-label">
-          Employee administration
-        </p>
+        <p class="employee-details__section-label">Employee administration</p>
 
-        <p class="employee-details__field-label">
-          Employee name
-        </p>
+        <p class="employee-details__field-label">Employee name</p>
 
         <h1 id="employee-details-title">
           {{ employeeRecord.firstName }}
           {{ employeeRecord.lastName }}
         </h1>
 
-        <p
-          class="
-            employee-details__field-label
-            employee-details__number-label
-          "
-        >
-          Employee number
-        </p>
+        <p class="employee-details__field-label employee-details__number-label">Employee number</p>
 
         <p class="employee-details__number">
           {{ employeeRecord.employeeNumber }}
@@ -67,75 +32,45 @@
 
       <span
         class="status-badge"
-        [class.status-badge--inactive]="
-          employeeRecord.status === 'INACTIVE'
-        "
+        [class.status-badge--inactive]="employeeRecord.status === 'INACTIVE'"
       >
         {{ employeeRecord.status }}
       </span>
     </header>
 
-    <section
-      class="employee-actions"
-      aria-labelledby="employee-actions-title"
-    >
+    <section aria-labelledby="employee-actions-title" class="employee-actions">
       <div>
-        <h2 id="employee-actions-title">
-          Employee actions
-        </h2>
+        <h2 id="employee-actions-title">Employee actions</h2>
 
         @if (employeeRecord.status === 'ACTIVE') {
-          <p>
-            Update the Employee profile, position, or employment status.
-          </p>
+          <p>Update the Employee profile, position, or employment status.</p>
         } @else {
-          <p>
-            Restore active employment for this Employee.
-          </p>
+          <p>Restore active employment for this Employee.</p>
         }
       </div>
 
       <div class="employee-actions__controls">
         @if (employeeRecord.status === 'ACTIVE') {
-          <a
-            [routerLink]="[
-              '/admin/employees',
-              employeeRecord.id,
-              'edit'
-            ]"
-            class="details-action"
-          >
+          <a [routerLink]="['/admin/employees', employeeRecord.id, 'edit']" class="details-action">
             Edit profile
           </a>
 
           <a
-            [routerLink]="[
-              '/admin/employees',
-              employeeRecord.id,
-              'position'
-            ]"
+            [routerLink]="['/admin/employees', employeeRecord.id, 'position']"
             class="details-action"
           >
             Change position
           </a>
 
           <a
-            [routerLink]="[
-              '/admin/employees',
-              employeeRecord.id,
-              'disable'
-            ]"
+            [routerLink]="['/admin/employees', employeeRecord.id, 'disable']"
             class="details-action"
           >
             Disable Employee
           </a>
         } @else {
           <a
-            [routerLink]="[
-              '/admin/employees',
-              employeeRecord.id,
-              'reactivate'
-            ]"
+            [routerLink]="['/admin/employees', employeeRecord.id, 'reactivate']"
             class="details-action"
           >
             Reactivate Employee
@@ -144,13 +79,8 @@
       </div>
     </section>
 
-    <section
-      class="details-card"
-      aria-labelledby="employment-details-title"
-    >
-      <h2 id="employment-details-title">
-        Employment details
-      </h2>
+    <section aria-labelledby="employment-details-title" class="details-card">
+      <h2 id="employment-details-title">Employment details</h2>
 
       <dl class="details-grid">
         <div class="details-grid__item">
@@ -181,10 +111,7 @@
           <dt>Employment end date</dt>
 
           <dd>
-            {{
-              employeeRecord.employmentEndDate
-              ?? 'Not applicable'
-            }}
+            {{ employeeRecord.employmentEndDate ?? 'Not applicable' }}
           </dd>
         </div>
       </dl>

@@ -1,13 +1,5 @@
-<section
-  aria-labelledby="page-title"
-  class="customer-maintenance"
->
-  <a
-    [routerLink]="customerLink()"
-    class="back-link"
-  >
-    ← Back to customer
-  </a>
+<section aria-labelledby="page-title" class="customer-maintenance">
+  <a [routerLink]="customerLink()" class="back-link"> ← Back to customer </a>
 
   <header>
     <p class="customer-maintenance__label">Legal Entity Customer</p>
@@ -16,9 +8,7 @@
   </header>
 
   @if (loading()) {
-    <p class="customer-maintenance__status" role="status">
-      Loading Legal Entity Customer...
-    </p>
+    <p class="customer-maintenance__status" role="status">Loading Legal Entity Customer...</p>
   } @else if (loadError(); as errorMessage) {
     <section class="submission-error" role="alert">
       <h2>Customer unavailable</h2>
@@ -43,12 +33,17 @@
           <div class="form-grid">
             <div class="form-field form-field--full-width">
               <label for="company-name">Company name</label>
-              <input aria-describedby="company-name-error" autocomplete="organization" formControlName="companyName"
-                     id="company-name"
-                     type="text">
+              <input
+                aria-describedby="company-name-error"
+                autocomplete="organization"
+                formControlName="companyName"
+                id="company-name"
+                type="text"
+              />
               @if (shouldShowError()) {
-                <p class="field-error" id="company-name-error">Company name is required and must not exceed 200
-                  characters.</p>
+                <p class="field-error" id="company-name-error">
+                  Company name is required and must not exceed 200 characters.
+                </p>
               }
             </div>
           </div>

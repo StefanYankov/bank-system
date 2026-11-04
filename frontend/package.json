@@ -14,7 +14,9 @@
     "generate:employee-constraints": "node scripts/generate-form-constraints.mjs employee",
     "generate:customer-api": "openapi-generator-cli generate -c openapi/config/customer-openapi-generator-config.yaml && npm run generate:customer-constraints",
     "generate:customer-constraints": "node scripts/generate-form-constraints.mjs customer",
-    "test:form-constraints": "node --test scripts/generate-form-constraints.test.mjs"
+    "test:form-constraints": "node --test scripts/generate-form-constraints.test.mjs",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
   },
   "private": true,
   "packageManager": "npm@11.19.0",
@@ -38,6 +40,7 @@
     "@openapitools/openapi-generator-cli": "2.41.0",
     "angular-eslint": "22.6.0",
     "eslint": "^10.12.0",
+    "eslint-config-prettier": "^10.1.8",
     "jsdom": "^30.0.0",
     "prettier": "^3.8.1",
     "typescript": "~6.0.2",

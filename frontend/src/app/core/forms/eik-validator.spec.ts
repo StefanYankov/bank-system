@@ -1,10 +1,9 @@
-import {FormControl} from '@angular/forms';
-import {describe, expect, it} from 'vitest';
-import {eikValidator} from './eik-validator';
+import { FormControl } from '@angular/forms';
+import { describe, expect, it } from 'vitest';
+import { eikValidator } from './eik-validator';
 
 describe('eikValidator', () => {
-  const validate = (value: string) =>
-    eikValidator()(new FormControl(value, {nonNullable: true}));
+  const validate = (value: string) => eikValidator()(new FormControl(value, { nonNullable: true }));
 
   it('should accept an EIK with a valid first-pass check digit', () => {
     // Act
@@ -27,21 +26,19 @@ describe('eikValidator', () => {
     const result = validate('123456789');
 
     // Assert
-    expect(result).toEqual({eik: true});
+    expect(result).toEqual({ eik: true });
   });
 
-  it.each([
-    ['12345678'],
-    ['1234567860'],
-    ['12345678a'],
-    ['1234 5678'],
-  ])('should reject the malformed value %s', (value) => {
-    // Act
-    const result = validate(value);
+  it.each([['12345678'], ['1234567860'], ['12345678a'], ['1234 5678']])(
+    'should reject the malformed value %s',
+    (value) => {
+      // Act
+      const result = validate(value);
 
-    // Assert
-    expect(result).toEqual({eik: true});
-  });
+      // Assert
+      expect(result).toEqual({ eik: true });
+    },
+  );
 
   it('should leave an empty value to the required validator', () => {
     // Act

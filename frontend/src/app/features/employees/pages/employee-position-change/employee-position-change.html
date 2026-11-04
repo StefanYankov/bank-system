@@ -1,52 +1,23 @@
-<section
-  aria-labelledby="employee-position-change-title"
-  class="employee-position-change"
->
-  <a
-    [routerLink]="[
-      '/admin/employees',
-      employeeId
-    ]"
-    class="back-link"
-  >
+<section aria-labelledby="employee-position-change-title" class="employee-position-change">
+  <a [routerLink]="['/admin/employees', employeeId]" class="back-link">
     ← Back to Employee details
   </a>
 
   @if (loading()) {
-    <p
-      class="state-message"
-      role="status"
-    >
-      Loading Employee...
-    </p>
+    <p class="state-message" role="status">Loading Employee...</p>
   } @else if (loadError(); as errorMessage) {
-    <section
-      class="state-panel state-panel--error"
-      role="alert"
-    >
-      <h1 id="employee-position-change-title">
-        Employee unavailable
-      </h1>
+    <section class="state-panel state-panel--error" role="alert">
+      <h1 id="employee-position-change-title">Employee unavailable</h1>
 
       <p>{{ errorMessage }}</p>
 
-      <button
-        (click)="retry()"
-        class="button button--primary"
-        type="button"
-      >
-        Try again
-      </button>
+      <button (click)="retry()" class="button button--primary" type="button">Try again</button>
     </section>
   } @else if (employee(); as employeeRecord) {
     <header class="employee-position-change__header">
-      <p class="employee-position-change__label">
-        Employee administration
-      </p>
+      <p class="employee-position-change__label">Employee administration</p>
 
-      <h1 id="employee-position-change-title">
-        Change Employee position
-      </h1>
+      <h1 id="employee-position-change-title">Change Employee position</h1>
 
       <p class="employee-position-change__description">
         Update the position assigned to
@@ -56,29 +27,16 @@
     </header>
 
     @if (submissionError(); as errorMessage) {
-      <section
-        class="submission-error"
-        role="alert"
-      >
+      <section class="submission-error" role="alert">
         <h2>Position change unsuccessful</h2>
 
         <p>{{ errorMessage }}</p>
       </section>
     }
 
-    <form
-      (ngSubmit)="submit()"
-      [formGroup]="positionForm"
-      class="position-form"
-      novalidate
-    >
-      <section
-        aria-labelledby="position-field-title"
-        class="form-section"
-      >
-        <h2 id="position-field-title">
-          Position assignment
-        </h2>
+    <form (ngSubmit)="submit()" [formGroup]="positionForm" class="position-form" novalidate>
+      <section aria-labelledby="position-field-title" class="form-section">
+        <h2 id="position-field-title">Position assignment</h2>
 
         <p class="form-section__description">
           Current position:
@@ -86,9 +44,7 @@
         </p>
 
         <div class="form-field">
-          <label for="position">
-            New position
-          </label>
+          <label for="position"> New position </label>
 
           <select
             aria-describedby="position-help position-error"
@@ -102,43 +58,22 @@
             }
           </select>
 
-          <p
-            class="field-help"
-            id="position-help"
-          >
+          <p class="field-help" id="position-help">
             Select the Employee role within the bank system.
           </p>
 
-          @if (
-            positionForm.controls.position.invalid
-            && positionForm.controls.position.touched
-            ) {
-            <p
-              class="field-error"
-              id="position-error"
-            >
-              Position is required.
-            </p>
+          @if (positionForm.controls.position.invalid && positionForm.controls.position.touched) {
+            <p class="field-error" id="position-error">Position is required.</p>
           }
         </div>
       </section>
 
       <footer class="form-actions">
-        <a
-          [routerLink]="[
-            '/admin/employees',
-            employeeId
-          ]"
-          class="button button--secondary"
-        >
+        <a [routerLink]="['/admin/employees', employeeId]" class="button button--secondary">
           Cancel
         </a>
 
-        <button
-          [disabled]="submitting()"
-          class="button button--primary"
-          type="submit"
-        >
+        <button [disabled]="submitting()" class="button button--primary" type="submit">
           @if (submitting()) {
             Saving...
           } @else {

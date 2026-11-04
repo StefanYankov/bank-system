@@ -1,6 +1,6 @@
-import {effect, inject, Injectable, signal,} from '@angular/core';
+import { effect, inject, Injectable, signal } from '@angular/core';
 import Keycloak from 'keycloak-js';
-import {KEYCLOAK_EVENT_SIGNAL} from 'keycloak-angular';
+import { KEYCLOAK_EVENT_SIGNAL } from 'keycloak-angular';
 
 /**
  * Exposes authentication state and user actions to Angular components.
@@ -72,17 +72,10 @@ export class AuthSession {
       return;
     }
 
-    const username =
-      this.keycloak.tokenParsed?.['preferred_username'];
+    const username = this.keycloak.tokenParsed?.['preferred_username'];
 
-    this.usernameState.set(
-      typeof username === 'string'
-        ? username
-        : null,
-    );
+    this.usernameState.set(typeof username === 'string' ? username : null);
 
-    this.realmRolesState.set(
-      this.keycloak.realmAccess?.roles ?? [],
-    );
+    this.realmRolesState.set(this.keycloak.realmAccess?.roles ?? []);
   }
 }

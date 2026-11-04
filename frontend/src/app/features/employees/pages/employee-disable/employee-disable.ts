@@ -1,10 +1,14 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {Component, DestroyRef, inject, OnInit, signal,} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {NonNullableFormBuilder, ReactiveFormsModule, Validators,} from '@angular/forms';
-import {ActivatedRoute, Router, RouterLink,} from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import {EmployeeAPIService, EmployeeDisableDto, EmployeeViewDto,} from '../../../../generated/employee-api';
+import {
+  EmployeeAPIService,
+  EmployeeDisableDto,
+  EmployeeViewDto,
+} from '../../../../generated/employee-api';
 
 /**
  * Disables an active Employee from a supplied employment end date.
@@ -15,32 +19,25 @@ import {EmployeeAPIService, EmployeeDisableDto, EmployeeViewDto,} from '../../..
  */
 @Component({
   selector: 'app-employee-disable',
-  imports: [
-    ReactiveFormsModule,
-    RouterLink,
-  ],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './employee-disable.html',
   styleUrl: './employee-disable.css',
 })
 export class EmployeeDisable implements OnInit {
-
   protected employeeId: string | null = null;
   protected readonly employee = signal<EmployeeViewDto | null>(null);
   protected readonly loading = signal(true);
   protected readonly submitting = signal(false);
   protected readonly loadError = signal<string | null>(null);
   protected readonly submissionError = signal<string | null>(null);
-  private readonly formBuilder = inject(NonNullableFormBuilder,);
+  private readonly formBuilder = inject(NonNullableFormBuilder);
   /**
    * Typed form containing the final date of employment.
    */
   protected readonly disableForm = this.formBuilder.group({
-    employmentEndDate: this.formBuilder.control(
-      '',
-      Validators.required,
-    ),
+    employmentEndDate: this.formBuilder.control('', Validators.required),
   });
-  private readonly employeeApi = inject(EmployeeAPIService,);
+  private readonly employeeApi = inject(EmployeeAPIService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -51,15 +48,10 @@ export class EmployeeDisable implements OnInit {
   public ngOnInit(): void {
     this.employeeId = this.route.snapshot.paramMap.get('id');
 
-    if (
-      this.employeeId === null
-      || this.employeeId.length === 0
-    ) {
+    if (this.employeeId === null || this.employeeId.length === 0) {
       this.loading.set(false);
 
-      this.loadError.set(
-        'The Employee identifier is missing.',
-      );
+      this.loadError.set('The Employee identifier is missing.');
 
       return;
     }
@@ -72,11 +64,10 @@ export class EmployeeDisable implements OnInit {
    */
   protected submit(): void {
     if (
-      this.disableForm.invalid
-      || this.submitting()
-      || this.employeeId === null
-      || this.employee()?.status
-      === EmployeeViewDto.StatusEnum.Inactive
+      this.disableForm.invalid ||
+      this.submitting() ||
+      this.employeeId === null ||
+      this.employee()?.status === EmployeeViewDto.StatusEnum.Inactive
     ) {
       this.disableForm.markAllAsTouched();
       return;
@@ -86,26 +77,21 @@ export class EmployeeDisable implements OnInit {
     this.submissionError.set(null);
 
     const request: EmployeeDisableDto = {
-      employmentEndDate:
-      this.disableForm.controls.employmentEndDate.value,
+      employmentEndDate: this.disableForm.controls.employmentEndDate.value,
     };
 
-    this.employeeApi.disableEmployee({
-      id: this.employeeId,
-      employeeDisableDto: request,
-    })
+    this.employeeApi
+      .disableEmployee({
+        id: this.employeeId,
+        employeeDisableDto: request,
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (employee: EmployeeViewDto) => {
-          void this.router.navigate([
-            '/admin/employees',
-            employee.id,
-          ]);
+          void this.router.navigate(['/admin/employees', employee.id]);
         },
         error: (error: unknown) => {
-          this.submissionError.set(
-            this.disableErrorMessage(error),
-          );
+          this.submissionError.set(this.disableErrorMessage(error));
 
           this.submitting.set(false);
         },
@@ -133,9 +119,10 @@ export class EmployeeDisable implements OnInit {
     this.loadError.set(null);
     this.employee.set(null);
 
-    this.employeeApi.getEmployeeById({
-      id: employeeId,
-    })
+    this.employeeApi
+      .getEmployeeById({
+        id: employeeId,
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (employee: EmployeeViewDto) => {
@@ -143,9 +130,7 @@ export class EmployeeDisable implements OnInit {
           this.loading.set(false);
         },
         error: (error: unknown) => {
-          this.loadError.set(
-            this.loadErrorMessage(error),
-          );
+          this.loadError.set(this.loadErrorMessage(error));
 
           this.loading.set(false);
         },

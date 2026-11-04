@@ -1,16 +1,16 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import {notBlankValidator} from '../../../../../core/forms/not-blank-validator';
+import { notBlankValidator } from '../../../../../core/forms/not-blank-validator';
 import {
   CompanyNameUpdateDto,
   LegalEntityCustomerAPIService,
   LegalEntityCustomerViewDto,
 } from '../../../../../generated/customer-api';
-import {customerSchemaConstraints} from '../../../../../generated/customer-schema-constraints.generated';
+import { customerSchemaConstraints } from '../../../../../generated/customer-schema-constraints.generated';
 
 const constraints = customerSchemaConstraints.CompanyNameUpdateDto.companyName;
 
@@ -51,12 +51,13 @@ export class LegalEntityCompanyNameUpdate implements OnInit {
       return;
     }
 
-    this.customerApi.getLegalEntityCustomer({id})
+    this.customerApi
+      .getLegalEntityCustomer({ id })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (customer: LegalEntityCustomerViewDto) => {
           this.customer.set(customer);
-          this.updateForm.setValue({companyName: customer.companyName});
+          this.updateForm.setValue({ companyName: customer.companyName });
           this.loading.set(false);
         },
         error: (error: unknown) => {
@@ -74,7 +75,7 @@ export class LegalEntityCompanyNameUpdate implements OnInit {
 
     this.updateForm.controls.companyName.setValue(
       this.updateForm.controls.companyName.value.trim(),
-      {emitEvent: false},
+      { emitEvent: false },
     );
 
     if (this.updateForm.invalid) {
@@ -86,10 +87,11 @@ export class LegalEntityCompanyNameUpdate implements OnInit {
     this.submitting.set(true);
     this.submissionError.set(null);
 
-    this.customerApi.updateLegalEntityCustomerCompanyName({
-      id: customer.id,
-      companyNameUpdateDto: request,
-    })
+    this.customerApi
+      .updateLegalEntityCustomerCompanyName({
+        id: customer.id,
+        companyNameUpdateDto: request,
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updated) => void this.router.navigate(['/customers/legal-entities', updated.id]),

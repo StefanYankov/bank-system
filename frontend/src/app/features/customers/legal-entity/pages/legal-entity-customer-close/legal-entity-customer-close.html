@@ -3,8 +3,10 @@
   <header>
     <p class="customer-maintenance__label">Legal Entity Customer</p>
     <h1 id="close-title">Close Customer</h1>
-    <p class="customer-maintenance__description">Closing keeps the Customer record and Representatives but blocks
-      Customer changes until the relationship is reopened.</p>
+    <p class="customer-maintenance__description">
+      Closing keeps the Customer record and Representatives but blocks Customer changes until the
+      relationship is reopened.
+    </p>
   </header>
 
   @if (loading()) {
@@ -35,7 +37,12 @@
       </section>
       <footer class="form-actions">
         <a [routerLink]="customerLink()" class="button button--secondary">Cancel</a>
-        <button (click)="confirm()" [disabled]="submitting()" class="button button--primary" type="button">
+        <button
+          (click)="confirm()"
+          [disabled]="submitting()"
+          class="button button--primary"
+          type="button"
+        >
           {{ submitting() ? 'Closeing...' : 'Close Customer' }}
         </button>
       </footer>

@@ -1,9 +1,13 @@
-import {TestBed} from '@angular/core/testing';
-import {of, Subject, throwError} from 'rxjs';
-import {provideRouter} from '@angular/router';
-import {beforeEach, describe, expect, it, vi,} from 'vitest';
-import {EmployeeAPIService, EmployeeViewDto, PagedResponseEmployeeViewDto,} from '../../../../generated/employee-api';
-import {EmployeeList} from './employee-list';
+import { TestBed } from '@angular/core/testing';
+import { of, Subject, throwError } from 'rxjs';
+import { provideRouter } from '@angular/router';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  EmployeeAPIService,
+  EmployeeViewDto,
+  PagedResponseEmployeeViewDto,
+} from '../../../../generated/employee-api';
+import { EmployeeList } from './employee-list';
 
 describe('EmployeeList', () => {
   const employee: EmployeeViewDto = {
@@ -62,9 +66,7 @@ describe('EmployeeList', () => {
 
     expect(element.textContent).toContain('EMP-000001');
     expect(element.textContent).toContain('Serafim Gerasimoff');
-    expect(element.textContent).toContain(
-      'serafim.gerasimoff@bank.test',
-    );
+    expect(element.textContent).toContain('serafim.gerasimoff@bank.test');
     expect(element.textContent).toContain('CLERK');
     expect(element.textContent).toContain('ACTIVE');
   });
@@ -84,14 +86,16 @@ describe('EmployeeList', () => {
   });
 
   it('should show an empty state when no employees exist', () => {
-    getEmployeesMock.mockReturnValue(of({
-      content: [],
-      page: 0,
-      size: 10,
-      totalElements: 0,
-      totalPages: 0,
-      last: true,
-    }));
+    getEmployeesMock.mockReturnValue(
+      of({
+        content: [],
+        page: 0,
+        size: 10,
+        totalElements: 0,
+        totalPages: 0,
+        last: true,
+      }),
+    );
 
     const fixture = TestBed.createComponent(EmployeeList);
 
@@ -115,13 +119,9 @@ describe('EmployeeList', () => {
 
     const element = fixture.nativeElement as HTMLElement;
 
-    expect(element.textContent).toContain(
-      'Employees could not be loaded',
-    );
+    expect(element.textContent).toContain('Employees could not be loaded');
 
-    const retryButton = element.querySelector(
-      '.button--primary',
-    ) as HTMLButtonElement | null;
+    const retryButton = element.querySelector('.button--primary') as HTMLButtonElement | null;
 
     retryButton?.click();
     fixture.detectChanges();
@@ -146,9 +146,7 @@ describe('EmployeeList', () => {
       last: true,
     };
 
-    getEmployeesMock
-      .mockReturnValueOnce(of(firstPage))
-      .mockReturnValueOnce(of(secondPage));
+    getEmployeesMock.mockReturnValueOnce(of(firstPage)).mockReturnValueOnce(of(secondPage));
 
     const fixture = TestBed.createComponent(EmployeeList);
 
@@ -156,9 +154,7 @@ describe('EmployeeList', () => {
 
     const element = fixture.nativeElement as HTMLElement;
     const buttons = Array.from(
-      element.querySelectorAll<HTMLButtonElement>(
-        '.pagination__controls button',
-      ),
+      element.querySelectorAll<HTMLButtonElement>('.pagination__controls button'),
     );
 
     buttons[1]?.click();

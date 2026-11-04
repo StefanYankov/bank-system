@@ -1,38 +1,26 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {Component, DestroyRef, inject, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Router} from '@angular/router';
-import {eikValidator} from '../../../../../core/forms/eik-validator';
-import {notBlankValidator} from '../../../../../core/forms/not-blank-validator';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router } from '@angular/router';
+import { eikValidator } from '../../../../../core/forms/eik-validator';
+import { notBlankValidator } from '../../../../../core/forms/not-blank-validator';
 import {
   AddressDto,
   LegalEntityCustomerAPIService,
   LegalEntityCustomerRegistrationDto,
-  LegalEntityCustomerViewDto
+  LegalEntityCustomerViewDto,
 } from '../../../../../generated/customer-api';
-import {customerSchemaConstraints} from '../../../../../generated/customer-schema-constraints.generated';
+import { customerSchemaConstraints } from '../../../../../generated/customer-schema-constraints.generated';
 
-const registrationConstraints =
-  customerSchemaConstraints.LegalEntityCustomerRegistrationDto;
+const registrationConstraints = customerSchemaConstraints.LegalEntityCustomerRegistrationDto;
 const addressConstraints = customerSchemaConstraints.AddressDto;
 
-type RegistrationControl =
-  | 'email'
-  | 'phone'
-  | 'companyName'
-  | 'eik';
+type RegistrationControl = 'email' | 'phone' | 'companyName' | 'eik';
 
-type AddressGroup =
-  | 'registeredAddress'
-  | 'correspondenceAddress';
+type AddressGroup = 'registeredAddress' | 'correspondenceAddress';
 
-type AddressControl =
-  | 'countryCode'
-  | 'city'
-  | 'postalCode'
-  | 'addressLine1'
-  | 'addressLine2';
+type AddressControl = 'countryCode' | 'city' | 'postalCode' | 'addressLine1' | 'addressLine2';
 
 interface AddressFormValue {
   readonly countryCode: string;
@@ -119,16 +107,14 @@ export class LegalEntityCustomerRegistration {
     this.submitting.set(true);
     this.submissionError.set(null);
 
-    this.customerApi.registerLegalEntityCustomer({
-      legalEntityCustomerRegistrationDto: this.createRegistrationRequest(),
-    })
+    this.customerApi
+      .registerLegalEntityCustomer({
+        legalEntityCustomerRegistrationDto: this.createRegistrationRequest(),
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (customer: LegalEntityCustomerViewDto) => {
-          void this.router.navigate([
-            '/customers/legal-entities',
-            customer.id,
-          ]);
+          void this.router.navigate(['/customers/legal-entities', customer.id]);
         },
         error: (error: unknown) => {
           this.submissionError.set(this.errorMessage(error));
@@ -191,16 +177,19 @@ export class LegalEntityCustomerRegistration {
   private normalizeFormValues(): void {
     const value = this.registrationForm.getRawValue();
 
-    this.registrationForm.patchValue({
-      email: value.email.trim(),
-      phone: value.phone.trim(),
-      companyName: value.companyName.trim(),
-      eik: value.eik.trim(),
-      registeredAddress: this.normalizeAddress(value.registeredAddress),
-      correspondenceAddress: this.normalizeAddress(value.correspondenceAddress),
-    }, {
-      emitEvent: false,
-    });
+    this.registrationForm.patchValue(
+      {
+        email: value.email.trim(),
+        phone: value.phone.trim(),
+        companyName: value.companyName.trim(),
+        eik: value.eik.trim(),
+        registeredAddress: this.normalizeAddress(value.registeredAddress),
+        correspondenceAddress: this.normalizeAddress(value.correspondenceAddress),
+      },
+      {
+        emitEvent: false,
+      },
+    );
   }
 
   private normalizeAddress(address: AddressFormValue): AddressFormValue {
@@ -232,9 +221,7 @@ export class LegalEntityCustomerRegistration {
       city: address.city,
       postalCode: address.postalCode,
       addressLine1: address.addressLine1,
-      ...(address.addressLine2.length > 0
-        ? {addressLine2: address.addressLine2}
-        : {}),
+      ...(address.addressLine2.length > 0 ? { addressLine2: address.addressLine2 } : {}),
     };
   }
 

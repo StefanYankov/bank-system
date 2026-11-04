@@ -1,13 +1,16 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import {egnValidator} from '../../../../../core/forms/egn-validator';
-import {notBlankValidator} from '../../../../../core/forms/not-blank-validator';
-import {IndividualCustomerAPIService, IndividualCustomerViewDto} from '../../../../../generated/customer-api';
-import {customerSchemaConstraints} from '../../../../../generated/customer-schema-constraints.generated';
+import { egnValidator } from '../../../../../core/forms/egn-validator';
+import { notBlankValidator } from '../../../../../core/forms/not-blank-validator';
+import {
+  IndividualCustomerAPIService,
+  IndividualCustomerViewDto,
+} from '../../../../../generated/customer-api';
+import { customerSchemaConstraints } from '../../../../../generated/customer-schema-constraints.generated';
 
 const egnConstraints = customerSchemaConstraints.EgnCorrectionDto.egn;
 
@@ -53,7 +56,8 @@ export class IndividualCustomerEgnCorrection implements OnInit {
       return;
     }
 
-    this.customerApi.getIndividualCustomer({id: customerId})
+    this.customerApi
+      .getIndividualCustomer({ id: customerId })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (customer: IndividualCustomerViewDto) => {
@@ -76,10 +80,9 @@ export class IndividualCustomerEgnCorrection implements OnInit {
       return;
     }
 
-    this.updateForm.controls.egn.setValue(
-      this.updateForm.controls.egn.value.trim(),
-      {emitEvent: false},
-    );
+    this.updateForm.controls.egn.setValue(this.updateForm.controls.egn.value.trim(), {
+      emitEvent: false,
+    });
 
     if (this.updateForm.invalid) {
       this.updateForm.markAllAsTouched();
@@ -89,12 +92,13 @@ export class IndividualCustomerEgnCorrection implements OnInit {
     this.submitting.set(true);
     this.submissionError.set(null);
 
-    this.customerApi.correctIndividualCustomerEgn({
-      id: customer.id,
-      egnCorrectionDto: {
-        egn: this.updateForm.controls.egn.value,
-      },
-    })
+    this.customerApi
+      .correctIndividualCustomerEgn({
+        id: customer.id,
+        egnCorrectionDto: {
+          egn: this.updateForm.controls.egn.value,
+        },
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updated: IndividualCustomerViewDto) => {

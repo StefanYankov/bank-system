@@ -1,34 +1,12 @@
-<section
-  aria-labelledby="legal-entity-customer-details-title"
-  class="customer-details"
->
-  <a
-    class="back-link"
-    routerLink="/customers"
-  >
-    ← Back to customers
-  </a>
+<section aria-labelledby="legal-entity-customer-details-title" class="customer-details">
+  <a class="back-link" routerLink="/customers"> ← Back to customers </a>
   @if (loading()) {
-    <p
-      class="state-message"
-      role="status"
-    >
-      Loading Legal Entity Customer...
-    </p>
+    <p class="state-message" role="status">Loading Legal Entity Customer...</p>
   } @else if (error(); as errorMessage) {
-    <section
-      class="state-panel state-panel--error"
-      role="alert"
-    >
+    <section class="state-panel state-panel--error" role="alert">
       <h1 id="legal-entity-customer-details-title">Customer unavailable</h1>
       <p>{{ errorMessage }}</p>
-      <button
-        (click)="retry()"
-        class="button button--primary"
-        type="button"
-      >
-        Try again
-      </button>
+      <button (click)="retry()" class="button button--primary" type="button">Try again</button>
     </section>
   } @else if (customer(); as customerRecord) {
     <header class="customer-details__header">
@@ -38,25 +16,17 @@
         <h1 id="legal-entity-customer-details-title">
           {{ customerRecord.companyName }}
         </h1>
-        <p class="customer-details__field-label customer-details__number-label">
-          Customer number
-        </p>
+        <p class="customer-details__field-label customer-details__number-label">Customer number</p>
         <p class="customer-details__number">
           {{ customerRecord.customerNumber }}
         </p>
       </div>
-      <span
-        [class.status-badge--closed]="customerRecord.status === 'CLOSED'"
-        class="status-badge"
-      >
+      <span [class.status-badge--closed]="customerRecord.status === 'CLOSED'" class="status-badge">
         {{ customerRecord.status }}
       </span>
     </header>
     @if (canMaintainCustomers) {
-      <nav
-        aria-label="Legal Entity Customer actions"
-        class="customer-actions"
-      >
+      <nav aria-label="Legal Entity Customer actions" class="customer-actions">
         @if (customerRecord.status === 'ACTIVE') {
           <a
             [routerLink]="['/customers/legal-entities', customerRecord.id, 'company-name']"
@@ -80,7 +50,11 @@
             Update registered address
           </a>
           <a
-            [routerLink]="['/customers/legal-entities', customerRecord.id, 'correspondence-address']"
+            [routerLink]="[
+              '/customers/legal-entities',
+              customerRecord.id,
+              'correspondence-address',
+            ]"
             class="button button--secondary"
             id="update-correspondence-address-action"
           >
@@ -111,10 +85,7 @@
         }
       </nav>
     }
-    <section
-      aria-labelledby="company-details-title"
-      class="details-card"
-    >
+    <section aria-labelledby="company-details-title" class="details-card">
       <h2 id="company-details-title">Company and contact details</h2>
       <dl class="details-grid">
         <div class="details-grid__item">
@@ -138,12 +109,12 @@
     >
       <h2 id="registered-address-title">Registered address</h2>
       <address class="address">
-        {{ customerRecord.registeredAddress.addressLine1 }}<br>
+        {{ customerRecord.registeredAddress.addressLine1 }}<br />
         @if (customerRecord.registeredAddress.addressLine2) {
-          {{ customerRecord.registeredAddress.addressLine2 }}<br>
+          {{ customerRecord.registeredAddress.addressLine2 }}<br />
         }
         {{ customerRecord.registeredAddress.postalCode }}
-        {{ customerRecord.registeredAddress.city }}<br>
+        {{ customerRecord.registeredAddress.city }}<br />
         {{ customerRecord.registeredAddress.countryCode }}
       </address>
     </section>
@@ -154,35 +125,34 @@
     >
       <h2 id="correspondence-address-title">Correspondence address</h2>
       <address class="address">
-        {{ customerRecord.correspondenceAddress.addressLine1 }}<br>
+        {{ customerRecord.correspondenceAddress.addressLine1 }}<br />
         @if (customerRecord.correspondenceAddress.addressLine2) {
-          {{ customerRecord.correspondenceAddress.addressLine2 }}<br>
+          {{ customerRecord.correspondenceAddress.addressLine2 }}<br />
         }
         {{ customerRecord.correspondenceAddress.postalCode }}
-        {{ customerRecord.correspondenceAddress.city }}<br>
+        {{ customerRecord.correspondenceAddress.city }}<br />
         {{ customerRecord.correspondenceAddress.countryCode }}
       </address>
     </section>
-    <section
-      aria-labelledby="representatives-title"
-      class="details-card"
-    >
+    <section aria-labelledby="representatives-title" class="details-card">
       <h2 id="representatives-title">Representatives</h2>
       @if (customerRecord.representatives.length === 0) {
         <p class="representatives-empty">No representatives are recorded.</p>
       } @else {
         <div class="representatives-table-container">
           <table class="representatives-table">
-            <caption class="visually-hidden">Representatives</caption>
+            <caption class="visually-hidden">
+              Representatives
+            </caption>
             <thead>
-            <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Role</th>
-              <th scope="col">Valid from</th>
-              <th scope="col">Valid to</th>
-              <th scope="col">Status</th>
-              <th scope="col">Individual Customer</th>
-            </tr>
+              <tr>
+                <th scope="col">Name</th>
+                <th scope="col">Role</th>
+                <th scope="col">Valid from</th>
+                <th scope="col">Valid to</th>
+                <th scope="col">Status</th>
+                <th scope="col">Individual Customer</th>
+              </tr>
             </thead>
             <tbody>
               @for (representative of customerRecord.representatives; track representative.id) {

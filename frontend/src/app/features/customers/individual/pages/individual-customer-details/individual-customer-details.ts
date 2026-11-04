@@ -1,10 +1,13 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {ActivatedRoute, RouterLink} from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, RouterLink } from '@angular/router';
 
-import {AuthSession} from '../../../../../core/auth/auth-session';
-import {IndividualCustomerAPIService, IndividualCustomerViewDto} from '../../../../../generated/customer-api';
+import { AuthSession } from '../../../../../core/auth/auth-session';
+import {
+  IndividualCustomerAPIService,
+  IndividualCustomerViewDto,
+} from '../../../../../generated/customer-api';
 
 /**
  * Displays the details of one Individual Customer.
@@ -73,7 +76,8 @@ export class IndividualCustomerDetails implements OnInit {
     this.error.set(null);
     this.customer.set(null);
 
-    this.customerApi.getIndividualCustomer({id: customerId})
+    this.customerApi
+      .getIndividualCustomer({ id: customerId })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (customer: IndividualCustomerViewDto) => {

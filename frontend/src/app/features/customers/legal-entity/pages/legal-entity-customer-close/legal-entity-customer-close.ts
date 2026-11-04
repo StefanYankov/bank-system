@@ -1,9 +1,12 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import {LegalEntityCustomerAPIService, LegalEntityCustomerViewDto,} from '../../../../../generated/customer-api';
+import {
+  LegalEntityCustomerAPIService,
+  LegalEntityCustomerViewDto,
+} from '../../../../../generated/customer-api';
 
 /**
  * Confirms and closes an active Legal Entity Customer relationship.
@@ -34,7 +37,8 @@ export class LegalEntityCustomerClose implements OnInit {
       return;
     }
 
-    this.customerApi.getLegalEntityCustomer({id: customerId})
+    this.customerApi
+      .getLegalEntityCustomer({ id: customerId })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (customer: LegalEntityCustomerViewDto) => {
@@ -63,7 +67,8 @@ export class LegalEntityCustomerClose implements OnInit {
     this.submitting.set(true);
     this.submissionError.set(null);
 
-    this.customerApi.closeLegalEntityCustomer({id: customer.id})
+    this.customerApi
+      .closeLegalEntityCustomer({ id: customer.id })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updated: LegalEntityCustomerViewDto) => {

@@ -1,12 +1,15 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {TestBed} from '@angular/core/testing';
-import {ActivatedRoute, convertToParamMap, provideRouter} from '@angular/router';
-import {of, Subject, throwError} from 'rxjs';
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import { HttpErrorResponse } from '@angular/common/http';
+import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { of, Subject, throwError } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {AuthSession} from '../../../../../core/auth/auth-session';
-import {IndividualCustomerAPIService, IndividualCustomerViewDto} from '../../../../../generated/customer-api';
-import {IndividualCustomerDetails} from './individual-customer-details';
+import { AuthSession } from '../../../../../core/auth/auth-session';
+import {
+  IndividualCustomerAPIService,
+  IndividualCustomerViewDto,
+} from '../../../../../generated/customer-api';
+import { IndividualCustomerDetails } from './individual-customer-details';
 
 describe('IndividualCustomerDetails', () => {
   const customerId = '0199e65a-35b1-7000-8000-000000000101';
@@ -48,7 +51,7 @@ describe('IndividualCustomerDetails', () => {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
-              paramMap: convertToParamMap({id: customerId}),
+              paramMap: convertToParamMap({ id: customerId }),
             },
           },
         },
@@ -78,10 +81,10 @@ describe('IndividualCustomerDetails', () => {
 
     // Assert
     expect(getIndividualCustomerMock).toHaveBeenCalledOnce();
-    expect(getIndividualCustomerMock).toHaveBeenCalledWith({id: customerId});
-    expect(
-      element.querySelector('h1')?.textContent?.replace(/\s+/g, ' ').trim(),
-    ).toBe('Serafim Ivanov Gerasimoff');
+    expect(getIndividualCustomerMock).toHaveBeenCalledWith({ id: customerId });
+    expect(element.querySelector('h1')?.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+      'Serafim Ivanov Gerasimoff',
+    );
     expect(element.textContent).toContain('CUS-000001');
     expect(element.textContent).toContain('6101047500');
     expect(element.textContent).toContain('serafim.gerasimoff@example.com');
@@ -113,16 +116,21 @@ describe('IndividualCustomerDetails', () => {
     const element = fixture.nativeElement as HTMLElement;
 
     // Assert
-    expect(element.querySelector('#update-name-action')?.getAttribute('href'))
-      .toBe(`/customers/individuals/${customerId}/name`);
-    expect(element.querySelector('#update-contact-action')?.getAttribute('href'))
-      .toBe(`/customers/individuals/${customerId}/contact`);
-    expect(element.querySelector('#update-address-action')?.getAttribute('href'))
-      .toBe(`/customers/individuals/${customerId}/residential-address`);
-    expect(element.querySelector('#correct-egn-action')?.getAttribute('href'))
-      .toBe(`/customers/individuals/${customerId}/egn`);
-    expect(element.querySelector('#close-action')?.getAttribute('href'))
-      .toBe(`/customers/individuals/${customerId}/close`);
+    expect(element.querySelector('#update-name-action')?.getAttribute('href')).toBe(
+      `/customers/individuals/${customerId}/name`,
+    );
+    expect(element.querySelector('#update-contact-action')?.getAttribute('href')).toBe(
+      `/customers/individuals/${customerId}/contact`,
+    );
+    expect(element.querySelector('#update-address-action')?.getAttribute('href')).toBe(
+      `/customers/individuals/${customerId}/residential-address`,
+    );
+    expect(element.querySelector('#correct-egn-action')?.getAttribute('href')).toBe(
+      `/customers/individuals/${customerId}/egn`,
+    );
+    expect(element.querySelector('#close-action')?.getAttribute('href')).toBe(
+      `/customers/individuals/${customerId}/close`,
+    );
     expect(element.querySelector('#reopen-action')).toBeNull();
   });
 
@@ -149,8 +157,9 @@ describe('IndividualCustomerDetails', () => {
     const element = fixture.nativeElement as HTMLElement;
 
     // Assert
-    expect(element.querySelector('#reopen-action')?.getAttribute('href'))
-      .toBe(`/customers/individuals/${customerId}/reopen`);
+    expect(element.querySelector('#reopen-action')?.getAttribute('href')).toBe(
+      `/customers/individuals/${customerId}/reopen`,
+    );
     expect(element.querySelector('#update-name-action')).toBeNull();
     expect(element.querySelector('#close-action')).toBeNull();
   });
@@ -186,7 +195,7 @@ describe('IndividualCustomerDetails', () => {
   it('should show a not-found message for a missing Customer', () => {
     // Arrange
     getIndividualCustomerMock.mockReturnValue(
-      throwError(() => new HttpErrorResponse({status: 404})),
+      throwError(() => new HttpErrorResponse({ status: 404 })),
     );
     const fixture = TestBed.createComponent(IndividualCustomerDetails);
 
@@ -203,7 +212,7 @@ describe('IndividualCustomerDetails', () => {
   it('should show an authorization message for a forbidden response', () => {
     // Arrange
     getIndividualCustomerMock.mockReturnValue(
-      throwError(() => new HttpErrorResponse({status: 403})),
+      throwError(() => new HttpErrorResponse({ status: 403 })),
     );
     const fixture = TestBed.createComponent(IndividualCustomerDetails);
 
@@ -231,9 +240,9 @@ describe('IndividualCustomerDetails', () => {
 
     // Assert
     expect(getIndividualCustomerMock).toHaveBeenCalledTimes(2);
-    expect(
-      element.querySelector('h1')?.textContent?.replace(/\s+/g, ' ').trim(),
-    ).toBe('Serafim Ivanov Gerasimoff');
+    expect(element.querySelector('h1')?.textContent?.replace(/\s+/g, ' ').trim()).toBe(
+      'Serafim Ivanov Gerasimoff',
+    );
     expect(element.querySelector('.state-panel--error')).toBeNull();
   });
 });

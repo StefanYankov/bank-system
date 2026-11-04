@@ -1,11 +1,14 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {TestBed} from '@angular/core/testing';
-import {ActivatedRoute, convertToParamMap, provideRouter, Router} from '@angular/router';
-import {of, Subject, throwError} from 'rxjs';
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import { HttpErrorResponse } from '@angular/common/http';
+import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { of, Subject, throwError } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {IndividualCustomerAPIService, IndividualCustomerViewDto} from '../../../../../generated/customer-api';
-import {IndividualCustomerEgnCorrection} from './individual-customer-egn-correction';
+import {
+  IndividualCustomerAPIService,
+  IndividualCustomerViewDto,
+} from '../../../../../generated/customer-api';
+import { IndividualCustomerEgnCorrection } from './individual-customer-egn-correction';
 
 describe('IndividualCustomerEgnCorrection', () => {
   const customerId = '0199e65a-35b1-7000-8000-000000000101';
@@ -48,7 +51,7 @@ describe('IndividualCustomerEgnCorrection', () => {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
-              paramMap: convertToParamMap({id: customerId}),
+              paramMap: convertToParamMap({ id: customerId }),
             },
           },
         },
@@ -91,7 +94,7 @@ describe('IndividualCustomerEgnCorrection', () => {
     // Assert
     expect(correctIndividualCustomerEgnMock).toHaveBeenCalledWith({
       id: customerId,
-      egnCorrectionDto: {egn: '0041010002'},
+      egnCorrectionDto: { egn: '0041010002' },
     });
     expect(navigateMock).toHaveBeenCalledWith(['/customers/individuals', customerId]);
   });
@@ -131,7 +134,7 @@ describe('IndividualCustomerEgnCorrection', () => {
   it('should show the duplicate message for a conflict', () => {
     // Arrange
     correctIndividualCustomerEgnMock.mockReturnValue(
-      throwError(() => new HttpErrorResponse({status: 409})),
+      throwError(() => new HttpErrorResponse({ status: 409 })),
     );
     const fixture = TestBed.createComponent(IndividualCustomerEgnCorrection);
     fixture.detectChanges();

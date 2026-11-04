@@ -1,11 +1,14 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {TestBed} from '@angular/core/testing';
-import {ActivatedRoute, convertToParamMap, provideRouter, Router} from '@angular/router';
-import {of, Subject, throwError} from 'rxjs';
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import { HttpErrorResponse } from '@angular/common/http';
+import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { of, Subject, throwError } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {IndividualCustomerAPIService, IndividualCustomerViewDto} from '../../../../../generated/customer-api';
-import {IndividualCustomerContactUpdate} from './individual-customer-contact-update';
+import {
+  IndividualCustomerAPIService,
+  IndividualCustomerViewDto,
+} from '../../../../../generated/customer-api';
+import { IndividualCustomerContactUpdate } from './individual-customer-contact-update';
 
 describe('IndividualCustomerContactUpdate', () => {
   const customerId = '0199e65a-35b1-7000-8000-000000000101';
@@ -48,7 +51,7 @@ describe('IndividualCustomerContactUpdate', () => {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
-              paramMap: convertToParamMap({id: customerId}),
+              paramMap: convertToParamMap({ id: customerId }),
             },
           },
         },
@@ -74,7 +77,7 @@ describe('IndividualCustomerContactUpdate', () => {
     const component = fixture.componentInstance;
 
     // Assert
-    expect(getIndividualCustomerMock).toHaveBeenCalledWith({id: customerId});
+    expect(getIndividualCustomerMock).toHaveBeenCalledWith({ id: customerId });
     expect(component['updateForm'].getRawValue()).toEqual({
       email: 'serafim.gerasimoff@example.com',
       phone: '+359888123456',
@@ -160,7 +163,7 @@ describe('IndividualCustomerContactUpdate', () => {
   it('should show a permission message for a forbidden response', () => {
     // Arrange
     updateIndividualCustomerContactMock.mockReturnValue(
-      throwError(() => new HttpErrorResponse({status: 403})),
+      throwError(() => new HttpErrorResponse({ status: 403 })),
     );
     const fixture = TestBed.createComponent(IndividualCustomerContactUpdate);
     fixture.detectChanges();
