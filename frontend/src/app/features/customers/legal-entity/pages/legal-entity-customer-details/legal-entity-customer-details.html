@@ -28,19 +28,19 @@
             [routerLink]="['/customers/legal-entities', customerRecord.id, 'company-name']"
             class="button button--secondary"
             id="update-company-name-action"
-          >Update company name</a
+            >Update company name</a
           >
           <a
             [routerLink]="['/customers/legal-entities', customerRecord.id, 'contact']"
             class="button button--secondary"
             id="update-contact-action"
-          >Update contact</a
+            >Update contact</a
           >
           <a
             [routerLink]="['/customers/legal-entities', customerRecord.id, 'registered-address']"
             class="button button--secondary"
             id="update-registered-address-action"
-          >Update registered address</a
+            >Update registered address</a
           >
           <a
             [routerLink]="[
@@ -50,26 +50,26 @@
             ]"
             class="button button--secondary"
             id="update-correspondence-address-action"
-          >Update correspondence address</a
+            >Update correspondence address</a
           >
           <a
             [routerLink]="['/customers/legal-entities', customerRecord.id, 'eik']"
             class="button button--secondary"
             id="correct-eik-action"
-          >Correct EIK</a
+            >Correct EIK</a
           >
           <a
             [routerLink]="['/customers/legal-entities', customerRecord.id, 'close']"
             class="button button--secondary"
             id="close-action"
-          >Close customer</a
+            >Close customer</a
           >
         } @else {
           <a
             [routerLink]="['/customers/legal-entities', customerRecord.id, 'reopen']"
             class="button button--secondary"
             id="reopen-action"
-          >Reopen customer</a
+            >Reopen customer</a
           >
         }
       </nav>
@@ -103,9 +103,8 @@
         @if (customerRecord.registeredAddress.addressLine2) {
           {{ customerRecord.registeredAddress.addressLine2 }}<br />
         }
-        {{ customerRecord.registeredAddress.postalCode }} {{
-          customerRecord.registeredAddress.city
-        }}<br/>
+        {{ customerRecord.registeredAddress.postalCode }} {{ customerRecord.registeredAddress.city
+        }}<br />
         {{ customerRecord.registeredAddress.countryCode }}
       </address>
     </section>
@@ -140,7 +139,7 @@
             ]"
             class="button button--secondary"
             id="add-representative-action"
-          >Add Representative</a
+            >Add Representative</a
           >
         }
       </div>
@@ -176,7 +175,7 @@
                     <span
                       [class.representation-badge--ended]="hasEnded(representative)"
                       class="representation-badge"
-                    >{{ hasEnded(representative) ? 'Ended' : 'Current' }}</span
+                      >{{ hasEnded(representative) ? 'Ended' : 'Current' }}</span
                     >
                   </td>
                   <td>
@@ -184,7 +183,7 @@
                       <a
                         [routerLink]="['/customers/individuals', individualCustomerId]"
                         class="representative-link"
-                      >View customer</a
+                        >View customer</a
                       >
                     } @else {
                       Not linked
@@ -202,7 +201,7 @@
                             'correct',
                           ]"
                           class="representative-link"
-                        >Correct</a
+                          >Correct</a
                         >
                         @if (representative.validTo === null) {
                           <a
@@ -214,7 +213,7 @@
                               'end',
                             ]"
                             class="representative-link"
-                          >End</a
+                            >End</a
                           >
                         }
                       </div>

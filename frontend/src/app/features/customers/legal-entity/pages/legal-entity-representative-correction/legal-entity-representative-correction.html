@@ -69,7 +69,7 @@
             <div class="form-grid">
               <div class="form-field">
                 <label for="first-name">First name</label>
-                <input formControlName="firstName" id="first-name" type="text"/>
+                <input formControlName="firstName" id="first-name" type="text" />
                 @if (shouldShowNameError('firstName')) {
                   <p class="field-error">
                     First name is required and must not exceed 100 characters.
@@ -78,14 +78,14 @@
               </div>
               <div class="form-field">
                 <label for="middle-name">Middle name</label>
-                <input formControlName="middleName" id="middle-name" type="text"/>
+                <input formControlName="middleName" id="middle-name" type="text" />
                 @if (shouldShowNameError('middleName')) {
                   <p class="field-error">Middle name must not exceed 100 characters.</p>
                 }
               </div>
               <div class="form-field">
                 <label for="last-name">Last name</label>
-                <input formControlName="lastName" id="last-name" type="text"/>
+                <input formControlName="lastName" id="last-name" type="text" />
                 @if (shouldShowNameError('lastName')) {
                   <p class="field-error">
                     Last name is required and must not exceed 100 characters.
@@ -108,11 +108,11 @@
             </div>
             <div class="form-field">
               <label for="valid-from">Valid from</label>
-              <input formControlName="validFrom" id="valid-from" type="date"/>
+              <input formControlName="validFrom" id="valid-from" type="date" />
             </div>
             <div class="form-field">
               <label for="valid-to">Valid to</label>
-              <input formControlName="validTo" id="valid-to" type="date"/>
+              <input formControlName="validTo" id="valid-to" type="date" />
               <p class="field-help">Leave blank when the representation is current.</p>
             </div>
           </div>

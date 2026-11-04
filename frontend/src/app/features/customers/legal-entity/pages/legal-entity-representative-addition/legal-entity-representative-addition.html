@@ -121,7 +121,7 @@
                     <li>
                       <div>
                         <strong
-                        >{{ candidate.customerNumber }} · {{ candidate.displayName }}</strong
+                          >{{ candidate.customerNumber }} · {{ candidate.displayName }}</strong
                         >
                         <span>EGN {{ candidate.identifier }}</span>
                       </div>
@@ -149,7 +149,7 @@
             <div class="form-grid">
               <div class="form-field">
                 <label for="first-name">First name</label>
-                <input formControlName="firstName" id="first-name" type="text"/>
+                <input formControlName="firstName" id="first-name" type="text" />
                 @if (shouldShowNameError('firstName')) {
                   <p class="field-error">
                     First name is required and must not exceed 100 characters.
@@ -158,14 +158,14 @@
               </div>
               <div class="form-field">
                 <label for="middle-name">Middle name</label>
-                <input formControlName="middleName" id="middle-name" type="text"/>
+                <input formControlName="middleName" id="middle-name" type="text" />
                 @if (shouldShowNameError('middleName')) {
                   <p class="field-error">Middle name must not exceed 100 characters.</p>
                 }
               </div>
               <div class="form-field">
                 <label for="last-name">Last name</label>
-                <input formControlName="lastName" id="last-name" type="text"/>
+                <input formControlName="lastName" id="last-name" type="text" />
                 @if (shouldShowNameError('lastName')) {
                   <p class="field-error">
                     Last name is required and must not exceed 100 characters.
@@ -188,9 +188,11 @@
             </div>
             <div class="form-field">
               <label for="valid-from">Valid from</label>
-              <input formControlName="validFrom" id="valid-from" type="date"/>
-              @if (representativeForm.controls.validFrom.invalid &&
-              representativeForm.controls.validFrom.touched) {
+              <input formControlName="validFrom" id="valid-from" type="date" />
+              @if (
+                representativeForm.controls.validFrom.invalid &&
+                representativeForm.controls.validFrom.touched
+              ) {
                 <p class="field-error">Valid-from date is required.</p>
               }
             </div>
