@@ -1,0 +1,83 @@
+<section aria-labelledby="representation-end-title" class="customer-maintenance">
+  <a [routerLink]="customerLink()" class="back-link">← Back to customer</a>
+
+  <header>
+    <p class="customer-maintenance__label">Legal Entity Customer</p>
+    <h1 id="representation-end-title">End Representation</h1>
+    <p class="customer-maintenance__description">
+      Record the final inclusive date of the Representative's authority.
+    </p>
+  </header>
+
+  @if (loading()) {
+    <p class="customer-maintenance__status" role="status">Loading Representative...</p>
+  } @else if (loadError(); as errorMessage) {
+    <section class="submission-error" role="alert">
+      <h2>Representative unavailable</h2>
+      <p>{{ errorMessage }}</p>
+    </section>
+  } @else if (customer(); as customerRecord) {
+    @if (customerRecord.status === 'CLOSED') {
+      <section class="submission-error" role="alert">
+        <h2>Customer is closed</h2>
+        <p>A closed Customer cannot be changed. Reopen the Customer first.</p>
+      </section>
+    } @else if (representative(); as representativeRecord) {
+      @if (representativeRecord.validTo !== null) {
+        <section class="submission-error" role="alert">
+          <h2>Representation is already ended</h2>
+          <p>This representation ended on {{ representativeRecord.validTo }}.</p>
+        </section>
+      } @else {
+        @if (submissionError(); as errorMessage) {
+          <section class="submission-error" role="alert">
+            <h2>Ending unsuccessful</h2>
+            <p>{{ errorMessage }}</p>
+          </section>
+        }
+
+        <section aria-labelledby="confirmation-title" class="form-section">
+          <h2 id="confirmation-title">Confirm</h2>
+          <dl class="representative-summary">
+            <div>
+              <dt>Representative</dt>
+              <dd>{{ representativeName() }}</dd>
+            </div>
+            <div>
+              <dt>Valid from</dt>
+              <dd>{{ representativeRecord.validFrom }}</dd>
+            </div>
+          </dl>
+        </section>
+
+        <form (ngSubmit)="confirm()" [formGroup]="endForm" novalidate>
+          <section aria-labelledby="final-date-title" class="form-section">
+            <h2 id="final-date-title">Final valid date</h2>
+            <div class="form-field">
+              <label for="valid-to">Valid to</label>
+              <input
+                [min]="representativeRecord.validFrom"
+                formControlName="validTo"
+                id="valid-to"
+                type="date"
+              />
+              @if (endForm.controls.validTo.invalid && endForm.controls.validTo.touched) {
+                <p class="field-error">Valid-to date is required.</p>
+              }
+              @if (dateError(); as errorMessage) {
+                <p class="field-error">{{ errorMessage }}</p>
+              }
+            </div>
+          </section>
+
+          <footer class="form-actions">
+            <a [routerLink]="customerLink()" class="button button--secondary">Cancel</a>
+            <button [disabled]="submitting()" class="button button--primary" type="submit">
+              {{ submitting() ? 'Ending...' : 'End Representation' }}
+            </button>
+          </footer>
+        </form>
+      }
+    }
+  }
+</section>

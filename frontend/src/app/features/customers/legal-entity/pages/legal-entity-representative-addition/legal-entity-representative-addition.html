@@ -1,0 +1,211 @@
+<section aria-labelledby="representative-addition-title" class="customer-maintenance">
+  <a [routerLink]="customerLink()" class="back-link">← Back to customer</a>
+
+  <header>
+    <p class="customer-maintenance__label">Legal Entity Customer</p>
+    <h1 id="representative-addition-title">Add Representative</h1>
+    <p class="customer-maintenance__description">
+      Link an existing Individual Customer or record an unlinked Representative.
+    </p>
+  </header>
+
+  @if (loading()) {
+    <p class="customer-maintenance__status" role="status">Loading Legal Entity Customer...</p>
+  } @else if (loadError(); as errorMessage) {
+    <section class="submission-error" role="alert">
+      <h2>Customer unavailable</h2>
+      <p>{{ errorMessage }}</p>
+    </section>
+  } @else if (customer(); as customerRecord) {
+    @if (customerRecord.status === 'CLOSED') {
+      <section class="submission-error" role="alert">
+        <h2>Customer is closed</h2>
+        <p>A closed Customer cannot be changed. Reopen the Customer first.</p>
+      </section>
+    } @else {
+      @if (submissionError(); as errorMessage) {
+        <section class="submission-error" role="alert">
+          <h2>Addition unsuccessful</h2>
+          <p>{{ errorMessage }}</p>
+        </section>
+      }
+
+      <form
+        (ngSubmit)="submit()"
+        [formGroup]="representativeForm"
+        class="registration-form"
+        novalidate
+      >
+        <section aria-labelledby="source-title" class="form-section">
+          <h2 id="source-title">Representative source</h2>
+          <p class="form-section__description">
+            A linked Representative uses the Individual Customer's recorded name. An unlinked
+            Representative keeps the names entered here.
+          </p>
+
+          <div aria-label="Representative source" class="representative-mode" role="radiogroup">
+            <label>
+              <input
+                (change)="changeMode('LINKED')"
+                [checked]="isLinkedMode()"
+                name="representative-mode"
+                type="radio"
+                value="LINKED"
+              />
+              Existing Individual Customer
+            </label>
+            <label>
+              <input
+                (change)="changeMode('UNLINKED')"
+                [checked]="!isLinkedMode()"
+                name="representative-mode"
+                type="radio"
+                value="UNLINKED"
+              />
+              Unlinked Representative
+            </label>
+          </div>
+
+          @if (isLinkedMode()) {
+            @if (selectedCustomer(); as selected) {
+              <section aria-labelledby="selected-customer-title" class="selected-customer">
+                <div>
+                  <h3 id="selected-customer-title">Selected Individual Customer</h3>
+                  <p>{{ selected.customerNumber }} · {{ selected.displayName }}</p>
+                  <p class="field-help">EGN {{ selected.identifier }}</p>
+                </div>
+                <button
+                  (click)="clearSelectedCustomer()"
+                  class="button button--secondary"
+                  type="button"
+                >
+                  Change selection
+                </button>
+              </section>
+            } @else {
+              <div [formGroup]="searchForm" class="representative-search">
+                <div class="form-field form-field--full-width">
+                  <label for="customer-query">Find an Individual Customer</label>
+                  <div class="search-row">
+                    <input
+                      aria-describedby="customer-query-help customer-query-error"
+                      formControlName="query"
+                      id="customer-query"
+                      type="search"
+                    />
+                    <button
+                      (click)="searchCustomers()"
+                      [disabled]="searching()"
+                      class="button button--secondary"
+                      type="button"
+                    >
+                      {{ searching() ? 'Searching...' : 'Search' }}
+                    </button>
+                  </div>
+                  <p class="field-help" id="customer-query-help">
+                    Search by Customer number, name, or EGN.
+                  </p>
+                  @if (searchForm.controls.query.invalid && searchForm.controls.query.touched) {
+                    <p class="field-error" id="customer-query-error">Enter a search value.</p>
+                  }
+                </div>
+              </div>
+
+              @if (searchError(); as errorMessage) {
+                <p class="representative-search__error" role="alert">{{ errorMessage }}</p>
+              }
+
+              @if (searchResults().length > 0) {
+                <ul aria-label="Eligible Individual Customers" class="representative-results">
+                  @for (candidate of searchResults(); track candidate.id) {
+                    <li>
+                      <div>
+                        <strong
+                          >{{ candidate.customerNumber }} · {{ candidate.displayName }}</strong
+                        >
+                        <span>EGN {{ candidate.identifier }}</span>
+                      </div>
+                      <button
+                        (click)="selectCustomer(candidate)"
+                        class="button button--secondary"
+                        type="button"
+                      >
+                        Select
+                      </button>
+                    </li>
+                  }
+                </ul>
+              } @else if (searchPerformed() && !searching() && !searchError()) {
+                <p class="representative-results__empty">
+                  No active Individual Customers matched the search.
+                </p>
+              }
+
+              @if (representativeForm.touched && selectedCustomer() === null) {
+                <p class="field-error">Select an active Individual Customer.</p>
+              }
+            }
+          } @else {
+            <div class="form-grid">
+              <div class="form-field">
+                <label for="first-name">First name</label>
+                <input formControlName="firstName" id="first-name" type="text" />
+                @if (shouldShowNameError('firstName')) {
+                  <p class="field-error">
+                    First name is required and must not exceed 100 characters.
+                  </p>
+                }
+              </div>
+              <div class="form-field">
+                <label for="middle-name">Middle name</label>
+                <input formControlName="middleName" id="middle-name" type="text" />
+                @if (shouldShowNameError('middleName')) {
+                  <p class="field-error">Middle name must not exceed 100 characters.</p>
+                }
+              </div>
+              <div class="form-field">
+                <label for="last-name">Last name</label>
+                <input formControlName="lastName" id="last-name" type="text" />
+                @if (shouldShowNameError('lastName')) {
+                  <p class="field-error">
+                    Last name is required and must not exceed 100 characters.
+                  </p>
+                }
+              </div>
+            </div>
+          }
+        </section>
+
+        <section aria-labelledby="authority-title" class="form-section">
+          <h2 id="authority-title">Authority</h2>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="role">Role</label>
+              <select formControlName="role" id="role">
+                <option value="LEGAL_REPRESENTATIVE">Legal representative</option>
+                <option value="AUTHORIZED_REPRESENTATIVE">Authorized representative</option>
+              </select>
+            </div>
+            <div class="form-field">
+              <label for="valid-from">Valid from</label>
+              <input formControlName="validFrom" id="valid-from" type="date" />
+              @if (
+                representativeForm.controls.validFrom.invalid &&
+                representativeForm.controls.validFrom.touched
+              ) {
+                <p class="field-error">Valid-from date is required.</p>
+              }
+            </div>
+          </div>
+        </section>
+
+        <footer class="form-actions">
+          <a [routerLink]="customerLink()" class="button button--secondary">Cancel</a>
+          <button [disabled]="submitting()" class="button button--primary" type="submit">
+            {{ submitting() ? 'Adding...' : 'Add Representative' }}
+          </button>
+        </footer>
+      </form>
+    }
+  }
+</section>

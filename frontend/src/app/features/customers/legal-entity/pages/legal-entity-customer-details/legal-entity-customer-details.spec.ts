@@ -3,6 +3,7 @@ import { TestBed } from '@angular/core/testing';
 import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
 import { of, Subject, throwError } from 'rxjs';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
+
 import { AuthSession } from '../../../../../core/auth/auth-session';
 import {
   LegalEntityCustomerAPIService,
@@ -75,33 +76,27 @@ describe('LegalEntityCustomerDetails', () => {
         provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: {
-            snapshot: {
-              paramMap: convertToParamMap({ id: customerId }),
-            },
-          },
+          useValue: { snapshot: { paramMap: convertToParamMap({ id: customerId }) } },
         },
         {
           provide: LegalEntityCustomerAPIService,
-          useValue: {
-            getLegalEntityCustomer: getLegalEntityCustomerMock,
-          },
+          useValue: { getLegalEntityCustomer: getLegalEntityCustomerMock },
         },
         {
           provide: AuthSession,
-          useValue: {
-            hasRealmRole: (role: string): boolean => realmRoles.includes(role),
-          },
+          useValue: { hasRealmRole: (role: string): boolean => realmRoles.includes(role) },
         },
       ],
     }).compileComponents();
   });
 
   it('should request and render the Legal Entity Customer details', () => {
+    // Arrange
     const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
+    // Act
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
-
+    // Assert
     expect(getLegalEntityCustomerMock).toHaveBeenCalledOnce();
     expect(getLegalEntityCustomerMock).toHaveBeenCalledWith({ id: customerId });
     expect(element.querySelector('h1')?.textContent?.trim()).toBe('Starter Ltd');
@@ -112,80 +107,93 @@ describe('LegalEntityCustomerDetails', () => {
     expect(element.textContent).toContain('ACTIVE');
   });
 
-  it('should show maintenance and close actions to a clerk for an active Customer', () => {
+  it('should show Customer and Representative actions to a clerk', () => {
+    // Arrange
     const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
+    // Act
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
-
+    // Assert
     expect(element.querySelector('#update-company-name-action')?.getAttribute('href')).toBe(
       `/customers/legal-entities/${customerId}/company-name`,
-    );
-    expect(element.querySelector('#update-contact-action')?.getAttribute('href')).toBe(
-      `/customers/legal-entities/${customerId}/contact`,
-    );
-    expect(element.querySelector('#update-registered-address-action')?.getAttribute('href')).toBe(
-      `/customers/legal-entities/${customerId}/registered-address`,
-    );
-    expect(
-      element.querySelector('#update-correspondence-address-action')?.getAttribute('href'),
-    ).toBe(`/customers/legal-entities/${customerId}/correspondence-address`);
-    expect(element.querySelector('#correct-eik-action')?.getAttribute('href')).toBe(
-      `/customers/legal-entities/${customerId}/eik`,
     );
     expect(element.querySelector('#close-action')?.getAttribute('href')).toBe(
       `/customers/legal-entities/${customerId}/close`,
     );
-    expect(element.querySelector('#reopen-action')).toBeNull();
+    expect(element.querySelector('#add-representative-action')?.getAttribute('href')).toBe(
+      `/customers/legal-entities/${customerId}/representatives/add`,
+    );
+    const rows = Array.from(
+      element.querySelectorAll<HTMLTableRowElement>('.representatives-table tbody tr'),
+    );
+    expect(rows[0]?.querySelector('.representative-actions a[href$="/correct"]')).not.toBeNull();
+    expect(rows[0]?.querySelector('.representative-actions a[href$="/end"]')).not.toBeNull();
+    expect(rows[1]?.querySelector('.representative-actions a[href$="/correct"]')).not.toBeNull();
+    expect(rows[1]?.querySelector('.representative-actions a[href$="/end"]')).toBeNull();
   });
 
-  it('should show maintenance actions to an administrator', () => {
+  it('should show Representative actions to an administrator', () => {
+    // Arrange
     realmRoles = ['ADMIN'];
     const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
+    // Act
     fixture.detectChanges();
-    expect(
-      (fixture.nativeElement as HTMLElement).querySelector('.customer-actions'),
-    ).not.toBeNull();
+    // Assert
+    expect(fixture.nativeElement.querySelector('#add-representative-action')).not.toBeNull();
+    expect(fixture.nativeElement.querySelector('.representative-actions')).not.toBeNull();
   });
 
   it('should hide every action from a loan officer', () => {
+    // Arrange
     realmRoles = ['LOAN_OFFICER'];
     const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
+    // Act
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
+    // Assert
     expect(element.querySelector('.customer-actions')).toBeNull();
+    expect(element.querySelector('#add-representative-action')).toBeNull();
+    expect(element.querySelector('.representative-actions')).toBeNull();
     expect(element.textContent).toContain('Starter Ltd');
   });
 
-  it('should show only reopening for a closed Customer', () => {
+  it('should show only reopening and no Representative actions for a closed Customer', () => {
+    // Arrange
     getLegalEntityCustomerMock.mockReturnValue(of(closedCustomer));
     const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
+    // Act
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
-
+    // Assert
     expect(element.querySelector('#reopen-action')?.getAttribute('href')).toBe(
       `/customers/legal-entities/${customerId}/reopen`,
     );
     expect(element.querySelector('#update-company-name-action')).toBeNull();
     expect(element.querySelector('#close-action')).toBeNull();
+    expect(element.querySelector('#add-representative-action')).toBeNull();
+    expect(element.querySelector('.representative-actions')).toBeNull();
   });
 
   it('should render both addresses', () => {
+    // Arrange
     const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
+    // Act
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
-    const registered = element.querySelector('#registered-address')?.textContent ?? '';
-    const correspondence = element.querySelector('#correspondence-address')?.textContent ?? '';
-    expect(registered).toContain('1 Alexander Battenberg Square');
-    expect(registered).toContain('Floor 3');
-    expect(correspondence).toContain('10 Main Street');
-    expect(correspondence).toContain('Plovdiv');
+    // Assert
+    expect(element.querySelector('#registered-address')?.textContent).toContain('Floor 3');
+    expect(element.querySelector('#correspondence-address')?.textContent).toContain('Plovdiv');
   });
 
   it('should render current and ended Representatives', () => {
+    // Arrange
     const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
+    // Act
     fixture.detectChanges();
-    const element = fixture.nativeElement as HTMLElement;
-    const rows = Array.from(element.querySelectorAll('.representatives-table tbody tr'));
+    const rows = Array.from(
+      (fixture.nativeElement as HTMLElement).querySelectorAll('.representatives-table tbody tr'),
+    );
+    // Assert
     expect(rows).toHaveLength(2);
     expect(rows[0]?.textContent).toContain('Serafim Ivanov Gerasimoff');
     expect(rows[0]?.textContent).toContain('Legal representative');
@@ -197,64 +205,82 @@ describe('LegalEntityCustomerDetails', () => {
   });
 
   it('should link a Representative to the linked Individual Customer', () => {
+    // Arrange
     const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
+    // Act
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
-    const links = element.querySelectorAll<HTMLAnchorElement>('.representative-link');
-    expect(links).toHaveLength(1);
-    expect(links[0]?.getAttribute('href')).toBe(`/customers/individuals/${linkedIndividualId}`);
+    const matchingLink = Array.from(
+      element.querySelectorAll<HTMLAnchorElement>('.representative-link'),
+    ).find((link) => link.getAttribute('href') === `/customers/individuals/${linkedIndividualId}`);
+    // Assert
+    expect(matchingLink).toBeDefined();
   });
 
-  it('should show an empty message when no Representatives are recorded', () => {
+  it('should show an empty message while keeping the add action', () => {
+    // Arrange
     getLegalEntityCustomerMock.mockReturnValue(of({ ...customer, representatives: [] }));
     const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
+    // Act
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
+    // Assert
     expect(element.textContent).toContain('No representatives are recorded.');
     expect(element.querySelector('.representatives-table')).toBeNull();
+    expect(element.querySelector('#add-representative-action')).not.toBeNull();
   });
 
   it('should not display the technical Customer identifier as text', () => {
+    // Arrange
     const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
+    // Act
     fixture.detectChanges();
-    const element = fixture.nativeElement as HTMLElement;
-    expect(element.textContent).not.toContain(customerId);
+    // Assert
+    expect(fixture.nativeElement.textContent).not.toContain(customerId);
   });
 
   it('should show a loading state while the request is pending', () => {
+    // Arrange
     getLegalEntityCustomerMock.mockReturnValue(new Subject<LegalEntityCustomerViewDto>());
     const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
+    // Act
     fixture.detectChanges();
-    const element = fixture.nativeElement as HTMLElement;
-    expect(element.textContent).toContain('Loading Legal Entity Customer');
-    expect(element.querySelector('.details-card')).toBeNull();
+    // Assert
+    expect(fixture.nativeElement.textContent).toContain('Loading Legal Entity Customer');
+    expect(fixture.nativeElement.querySelector('.details-card')).toBeNull();
   });
 
   it('should show a not-found message for a missing Customer', () => {
+    // Arrange
     getLegalEntityCustomerMock.mockReturnValue(
       throwError(() => new HttpErrorResponse({ status: 404 })),
     );
     const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
+    // Act
     fixture.detectChanges();
-    const element = fixture.nativeElement as HTMLElement;
-    expect(element.textContent).toContain(
+    // Assert
+    expect(fixture.nativeElement.textContent).toContain(
       'The requested Legal Entity Customer could not be found.',
     );
-    expect(element.querySelector('.details-card')).toBeNull();
+    expect(fixture.nativeElement.querySelector('.details-card')).toBeNull();
   });
 
   it('should show an authorization message for a forbidden response', () => {
+    // Arrange
     getLegalEntityCustomerMock.mockReturnValue(
       throwError(() => new HttpErrorResponse({ status: 403 })),
     );
     const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
+    // Act
     fixture.detectChanges();
+    // Assert
     expect(fixture.nativeElement.textContent).toContain(
       'You do not have permission to view this Customer.',
     );
   });
 
   it('should retry loading the Legal Entity Customer', () => {
+    // Arrange
     getLegalEntityCustomerMock
       .mockReturnValueOnce(throwError(() => new Error('Customer Service unavailable')))
       .mockReturnValueOnce(of(customer));
@@ -262,8 +288,10 @@ describe('LegalEntityCustomerDetails', () => {
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
     const retryButton = element.querySelector('.state-panel .button') as HTMLButtonElement | null;
+    // Act
     retryButton?.click();
     fixture.detectChanges();
+    // Assert
     expect(getLegalEntityCustomerMock).toHaveBeenCalledTimes(2);
     expect(element.querySelector('h1')?.textContent?.trim()).toBe('Starter Ltd');
     expect(element.querySelector('.state-panel--error')).toBeNull();

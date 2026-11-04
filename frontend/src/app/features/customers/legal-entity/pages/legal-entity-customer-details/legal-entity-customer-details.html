@@ -13,13 +13,9 @@
       <div>
         <p class="customer-details__section-label">Legal Entity Customer</p>
         <p class="customer-details__field-label">Company name</p>
-        <h1 id="legal-entity-customer-details-title">
-          {{ customerRecord.companyName }}
-        </h1>
+        <h1 id="legal-entity-customer-details-title">{{ customerRecord.companyName }}</h1>
         <p class="customer-details__field-label customer-details__number-label">Customer number</p>
-        <p class="customer-details__number">
-          {{ customerRecord.customerNumber }}
-        </p>
+        <p class="customer-details__number">{{ customerRecord.customerNumber }}</p>
       </div>
       <span [class.status-badge--closed]="customerRecord.status === 'CLOSED'" class="status-badge">
         {{ customerRecord.status }}
@@ -32,23 +28,20 @@
             [routerLink]="['/customers/legal-entities', customerRecord.id, 'company-name']"
             class="button button--secondary"
             id="update-company-name-action"
+            >Update company name</a
           >
-            Update company name
-          </a>
           <a
             [routerLink]="['/customers/legal-entities', customerRecord.id, 'contact']"
             class="button button--secondary"
             id="update-contact-action"
+            >Update contact</a
           >
-            Update contact
-          </a>
           <a
             [routerLink]="['/customers/legal-entities', customerRecord.id, 'registered-address']"
             class="button button--secondary"
             id="update-registered-address-action"
+            >Update registered address</a
           >
-            Update registered address
-          </a>
           <a
             [routerLink]="[
               '/customers/legal-entities',
@@ -57,31 +50,27 @@
             ]"
             class="button button--secondary"
             id="update-correspondence-address-action"
+            >Update correspondence address</a
           >
-            Update correspondence address
-          </a>
           <a
             [routerLink]="['/customers/legal-entities', customerRecord.id, 'eik']"
             class="button button--secondary"
             id="correct-eik-action"
+            >Correct EIK</a
           >
-            Correct EIK
-          </a>
           <a
             [routerLink]="['/customers/legal-entities', customerRecord.id, 'close']"
             class="button button--secondary"
             id="close-action"
+            >Close customer</a
           >
-            Close customer
-          </a>
         } @else {
           <a
             [routerLink]="['/customers/legal-entities', customerRecord.id, 'reopen']"
             class="button button--secondary"
             id="reopen-action"
+            >Reopen customer</a
           >
-            Reopen customer
-          </a>
         }
       </nav>
     }
@@ -102,6 +91,7 @@
         </div>
       </dl>
     </section>
+
     <section
       aria-labelledby="registered-address-title"
       class="details-card"
@@ -113,11 +103,12 @@
         @if (customerRecord.registeredAddress.addressLine2) {
           {{ customerRecord.registeredAddress.addressLine2 }}<br />
         }
-        {{ customerRecord.registeredAddress.postalCode }}
-        {{ customerRecord.registeredAddress.city }}<br />
+        {{ customerRecord.registeredAddress.postalCode }} {{ customerRecord.registeredAddress.city
+        }}<br />
         {{ customerRecord.registeredAddress.countryCode }}
       </address>
     </section>
+
     <section
       aria-labelledby="correspondence-address-title"
       class="details-card"
@@ -134,8 +125,24 @@
         {{ customerRecord.correspondenceAddress.countryCode }}
       </address>
     </section>
+
     <section aria-labelledby="representatives-title" class="details-card">
-      <h2 id="representatives-title">Representatives</h2>
+      <div class="representatives-heading">
+        <h2 id="representatives-title">Representatives</h2>
+        @if (canMaintainCustomers && customerRecord.status === 'ACTIVE') {
+          <a
+            [routerLink]="[
+              '/customers/legal-entities',
+              customerRecord.id,
+              'representatives',
+              'add',
+            ]"
+            class="button button--secondary"
+            id="add-representative-action"
+            >Add Representative</a
+          >
+        }
+      </div>
       @if (customerRecord.representatives.length === 0) {
         <p class="representatives-empty">No representatives are recorded.</p>
       } @else {
@@ -152,6 +159,9 @@
                 <th scope="col">Valid to</th>
                 <th scope="col">Status</th>
                 <th scope="col">Individual Customer</th>
+                @if (canMaintainCustomers && customerRecord.status === 'ACTIVE') {
+                  <th scope="col">Actions</th>
+                }
               </tr>
             </thead>
             <tbody>
@@ -165,22 +175,50 @@
                     <span
                       [class.representation-badge--ended]="hasEnded(representative)"
                       class="representation-badge"
+                      >{{ hasEnded(representative) ? 'Ended' : 'Current' }}</span
                     >
-                      {{ hasEnded(representative) ? 'Ended' : 'Current' }}
-                    </span>
                   </td>
                   <td>
                     @if (representative.individualCustomerId; as individualCustomerId) {
                       <a
                         [routerLink]="['/customers/individuals', individualCustomerId]"
                         class="representative-link"
+                        >View customer</a
                       >
-                        View customer
-                      </a>
                     } @else {
                       Not linked
                     }
                   </td>
+                  @if (canMaintainCustomers && customerRecord.status === 'ACTIVE') {
+                    <td>
+                      <div class="representative-actions">
+                        <a
+                          [routerLink]="[
+                            '/customers/legal-entities',
+                            customerRecord.id,
+                            'representatives',
+                            representative.id,
+                            'correct',
+                          ]"
+                          class="representative-link"
+                          >Correct</a
+                        >
+                        @if (representative.validTo === null) {
+                          <a
+                            [routerLink]="[
+                              '/customers/legal-entities',
+                              customerRecord.id,
+                              'representatives',
+                              representative.id,
+                              'end',
+                            ]"
+                            class="representative-link"
+                            >End</a
+                          >
+                        }
+                      </div>
+                    </td>
+                  }
                 </tr>
               }
             </tbody>
