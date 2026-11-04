@@ -51,19 +51,19 @@ public class SecurityConfig {
     SecurityFilterChain securityFilterChain(HttpSecurity http, AuthenticationEntryPoint entryPoint,
                                             AccessDeniedHandler accessDeniedHandler) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable).cors(Customizer.withDefaults())
-                .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
-                .authorizeHttpRequests(
-                        auth -> auth.requestMatchers(PUBLIC_ENDPOINTS).permitAll().anyRequest().authenticated())
-                .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(entryPoint)
-                        .accessDeniedHandler(accessDeniedHandler)).oauth2ResourceServer(
-                        oauth2 -> oauth2.authenticationEntryPoint(entryPoint).accessDeniedHandler(accessDeniedHandler)
-                                .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
+            .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
+            .authorizeHttpRequests(
+                auth -> auth.requestMatchers(PUBLIC_ENDPOINTS).permitAll().anyRequest().authenticated())
+            .exceptionHandling(exceptions -> exceptions.authenticationEntryPoint(entryPoint)
+                .accessDeniedHandler(accessDeniedHandler)).oauth2ResourceServer(
+                oauth2 -> oauth2.authenticationEntryPoint(entryPoint).accessDeniedHandler(accessDeniedHandler)
+                    .jwt(jwt -> jwt.jwtAuthenticationConverter(jwtAuthenticationConverter())));
 
         return http.build();
     }
 
     /**
-     * Defines which browser origins may call the Employee API.
+     * Defines which browser origins may call the Customer API.
      *
      * <p>
      * This policy is intentionally restricted to the Angular development
@@ -71,7 +71,7 @@ public class SecurityConfig {
      * or other service endpoints to cross-origin browser requests.
      * </p>
      *
-     * @return the Employee API CORS configuration source
+     * @return the Customer API CORS configuration source
      */
     @Bean
     UrlBasedCorsConfigurationSource corsConfigurationSource() {
