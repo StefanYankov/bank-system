@@ -2,7 +2,6 @@ import {HttpErrorResponse} from '@angular/common/http';
 import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, RouterLink} from '@angular/router';
-
 import {AuthSession} from '../../../../../core/auth/auth-session';
 import {
   LegalEntityCustomerAPIService,
@@ -23,13 +22,11 @@ export class LegalEntityCustomerDetails implements OnInit {
   protected readonly customer = signal<LegalEntityCustomerViewDto | null>(null);
   protected readonly loading = signal(true);
   protected readonly error = signal<string | null>(null);
-
   private readonly customerApi = inject(LegalEntityCustomerAPIService);
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly today = localIsoDate(new Date());
   private readonly authSession = inject(AuthSession);
-
   protected readonly canMaintainCustomers =
     this.authSession.hasRealmRole('CLERK')
     || this.authSession.hasRealmRole('ADMIN');
@@ -98,7 +95,6 @@ export class LegalEntityCustomerDetails implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     this.customer.set(null);
-
     this.customerApi.getLegalEntityCustomer({id: customerId})
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({

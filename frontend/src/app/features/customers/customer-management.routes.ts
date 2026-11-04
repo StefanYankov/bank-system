@@ -104,6 +104,24 @@ export const customerManagementRoutes: Routes = [
         ).then((module) => module.LegalEntityCustomerRegistration)
   },
   {
+    path: 'legal-entities/:id/close',
+    canActivate: [roleGuard],
+    data: {[ROUTE_ROLES]: CUSTOMER_MAINTENANCE_ROLES},
+    loadComponent: () =>
+      import(
+        './legal-entity/pages/legal-entity-customer-close/legal-entity-customer-close'
+        ).then((module) => module.LegalEntityCustomerClose),
+  },
+  {
+    path: 'legal-entities/:id/reopen',
+    canActivate: [roleGuard],
+    data: {[ROUTE_ROLES]: CUSTOMER_MAINTENANCE_ROLES},
+    loadComponent: () =>
+      import(
+        './legal-entity/pages/legal-entity-customer-reopen/legal-entity-customer-reopen'
+        ).then((module) => module.LegalEntityCustomerReopen),
+  },
+  {
     path: 'legal-entities/:id/company-name',
     canActivate: [roleGuard],
     data: {[ROUTE_ROLES]: CUSTOMER_MAINTENANCE_ROLES},

@@ -44,7 +44,13 @@ describe('LegalEntityCustomerClose', () => {
       providers: [
         provideRouter([]),
         {provide: ActivatedRoute, useValue: {snapshot: {paramMap: convertToParamMap({id: customerId})}}},
-        {provide: LegalEntityCustomerAPIService, useValue: {getLegalEntityCustomer: getLegalEntityCustomerMock, closeLegalEntityCustomer: closeLegalEntityCustomerMock}},
+        {
+          provide: LegalEntityCustomerAPIService,
+          useValue: {
+            getLegalEntityCustomer: getLegalEntityCustomerMock,
+            closeLegalEntityCustomer: closeLegalEntityCustomerMock
+          }
+        },
       ],
     }).compileComponents();
     vi.spyOn(TestBed.inject(Router), 'navigate').mockImplementation(navigateMock);

@@ -3,14 +3,16 @@
   <header>
     <p class="customer-maintenance__label">Legal Entity Customer</p>
     <h1 id="close-title">Close Customer</h1>
-    <p class="customer-maintenance__description">Closing keeps the Customer record and Representatives but blocks Customer changes until the relationship is reopened.</p>
+    <p class="customer-maintenance__description">Closing keeps the Customer record and Representatives but blocks
+      Customer changes until the relationship is reopened.</p>
   </header>
 
   @if (loading()) {
     <p class="customer-maintenance__status" role="status">Loading Legal Entity Customer...</p>
   } @else if (loadError(); as errorMessage) {
     <section class="submission-error" role="alert">
-      <h2>Customer unavailable</h2><p>{{ errorMessage }}</p>
+      <h2>Customer unavailable</h2>
+      <p>{{ errorMessage }}</p>
     </section>
   } @else if (customer(); as customerRecord) {
     @if (customerRecord.status !== 'ACTIVE') {
@@ -21,10 +23,11 @@
     } @else {
       @if (submissionError(); as errorMessage) {
         <section class="submission-error" role="alert">
-          <h2>Close unsuccessful</h2><p>{{ errorMessage }}</p>
+          <h2>Close unsuccessful</h2>
+          <p>{{ errorMessage }}</p>
         </section>
       }
-      <section class="form-section" aria-labelledby="confirmation-title">
+      <section aria-labelledby="confirmation-title" class="form-section">
         <h2 id="confirmation-title">Confirm</h2>
         <p class="customer-maintenance__summary">
           {{ customerRecord.customerNumber }} · {{ customerRecord.companyName }}
