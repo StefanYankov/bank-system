@@ -1,0 +1,41 @@
+<section aria-labelledby="reopen-title" class="customer-maintenance">
+  <a [routerLink]="customerLink()" class="back-link">← Back to customer</a>
+  <header>
+    <p class="customer-maintenance__label">Legal Entity Customer</p>
+    <h1 id="reopen-title">Reopen Customer</h1>
+    <p class="customer-maintenance__description">Reopening restores the Customer relationship with the same Customer number, identifiers and Representatives.</p>
+  </header>
+
+  @if (loading()) {
+    <p class="customer-maintenance__status" role="status">Loading Legal Entity Customer...</p>
+  } @else if (loadError(); as errorMessage) {
+    <section class="submission-error" role="alert">
+      <h2>Customer unavailable</h2><p>{{ errorMessage }}</p>
+    </section>
+  } @else if (customer(); as customerRecord) {
+    @if (customerRecord.status !== 'CLOSED') {
+      <section class="submission-error" role="alert">
+        <h2>Customer is already active</h2>
+        <p>This Customer is active and cannot be reopened.</p>
+      </section>
+    } @else {
+      @if (submissionError(); as errorMessage) {
+        <section class="submission-error" role="alert">
+          <h2>Reopen unsuccessful</h2><p>{{ errorMessage }}</p>
+        </section>
+      }
+      <section class="form-section" aria-labelledby="confirmation-title">
+        <h2 id="confirmation-title">Confirm</h2>
+        <p class="customer-maintenance__summary">
+          {{ customerRecord.customerNumber }} · {{ customerRecord.companyName }}
+        </p>
+      </section>
+      <footer class="form-actions">
+        <a [routerLink]="customerLink()" class="button button--secondary">Cancel</a>
+        <button (click)="confirm()" [disabled]="submitting()" class="button button--primary" type="button">
+          {{ submitting() ? 'Reopening...' : 'Reopen Customer' }}
+        </button>
+      </footer>
+    }
+  }
+</section>
