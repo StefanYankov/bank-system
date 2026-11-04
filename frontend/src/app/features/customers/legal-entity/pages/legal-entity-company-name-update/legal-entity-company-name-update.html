@@ -1,0 +1,65 @@
+<section
+  aria-labelledby="page-title"
+  class="customer-maintenance"
+>
+  <a
+    [routerLink]="customerLink()"
+    class="back-link"
+  >
+    ← Back to customer
+  </a>
+
+  <header>
+    <p class="customer-maintenance__label">Legal Entity Customer</p>
+    <h1 id="page-title">Update company name</h1>
+    <p class="customer-maintenance__description">Replace the registered company name.</p>
+  </header>
+
+  @if (loading()) {
+    <p class="customer-maintenance__status" role="status">
+      Loading Legal Entity Customer...
+    </p>
+  } @else if (loadError(); as errorMessage) {
+    <section class="submission-error" role="alert">
+      <h2>Customer unavailable</h2>
+      <p>{{ errorMessage }}</p>
+    </section>
+  } @else if (customer(); as customerRecord) {
+    @if (customerRecord.status === 'CLOSED') {
+      <section class="submission-error" role="alert">
+        <h2>Customer is closed</h2>
+        <p>A closed Customer cannot be changed. Reopen the Customer first.</p>
+      </section>
+    } @else {
+      @if (submissionError(); as errorMessage) {
+        <section class="submission-error" role="alert">
+          <h2>Update unsuccessful</h2>
+          <p>{{ errorMessage }}</p>
+        </section>
+      }
+      <form (ngSubmit)="submit()" [formGroup]="updateForm" class="registration-form" novalidate>
+        <section aria-labelledby="company-name-title" class="form-section">
+          <h2 id="company-name-title">Company name</h2>
+          <div class="form-grid">
+            <div class="form-field form-field--full-width">
+              <label for="company-name">Company name</label>
+              <input aria-describedby="company-name-error" autocomplete="organization" formControlName="companyName"
+                     id="company-name"
+                     type="text">
+              @if (shouldShowError()) {
+                <p class="field-error" id="company-name-error">Company name is required and must not exceed 200
+                  characters.</p>
+              }
+            </div>
+          </div>
+        </section>
+        <footer class="form-actions">
+          <a [routerLink]="customerLink()" class="button button--secondary">Cancel</a>
+          <button [disabled]="submitting()" class="button button--primary" type="submit">
+            {{ submitting() ? 'Updating...' : 'Update company name' }}
+          </button>
+        </footer>
+      </form>
+    }
+  }
+</section>

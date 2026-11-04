@@ -8,7 +8,6 @@
   >
     ← Back to customers
   </a>
-
   @if (loading()) {
     <p
       class="state-message"
@@ -53,7 +52,65 @@
         {{ customerRecord.status }}
       </span>
     </header>
-
+    @if (canMaintainCustomers) {
+      <nav
+        aria-label="Legal Entity Customer actions"
+        class="customer-actions"
+      >
+        @if (customerRecord.status === 'ACTIVE') {
+          <a
+            [routerLink]="['/customers/legal-entities', customerRecord.id, 'company-name']"
+            class="button button--secondary"
+            id="update-company-name-action"
+          >
+            Update company name
+          </a>
+          <a
+            [routerLink]="['/customers/legal-entities', customerRecord.id, 'contact']"
+            class="button button--secondary"
+            id="update-contact-action"
+          >
+            Update contact
+          </a>
+          <a
+            [routerLink]="['/customers/legal-entities', customerRecord.id, 'registered-address']"
+            class="button button--secondary"
+            id="update-registered-address-action"
+          >
+            Update registered address
+          </a>
+          <a
+            [routerLink]="['/customers/legal-entities', customerRecord.id, 'correspondence-address']"
+            class="button button--secondary"
+            id="update-correspondence-address-action"
+          >
+            Update correspondence address
+          </a>
+          <a
+            [routerLink]="['/customers/legal-entities', customerRecord.id, 'eik']"
+            class="button button--secondary"
+            id="correct-eik-action"
+          >
+            Correct EIK
+          </a>
+          <a
+            [routerLink]="['/customers/legal-entities', customerRecord.id, 'close']"
+            class="button button--secondary"
+            id="close-action"
+          >
+            Close customer
+          </a>
+        } @else {
+          <a
+            [routerLink]="['/customers/legal-entities', customerRecord.id, 'reopen']"
+            class="button button--secondary"
+            id="reopen-action"
+          >
+            Reopen customer
+          </a>
+        }
+      </nav>
+    }
     <section
       aria-labelledby="company-details-title"
       class="details-card"
@@ -74,7 +131,6 @@
         </div>
       </dl>
     </section>
-
     <section
       aria-labelledby="registered-address-title"
       class="details-card"
@@ -91,7 +147,6 @@
         {{ customerRecord.registeredAddress.countryCode }}
       </address>
     </section>
-
     <section
       aria-labelledby="correspondence-address-title"
       class="details-card"
@@ -108,13 +163,11 @@
         {{ customerRecord.correspondenceAddress.countryCode }}
       </address>
     </section>
-
     <section
       aria-labelledby="representatives-title"
       class="details-card"
     >
       <h2 id="representatives-title">Representatives</h2>
-
       @if (customerRecord.representatives.length === 0) {
         <p class="representatives-empty">No representatives are recorded.</p>
       } @else {
