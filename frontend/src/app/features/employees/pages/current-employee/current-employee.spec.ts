@@ -1,10 +1,10 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {TestBed} from '@angular/core/testing';
-import {of, throwError,} from 'rxjs';
-import {beforeEach, describe, expect, it, vi,} from 'vitest';
+import { HttpErrorResponse } from '@angular/common/http';
+import { TestBed } from '@angular/core/testing';
+import { of, throwError } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {EmployeeAPIService, EmployeeViewDto,} from '../../../../generated/employee-api';
-import {CurrentEmployee} from './current-employee';
+import { EmployeeAPIService, EmployeeViewDto } from '../../../../generated/employee-api';
+import { CurrentEmployee } from './current-employee';
 
 describe('CurrentEmployee', () => {
   const getCurrentEmployeeMock = vi.fn();
@@ -30,8 +30,7 @@ describe('CurrentEmployee', () => {
         {
           provide: EmployeeAPIService,
           useValue: {
-            getCurrentEmployee:
-            getCurrentEmployeeMock,
+            getCurrentEmployee: getCurrentEmployeeMock,
           },
         },
       ],
@@ -40,37 +39,25 @@ describe('CurrentEmployee', () => {
 
   it('should display the current employee', () => {
     // Arrange
-    getCurrentEmployeeMock.mockReturnValue(
-      of(employee),
-    );
+    getCurrentEmployeeMock.mockReturnValue(of(employee));
 
-    const fixture =
-      TestBed.createComponent(CurrentEmployee);
+    const fixture = TestBed.createComponent(CurrentEmployee);
 
     // Act
     fixture.detectChanges();
 
     // Assert
-    const element =
-      fixture.nativeElement as HTMLElement;
+    const element = fixture.nativeElement as HTMLElement;
 
-    expect(
-      getCurrentEmployeeMock,
-    ).toHaveBeenCalledOnce();
+    expect(getCurrentEmployeeMock).toHaveBeenCalledOnce();
 
-    expect(element.textContent)
-      .toContain('EMP-000001');
+    expect(element.textContent).toContain('EMP-000001');
 
-    expect(element.textContent)
-      .toContain('Serafim Gerasimoff');
+    expect(element.textContent).toContain('Serafim Gerasimoff');
 
-    expect(element.textContent)
-      .toContain(
-        'serafim.gerasimoff@example.com',
-      );
+    expect(element.textContent).toContain('serafim.gerasimoff@example.com');
 
-    expect(element.textContent)
-      .toContain('Not applicable');
+    expect(element.textContent).toContain('Not applicable');
   });
 
   it('should explain when no employee profile is linked', () => {
@@ -85,20 +72,15 @@ describe('CurrentEmployee', () => {
       ),
     );
 
-    const fixture =
-      TestBed.createComponent(CurrentEmployee);
+    const fixture = TestBed.createComponent(CurrentEmployee);
 
     // Act
     fixture.detectChanges();
 
     // Assert
-    const element =
-      fixture.nativeElement as HTMLElement;
+    const element = fixture.nativeElement as HTMLElement;
 
-    expect(
-      element.querySelector('[role="alert"]')
-        ?.textContent,
-    ).toContain(
+    expect(element.querySelector('[role="alert"]')?.textContent).toContain(
       'No employee profile is linked to this Keycloak account.',
     );
   });
@@ -115,20 +97,15 @@ describe('CurrentEmployee', () => {
       ),
     );
 
-    const fixture =
-      TestBed.createComponent(CurrentEmployee);
+    const fixture = TestBed.createComponent(CurrentEmployee);
 
     // Act
     fixture.detectChanges();
 
     // Assert
-    const element =
-      fixture.nativeElement as HTMLElement;
+    const element = fixture.nativeElement as HTMLElement;
 
-    expect(
-      element.querySelector('[role="alert"]')
-        ?.textContent,
-    ).toContain(
+    expect(element.querySelector('[role="alert"]')?.textContent).toContain(
       'Employee Service is currently unavailable.',
     );
   });

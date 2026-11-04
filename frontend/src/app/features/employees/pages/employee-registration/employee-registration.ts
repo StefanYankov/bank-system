@@ -1,14 +1,17 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {Component, DestroyRef, inject, signal,} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {NonNullableFormBuilder, ReactiveFormsModule, Validators,} from '@angular/forms';
-import {Router, RouterLink,} from '@angular/router';
-import {notBlankValidator,} from '../../../../core/forms/not-blank-validator';
-import {EmployeeAPIService, EmployeeRegistrationDto, EmployeeViewDto,} from '../../../../generated/employee-api';
-import {employeeSchemaConstraints,} from '../../../../generated/employee-schema-constraints.generated';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
+import { notBlankValidator } from '../../../../core/forms/not-blank-validator';
+import {
+  EmployeeAPIService,
+  EmployeeRegistrationDto,
+  EmployeeViewDto,
+} from '../../../../generated/employee-api';
+import { employeeSchemaConstraints } from '../../../../generated/employee-schema-constraints.generated';
 
-const registrationConstraints =
-  employeeSchemaConstraints.EmployeeRegistrationDto;
+const registrationConstraints = employeeSchemaConstraints.EmployeeRegistrationDto;
 
 /**
  * Registers an Employee linked to an existing Keycloak identity.
@@ -20,15 +23,11 @@ const registrationConstraints =
  */
 @Component({
   selector: 'app-employee-registration',
-  imports: [
-    ReactiveFormsModule,
-    RouterLink,
-  ],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './employee-registration.html',
   styleUrl: './employee-registration.css',
 })
 export class EmployeeRegistration {
-
   protected readonly submitting = signal(false);
   protected readonly submissionError = signal<string | null>(null);
   private readonly formBuilder = inject(NonNullableFormBuilder);
@@ -40,56 +39,32 @@ export class EmployeeRegistration {
    * communicates its validation behaviour.
    */
   protected readonly registrationForm = this.formBuilder.group({
-    identitySubjectId: this.formBuilder.control(
-      '',
-      [
-        Validators.required,
-        notBlankValidator(),
-        Validators.maxLength(
-          registrationConstraints.identitySubjectId.maxLength,
-        ),
-      ],
-    ),
-    firstName: this.formBuilder.control(
-      '',
-      [
-        Validators.required,
-        notBlankValidator(),
-        Validators.maxLength(
-          registrationConstraints.firstName.maxLength,
-        ),
-      ],
-    ),
-    lastName: this.formBuilder.control(
-      '',
-      [
-        Validators.required,
-        notBlankValidator(),
-        Validators.maxLength(
-          registrationConstraints.lastName.maxLength,
-        ),
-      ],
-    ),
-    workEmail: this.formBuilder.control(
-      '',
-      [
-        Validators.required,
-        notBlankValidator(),
-        Validators.email,
-        Validators.maxLength(
-          registrationConstraints.workEmail.maxLength,
-        ),
-      ],
-    ),
-    position:
-      this.formBuilder.control<EmployeeRegistrationDto.PositionEnum>(
-        EmployeeRegistrationDto.PositionEnum.Clerk,
-        Validators.required,
-      ),
-    employmentStartDate: this.formBuilder.control(
-      '',
+    identitySubjectId: this.formBuilder.control('', [
+      Validators.required,
+      notBlankValidator(),
+      Validators.maxLength(registrationConstraints.identitySubjectId.maxLength),
+    ]),
+    firstName: this.formBuilder.control('', [
+      Validators.required,
+      notBlankValidator(),
+      Validators.maxLength(registrationConstraints.firstName.maxLength),
+    ]),
+    lastName: this.formBuilder.control('', [
+      Validators.required,
+      notBlankValidator(),
+      Validators.maxLength(registrationConstraints.lastName.maxLength),
+    ]),
+    workEmail: this.formBuilder.control('', [
+      Validators.required,
+      notBlankValidator(),
+      Validators.email,
+      Validators.maxLength(registrationConstraints.workEmail.maxLength),
+    ]),
+    position: this.formBuilder.control<EmployeeRegistrationDto.PositionEnum>(
+      EmployeeRegistrationDto.PositionEnum.Clerk,
       Validators.required,
     ),
+    employmentStartDate: this.formBuilder.control('', Validators.required),
   });
   private readonly employeeApi = inject(EmployeeAPIService);
   private readonly router = inject(Router);
@@ -122,21 +97,17 @@ export class EmployeeRegistration {
       employmentStartDate: formValue.employmentStartDate,
     };
 
-    this.employeeApi.registerEmployee({
-      employeeRegistrationDto: request,
-    })
+    this.employeeApi
+      .registerEmployee({
+        employeeRegistrationDto: request,
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (employee: EmployeeViewDto) => {
-          void this.router.navigate([
-            '/admin/employees',
-            employee.id,
-          ]);
+          void this.router.navigate(['/admin/employees', employee.id]);
         },
         error: (error: unknown) => {
-          this.submissionError.set(
-            this.errorMessage(error),
-          );
+          this.submissionError.set(this.errorMessage(error));
           this.submitting.set(false);
         },
       });
@@ -148,12 +119,8 @@ export class EmployeeRegistration {
    * @param controlName registration form control name
    * @returns true when the control is invalid and has been touched
    */
-  protected shouldShowError(
-    controlName:
-    keyof typeof this.registrationForm.controls,
-  ): boolean {
-    const control =
-      this.registrationForm.controls[controlName];
+  protected shouldShowError(controlName: keyof typeof this.registrationForm.controls): boolean {
+    const control = this.registrationForm.controls[controlName];
 
     return control.invalid && control.touched;
   }

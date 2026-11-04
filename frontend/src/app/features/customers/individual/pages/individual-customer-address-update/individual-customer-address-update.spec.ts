@@ -1,11 +1,14 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {TestBed} from '@angular/core/testing';
-import {ActivatedRoute, convertToParamMap, provideRouter, Router} from '@angular/router';
-import {of, Subject, throwError} from 'rxjs';
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import { HttpErrorResponse } from '@angular/common/http';
+import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { of, Subject, throwError } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {IndividualCustomerAPIService, IndividualCustomerViewDto} from '../../../../../generated/customer-api';
-import {IndividualCustomerAddressUpdate} from './individual-customer-address-update';
+import {
+  IndividualCustomerAPIService,
+  IndividualCustomerViewDto,
+} from '../../../../../generated/customer-api';
+import { IndividualCustomerAddressUpdate } from './individual-customer-address-update';
 
 describe('IndividualCustomerAddressUpdate', () => {
   const customerId = '0199e65a-35b1-7000-8000-000000000101';
@@ -48,7 +51,7 @@ describe('IndividualCustomerAddressUpdate', () => {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
-              paramMap: convertToParamMap({id: customerId}),
+              paramMap: convertToParamMap({ id: customerId }),
             },
           },
         },
@@ -56,7 +59,8 @@ describe('IndividualCustomerAddressUpdate', () => {
           provide: IndividualCustomerAPIService,
           useValue: {
             getIndividualCustomer: getIndividualCustomerMock,
-            changeIndividualCustomerResidentialAddress: changeIndividualCustomerResidentialAddressMock,
+            changeIndividualCustomerResidentialAddress:
+              changeIndividualCustomerResidentialAddressMock,
           },
         },
       ],
@@ -158,7 +162,7 @@ describe('IndividualCustomerAddressUpdate', () => {
   it('should show the closed-Customer message for a conflict', () => {
     // Arrange
     changeIndividualCustomerResidentialAddressMock.mockReturnValue(
-      throwError(() => new HttpErrorResponse({status: 409})),
+      throwError(() => new HttpErrorResponse({ status: 409 })),
     );
     const fixture = TestBed.createComponent(IndividualCustomerAddressUpdate);
     fixture.detectChanges();
@@ -189,7 +193,9 @@ describe('IndividualCustomerAddressUpdate', () => {
 
   it('should disable repeat submission while the request is pending', () => {
     // Arrange
-    changeIndividualCustomerResidentialAddressMock.mockReturnValue(new Subject<IndividualCustomerViewDto>());
+    changeIndividualCustomerResidentialAddressMock.mockReturnValue(
+      new Subject<IndividualCustomerViewDto>(),
+    );
     const fixture = TestBed.createComponent(IndividualCustomerAddressUpdate);
     fixture.detectChanges();
     const component = fixture.componentInstance;

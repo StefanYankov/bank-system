@@ -1,16 +1,16 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import {notBlankValidator} from '../../../../../core/forms/not-blank-validator';
+import { notBlankValidator } from '../../../../../core/forms/not-blank-validator';
 import {
   CustomerContactUpdateDto,
   LegalEntityCustomerAPIService,
   LegalEntityCustomerViewDto,
 } from '../../../../../generated/customer-api';
-import {customerSchemaConstraints} from '../../../../../generated/customer-schema-constraints.generated';
+import { customerSchemaConstraints } from '../../../../../generated/customer-schema-constraints.generated';
 
 const constraints = customerSchemaConstraints.CustomerContactUpdateDto;
 type ContactControl = 'email' | 'phone';
@@ -36,8 +36,17 @@ export class LegalEntityContactUpdate implements OnInit {
 
   private readonly formBuilder = inject(NonNullableFormBuilder);
   protected readonly updateForm = this.formBuilder.group({
-    email: this.formBuilder.control('', [Validators.required, notBlankValidator(), Validators.email, Validators.maxLength(constraints.email.maxLength)]),
-    phone: this.formBuilder.control('', [Validators.required, notBlankValidator(), Validators.maxLength(constraints.phone.maxLength)]),
+    email: this.formBuilder.control('', [
+      Validators.required,
+      notBlankValidator(),
+      Validators.email,
+      Validators.maxLength(constraints.email.maxLength),
+    ]),
+    phone: this.formBuilder.control('', [
+      Validators.required,
+      notBlankValidator(),
+      Validators.maxLength(constraints.phone.maxLength),
+    ]),
   });
   private readonly customerApi = inject(LegalEntityCustomerAPIService);
   private readonly route = inject(ActivatedRoute);
@@ -52,12 +61,13 @@ export class LegalEntityContactUpdate implements OnInit {
       return;
     }
 
-    this.customerApi.getLegalEntityCustomer({id})
+    this.customerApi
+      .getLegalEntityCustomer({ id })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (customer: LegalEntityCustomerViewDto) => {
           this.customer.set(customer);
-          this.updateForm.setValue({email: customer.email, phone: customer.phone});
+          this.updateForm.setValue({ email: customer.email, phone: customer.phone });
           this.loading.set(false);
         },
         error: (error: unknown) => {
@@ -74,7 +84,10 @@ export class LegalEntityContactUpdate implements OnInit {
     }
 
     const value = this.updateForm.getRawValue();
-    this.updateForm.setValue({email: value.email.trim(), phone: value.phone.trim()}, {emitEvent: false});
+    this.updateForm.setValue(
+      { email: value.email.trim(), phone: value.phone.trim() },
+      { emitEvent: false },
+    );
 
     if (this.updateForm.invalid) {
       this.updateForm.markAllAsTouched();
@@ -85,7 +98,8 @@ export class LegalEntityContactUpdate implements OnInit {
     this.submitting.set(true);
     this.submissionError.set(null);
 
-    this.customerApi.updateLegalEntityCustomerContact({id: customer.id, customerContactUpdateDto: request})
+    this.customerApi
+      .updateLegalEntityCustomerContact({ id: customer.id, customerContactUpdateDto: request })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updated) => void this.router.navigate(['/customers/legal-entities', updated.id]),

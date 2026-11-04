@@ -1,12 +1,16 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {Component, DestroyRef, inject, OnInit, signal,} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {NonNullableFormBuilder, ReactiveFormsModule, Validators,} from '@angular/forms';
-import {ActivatedRoute, Router, RouterLink,} from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import {notBlankValidator,} from '../../../../core/forms/not-blank-validator';
-import {EmployeeAPIService, EmployeeUpdateDto, EmployeeViewDto,} from '../../../../generated/employee-api';
-import {employeeSchemaConstraints,} from '../../../../generated/employee-schema-constraints.generated';
+import { notBlankValidator } from '../../../../core/forms/not-blank-validator';
+import {
+  EmployeeAPIService,
+  EmployeeUpdateDto,
+  EmployeeViewDto,
+} from '../../../../generated/employee-api';
+import { employeeSchemaConstraints } from '../../../../generated/employee-schema-constraints.generated';
 
 /**
  * Edits the profile information of an existing Employee.
@@ -17,24 +21,18 @@ import {employeeSchemaConstraints,} from '../../../../generated/employee-schema-
  */
 @Component({
   selector: 'app-employee-profile-edit',
-  imports: [
-    ReactiveFormsModule,
-    RouterLink,
-  ],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './employee-profile-edit.html',
   styleUrl: './employee-profile-edit.css',
 })
 export class EmployeeProfileEdit implements OnInit {
-
   protected employeeId: string | null = null;
   protected readonly updateConstraints = employeeSchemaConstraints.EmployeeUpdateDto;
   protected readonly loading = signal(true);
   protected readonly submitting = signal(false);
   protected readonly loadError = signal<string | null>(null);
   protected readonly submissionError = signal<string | null>(null);
-  private readonly formBuilder = inject(
-    NonNullableFormBuilder,
-  );
+  private readonly formBuilder = inject(NonNullableFormBuilder);
   /**
    * Typed Employee profile form.
    *
@@ -42,41 +40,24 @@ export class EmployeeProfileEdit implements OnInit {
    * constraints. Required, email, and not-blank behavior remains explicit.
    */
   protected readonly profileForm = this.formBuilder.group({
-    firstName: this.formBuilder.control(
-      '',
-      [
-        Validators.required,
-        notBlankValidator(),
-        Validators.maxLength(
-          this.updateConstraints.firstName.maxLength,
-        ),
-      ],
-    ),
-    lastName: this.formBuilder.control(
-      '',
-      [
-        Validators.required,
-        notBlankValidator(),
-        Validators.maxLength(
-          this.updateConstraints.lastName.maxLength,
-        ),
-      ],
-    ),
-    workEmail: this.formBuilder.control(
-      '',
-      [
-        Validators.required,
-        notBlankValidator(),
-        Validators.email,
-        Validators.maxLength(
-          this.updateConstraints.workEmail.maxLength,
-        ),
-      ],
-    ),
+    firstName: this.formBuilder.control('', [
+      Validators.required,
+      notBlankValidator(),
+      Validators.maxLength(this.updateConstraints.firstName.maxLength),
+    ]),
+    lastName: this.formBuilder.control('', [
+      Validators.required,
+      notBlankValidator(),
+      Validators.maxLength(this.updateConstraints.lastName.maxLength),
+    ]),
+    workEmail: this.formBuilder.control('', [
+      Validators.required,
+      notBlankValidator(),
+      Validators.email,
+      Validators.maxLength(this.updateConstraints.workEmail.maxLength),
+    ]),
   });
-  private readonly employeeApi = inject(
-    EmployeeAPIService,
-  );
+  private readonly employeeApi = inject(EmployeeAPIService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -87,14 +68,9 @@ export class EmployeeProfileEdit implements OnInit {
   public ngOnInit(): void {
     this.employeeId = this.route.snapshot.paramMap.get('id');
 
-    if (
-      this.employeeId === null
-      || this.employeeId.length === 0
-    ) {
+    if (this.employeeId === null || this.employeeId.length === 0) {
       this.loading.set(false);
-      this.loadError.set(
-        'The Employee identifier is missing.',
-      );
+      this.loadError.set('The Employee identifier is missing.');
       return;
     }
 
@@ -105,11 +81,7 @@ export class EmployeeProfileEdit implements OnInit {
    * Validates and submits the updated Employee profile.
    */
   protected submit(): void {
-    if (
-      this.profileForm.invalid
-      || this.submitting()
-      || this.employeeId === null
-    ) {
+    if (this.profileForm.invalid || this.submitting() || this.employeeId === null) {
       this.profileForm.markAllAsTouched();
       return;
     }
@@ -125,22 +97,18 @@ export class EmployeeProfileEdit implements OnInit {
       workEmail: formValue.workEmail.trim(),
     };
 
-    this.employeeApi.updateEmployeeProfile({
-      id: this.employeeId,
-      employeeUpdateDto: request,
-    })
+    this.employeeApi
+      .updateEmployeeProfile({
+        id: this.employeeId,
+        employeeUpdateDto: request,
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (employee: EmployeeViewDto) => {
-          void this.router.navigate([
-            '/admin/employees',
-            employee.id,
-          ]);
+          void this.router.navigate(['/admin/employees', employee.id]);
         },
         error: (error: unknown) => {
-          this.submissionError.set(
-            this.updateErrorMessage(error),
-          );
+          this.submissionError.set(this.updateErrorMessage(error));
           this.submitting.set(false);
         },
       });
@@ -163,11 +131,8 @@ export class EmployeeProfileEdit implements OnInit {
    * @param controlName profile form control name
    * @returns true when the control is invalid and has been touched
    */
-  protected shouldShowError(
-    controlName: keyof typeof this.profileForm.controls,
-  ): boolean {
-    const control =
-      this.profileForm.controls[controlName];
+  protected shouldShowError(controlName: keyof typeof this.profileForm.controls): boolean {
+    const control = this.profileForm.controls[controlName];
 
     return control.invalid && control.touched;
   }
@@ -181,9 +146,10 @@ export class EmployeeProfileEdit implements OnInit {
     this.loading.set(true);
     this.loadError.set(null);
 
-    this.employeeApi.getEmployeeById({
-      id: employeeId,
-    })
+    this.employeeApi
+      .getEmployeeById({
+        id: employeeId,
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (employee: EmployeeViewDto) => {
@@ -196,9 +162,7 @@ export class EmployeeProfileEdit implements OnInit {
           this.loading.set(false);
         },
         error: (error: unknown) => {
-          this.loadError.set(
-            this.loadErrorMessage(error),
-          );
+          this.loadError.set(this.loadErrorMessage(error));
           this.loading.set(false);
         },
       });

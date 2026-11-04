@@ -1,13 +1,5 @@
-<section
-  aria-labelledby="close-title"
-  class="customer-maintenance"
->
-  <a
-    [routerLink]="customerLink()"
-    class="back-link"
-  >
-    ← Back to customer
-  </a>
+<section aria-labelledby="close-title" class="customer-maintenance">
+  <a [routerLink]="customerLink()" class="back-link"> ← Back to customer </a>
 
   <header>
     <p class="customer-maintenance__label">Individual Customer</p>
@@ -18,44 +10,27 @@
   </header>
 
   @if (loading()) {
-    <p
-      class="customer-maintenance__status"
-      role="status"
-    >
-      Loading Individual Customer...
-    </p>
+    <p class="customer-maintenance__status" role="status">Loading Individual Customer...</p>
   } @else if (loadError(); as errorMessage) {
-    <section
-      class="submission-error"
-      role="alert"
-    >
+    <section class="submission-error" role="alert">
       <h2>Customer unavailable</h2>
       <p>{{ errorMessage }}</p>
     </section>
   } @else if (customer(); as customerRecord) {
     @if (customerRecord.status !== 'ACTIVE') {
-      <section
-        class="submission-error"
-        role="alert"
-      >
+      <section class="submission-error" role="alert">
         <h2>Customer is already closed</h2>
         <p>This Customer is closed. Return to the Customer to reopen it.</p>
       </section>
     } @else {
       @if (submissionError(); as errorMessage) {
-        <section
-          class="submission-error"
-          role="alert"
-        >
+        <section class="submission-error" role="alert">
           <h2>Close unsuccessful</h2>
           <p>{{ errorMessage }}</p>
         </section>
       }
 
-      <section
-        aria-labelledby="close-confirmation-title"
-        class="form-section"
-      >
+      <section aria-labelledby="close-confirmation-title" class="form-section">
         <h2 id="close-confirmation-title">Confirm</h2>
         <p class="customer-maintenance__summary">
           {{ customerRecord.customerNumber }}
@@ -69,12 +44,7 @@
       </section>
 
       <footer class="form-actions">
-        <a
-          [routerLink]="customerLink()"
-          class="button button--secondary"
-        >
-          Cancel
-        </a>
+        <a [routerLink]="customerLink()" class="button button--secondary"> Cancel </a>
         <button
           (click)="confirm()"
           [disabled]="submitting()"

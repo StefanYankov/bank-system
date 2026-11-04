@@ -1,10 +1,14 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {Component, DestroyRef, inject, OnInit, signal,} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {NonNullableFormBuilder, ReactiveFormsModule, Validators,} from '@angular/forms';
-import {ActivatedRoute, Router, RouterLink,} from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import {EmployeeAPIService, EmployeePositionChangeDto, EmployeeViewDto,} from '../../../../generated/employee-api';
+import {
+  EmployeeAPIService,
+  EmployeePositionChangeDto,
+  EmployeeViewDto,
+} from '../../../../generated/employee-api';
 
 /**
  * Changes the position assigned to an existing Employee.
@@ -15,15 +19,11 @@ import {EmployeeAPIService, EmployeePositionChangeDto, EmployeeViewDto,} from '.
  */
 @Component({
   selector: 'app-employee-position-change',
-  imports: [
-    ReactiveFormsModule,
-    RouterLink,
-  ],
+  imports: [ReactiveFormsModule, RouterLink],
   templateUrl: './employee-position-change.html',
   styleUrl: './employee-position-change.css',
 })
 export class EmployeePositionChange implements OnInit {
-
   protected employeeId: string | null = null;
   protected readonly employee = signal<EmployeeViewDto | null>(null);
   protected readonly loading = signal(true);
@@ -36,28 +36,25 @@ export class EmployeePositionChange implements OnInit {
       label: 'Clerk',
     },
     {
-      value:
-      EmployeePositionChangeDto.PositionEnum.LoanOfficer,
+      value: EmployeePositionChangeDto.PositionEnum.LoanOfficer,
       label: 'Loan officer',
     },
     {
-      value:
-      EmployeePositionChangeDto.PositionEnum.Administrator,
+      value: EmployeePositionChangeDto.PositionEnum.Administrator,
       label: 'Administrator',
     },
   ] as const;
-  private readonly formBuilder = inject(NonNullableFormBuilder,);
+  private readonly formBuilder = inject(NonNullableFormBuilder);
   /**
    * Typed Employee position form.
    */
   protected readonly positionForm = this.formBuilder.group({
-    position:
-      this.formBuilder.control<EmployeePositionChangeDto.PositionEnum>(
-        EmployeePositionChangeDto.PositionEnum.Clerk,
-        Validators.required,
-      ),
+    position: this.formBuilder.control<EmployeePositionChangeDto.PositionEnum>(
+      EmployeePositionChangeDto.PositionEnum.Clerk,
+      Validators.required,
+    ),
   });
-  private readonly employeeApi = inject(EmployeeAPIService,);
+  private readonly employeeApi = inject(EmployeeAPIService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -68,14 +65,9 @@ export class EmployeePositionChange implements OnInit {
   public ngOnInit(): void {
     this.employeeId = this.route.snapshot.paramMap.get('id');
 
-    if (
-      this.employeeId === null
-      || this.employeeId.length === 0
-    ) {
+    if (this.employeeId === null || this.employeeId.length === 0) {
       this.loading.set(false);
-      this.loadError.set(
-        'The Employee identifier is missing.',
-      );
+      this.loadError.set('The Employee identifier is missing.');
       return;
     }
 
@@ -86,11 +78,7 @@ export class EmployeePositionChange implements OnInit {
    * Validates and submits the Employee position change.
    */
   protected submit(): void {
-    if (
-      this.positionForm.invalid
-      || this.submitting()
-      || this.employeeId === null
-    ) {
+    if (this.positionForm.invalid || this.submitting() || this.employeeId === null) {
       this.positionForm.markAllAsTouched();
       return;
     }
@@ -99,26 +87,21 @@ export class EmployeePositionChange implements OnInit {
     this.submissionError.set(null);
 
     const request: EmployeePositionChangeDto = {
-      position:
-      this.positionForm.controls.position.value,
+      position: this.positionForm.controls.position.value,
     };
 
-    this.employeeApi.changeEmployeePosition({
-      id: this.employeeId,
-      employeePositionChangeDto: request,
-    })
+    this.employeeApi
+      .changeEmployeePosition({
+        id: this.employeeId,
+        employeePositionChangeDto: request,
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (employee: EmployeeViewDto) => {
-          void this.router.navigate([
-            '/admin/employees',
-            employee.id,
-          ]);
+          void this.router.navigate(['/admin/employees', employee.id]);
         },
         error: (error: unknown) => {
-          this.submissionError.set(
-            this.updateErrorMessage(error),
-          );
+          this.submissionError.set(this.updateErrorMessage(error));
           this.submitting.set(false);
         },
       });
@@ -145,25 +128,23 @@ export class EmployeePositionChange implements OnInit {
     this.loadError.set(null);
     this.employee.set(null);
 
-    this.employeeApi.getEmployeeById({
-      id: employeeId,
-    })
+    this.employeeApi
+      .getEmployeeById({
+        id: employeeId,
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (employee: EmployeeViewDto) => {
           this.employee.set(employee);
 
           this.positionForm.setValue({
-            position:
-              employee.position as EmployeePositionChangeDto.PositionEnum,
+            position: employee.position as EmployeePositionChangeDto.PositionEnum,
           });
 
           this.loading.set(false);
         },
         error: (error: unknown) => {
-          this.loadError.set(
-            this.loadErrorMessage(error),
-          );
+          this.loadError.set(this.loadErrorMessage(error));
           this.loading.set(false);
         },
       });

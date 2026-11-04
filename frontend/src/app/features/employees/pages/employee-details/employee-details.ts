@@ -1,8 +1,8 @@
-import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {EmployeeAPIService, EmployeeViewDto} from "../../../../generated/employee-api";
-import {ActivatedRoute, RouterLink} from '@angular/router';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {HttpErrorResponse} from '@angular/common/http';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { EmployeeAPIService, EmployeeViewDto } from '../../../../generated/employee-api';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HttpErrorResponse } from '@angular/common/http';
 
 /**
  * Displays the administrative details of one Employee.
@@ -63,9 +63,10 @@ export class EmployeeDetails implements OnInit {
     this.error.set(null);
     this.employee.set(null);
 
-    this.employeeApi.getEmployeeById({
-      id: employeeId,
-    })
+    this.employeeApi
+      .getEmployeeById({
+        id: employeeId,
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (employee: EmployeeViewDto) => {

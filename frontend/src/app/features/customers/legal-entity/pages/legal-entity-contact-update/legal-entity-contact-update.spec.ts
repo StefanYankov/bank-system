@@ -1,11 +1,14 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {TestBed} from '@angular/core/testing';
-import {ActivatedRoute, convertToParamMap, provideRouter, Router} from '@angular/router';
-import {of, Subject, throwError} from 'rxjs';
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import { HttpErrorResponse } from '@angular/common/http';
+import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { of, Subject, throwError } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {LegalEntityCustomerAPIService, LegalEntityCustomerViewDto} from '../../../../../generated/customer-api';
-import {LegalEntityContactUpdate} from './legal-entity-contact-update';
+import {
+  LegalEntityCustomerAPIService,
+  LegalEntityCustomerViewDto,
+} from '../../../../../generated/customer-api';
+import { LegalEntityContactUpdate } from './legal-entity-contact-update';
 
 describe('LegalEntityContactUpdate', () => {
   const customerId = '0199e65a-35b1-7000-8000-000000000102';
@@ -52,7 +55,7 @@ describe('LegalEntityContactUpdate', () => {
         provideRouter([]),
         {
           provide: ActivatedRoute,
-          useValue: {snapshot: {paramMap: convertToParamMap({id: customerId})}},
+          useValue: { snapshot: { paramMap: convertToParamMap({ id: customerId }) } },
         },
         {
           provide: LegalEntityCustomerAPIService,
@@ -76,7 +79,7 @@ describe('LegalEntityContactUpdate', () => {
     // Assert
     expect(fixture.componentInstance['updateForm'].getRawValue()).toEqual({
       email: customer.email,
-      phone: customer.phone
+      phone: customer.phone,
     });
   });
 
@@ -86,7 +89,10 @@ describe('LegalEntityContactUpdate', () => {
     const fixture = TestBed.createComponent(LegalEntityContactUpdate);
     fixture.detectChanges();
     const component = fixture.componentInstance;
-    component['updateForm'].setValue({email: '  office@starter.example.com  ', phone: '  +35921234567  '});
+    component['updateForm'].setValue({
+      email: '  office@starter.example.com  ',
+      phone: '  +35921234567  ',
+    });
 
     // Act
     component['submit']();
@@ -94,7 +100,7 @@ describe('LegalEntityContactUpdate', () => {
     // Assert
     expect(updateLegalEntityCustomerContactMock).toHaveBeenCalledWith({
       id: customerId,
-      customerContactUpdateDto: {email: 'office@starter.example.com', phone: '+35921234567'}
+      customerContactUpdateDto: { email: 'office@starter.example.com', phone: '+35921234567' },
     });
   });
 
@@ -141,7 +147,9 @@ describe('LegalEntityContactUpdate', () => {
 
   it('should show a permission error', () => {
     // Arrange
-    updateLegalEntityCustomerContactMock.mockReturnValue(throwError(() => new HttpErrorResponse({status: 403})));
+    updateLegalEntityCustomerContactMock.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 403 })),
+    );
     const fixture = TestBed.createComponent(LegalEntityContactUpdate);
     fixture.detectChanges();
 
@@ -150,6 +158,8 @@ describe('LegalEntityContactUpdate', () => {
     fixture.detectChanges();
 
     // Assert
-    expect((fixture.nativeElement as HTMLElement).textContent).toContain('You do not have permission to change this Customer.');
+    expect((fixture.nativeElement as HTMLElement).textContent).toContain(
+      'You do not have permission to change this Customer.',
+    );
   });
 });

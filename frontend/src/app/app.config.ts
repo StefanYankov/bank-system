@@ -1,17 +1,17 @@
-import {provideHttpClient, withInterceptors,} from '@angular/common/http';
-import {ApplicationConfig, provideBrowserGlobalErrorListeners,} from '@angular/core';
-import {provideRouter} from '@angular/router';
+import { provideHttpClient, withInterceptors } from '@angular/common/http';
+import { ApplicationConfig, provideBrowserGlobalErrorListeners } from '@angular/core';
+import { provideRouter } from '@angular/router';
 import {
   INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
   includeBearerTokenInterceptor,
   provideKeycloak,
 } from 'keycloak-angular';
 
-import {routes} from './app.routes';
-import {createApiUrlPattern} from './core/config/api-url-pattern';
-import {RUNTIME_CONFIG, RuntimeConfig,} from './core/config/runtime-config';
-import {provideApi as provideCustomerApi} from './generated/customer-api';
-import {provideApi as provideEmployeeApi} from './generated/employee-api';
+import { routes } from './app.routes';
+import { createApiUrlPattern } from './core/config/api-url-pattern';
+import { RUNTIME_CONFIG, RuntimeConfig } from './core/config/runtime-config';
+import { provideApi as provideCustomerApi } from './generated/customer-api';
+import { provideApi as provideEmployeeApi } from './generated/employee-api';
 
 /**
  * Creates the Angular application configuration from values loaded at runtime.
@@ -19,20 +19,14 @@ import {provideApi as provideEmployeeApi} from './generated/employee-api';
  * @param runtimeConfig environment-specific frontend configuration
  * @returns providers used to bootstrap the Angular application
  */
-export function createApplicationConfig(
-  runtimeConfig: RuntimeConfig,
-): ApplicationConfig {
+export function createApplicationConfig(runtimeConfig: RuntimeConfig): ApplicationConfig {
   return {
     providers: [
       provideBrowserGlobalErrorListeners(),
 
       provideRouter(routes),
 
-      provideHttpClient(
-        withInterceptors([
-          includeBearerTokenInterceptor,
-        ]),
-      ),
+      provideHttpClient(withInterceptors([includeBearerTokenInterceptor])),
       provideEmployeeApi(runtimeConfig.employeeApiUrl),
       provideCustomerApi(runtimeConfig.customerApiUrl),
       {
@@ -43,14 +37,10 @@ export function createApplicationConfig(
         provide: INCLUDE_BEARER_TOKEN_INTERCEPTOR_CONFIG,
         useValue: [
           {
-            urlPattern: createApiUrlPattern(
-              runtimeConfig.employeeApiUrl,
-            ),
+            urlPattern: createApiUrlPattern(runtimeConfig.employeeApiUrl),
           },
           {
-            urlPattern: createApiUrlPattern(
-              runtimeConfig.customerApiUrl,
-            ),
+            urlPattern: createApiUrlPattern(runtimeConfig.customerApiUrl),
           },
         ],
       },
@@ -59,10 +49,7 @@ export function createApplicationConfig(
         initOptions: {
           onLoad: 'check-sso',
           pkceMethod: 'S256',
-          silentCheckSsoRedirectUri: new URL(
-            'silent-check-sso.html',
-            document.baseURI,
-          ).toString(),
+          silentCheckSsoRedirectUri: new URL('silent-check-sso.html', document.baseURI).toString(),
         },
       }),
     ],

@@ -1,8 +1,8 @@
-import {Component, DestroyRef, inject, OnInit, signal,} from '@angular/core';
-import {HttpErrorResponse} from '@angular/common/http';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { HttpErrorResponse } from '@angular/common/http';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 
-import {EmployeeAPIService, EmployeeViewDto,} from '../../../../generated/employee-api';
+import { EmployeeAPIService, EmployeeViewDto } from '../../../../generated/employee-api';
 
 @Component({
   selector: 'app-current-employee',
@@ -24,12 +24,9 @@ export class CurrentEmployee implements OnInit {
     this.loading.set(true);
     this.errorMessage.set(null);
 
-
     this.employeeApi
       .getCurrentEmployee()
-      .pipe(
-        takeUntilDestroyed(this.destroyRef),
-      )
+      .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (employee) => {
           this.employee.set(employee);
@@ -37,17 +34,13 @@ export class CurrentEmployee implements OnInit {
         },
         error: (error: HttpErrorResponse) => {
           this.employee.set(null);
-          this.errorMessage.set(
-            this.getErrorMessage(error),
-          );
+          this.errorMessage.set(this.getErrorMessage(error));
           this.loading.set(false);
         },
       });
   }
 
-  private getErrorMessage(
-    error: HttpErrorResponse,
-  ): string {
+  private getErrorMessage(error: HttpErrorResponse): string {
     if (error.status === 404) {
       return 'No employee profile is linked to this Keycloak account.';
     }

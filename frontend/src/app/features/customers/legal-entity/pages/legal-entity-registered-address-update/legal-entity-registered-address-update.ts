@@ -1,17 +1,17 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import {notBlankValidator} from '../../../../../core/forms/not-blank-validator';
+import { notBlankValidator } from '../../../../../core/forms/not-blank-validator';
 import {
   AddressDto,
   AddressViewDto,
   LegalEntityCustomerAPIService,
   LegalEntityCustomerViewDto,
 } from '../../../../../generated/customer-api';
-import {customerSchemaConstraints} from '../../../../../generated/customer-schema-constraints.generated';
+import { customerSchemaConstraints } from '../../../../../generated/customer-schema-constraints.generated';
 
 const constraints = customerSchemaConstraints.AddressDto;
 type AddressControl = 'countryCode' | 'city' | 'postalCode' | 'addressLine1' | 'addressLine2';
@@ -34,11 +34,29 @@ export class LegalEntityRegisteredAddressUpdate implements OnInit {
 
   private readonly formBuilder = inject(NonNullableFormBuilder);
   protected readonly updateForm = this.formBuilder.group({
-    countryCode: this.formBuilder.control('', [Validators.required, notBlankValidator(), Validators.pattern(constraints.countryCode.pattern)]),
-    city: this.formBuilder.control('', [Validators.required, notBlankValidator(), Validators.maxLength(constraints.city.maxLength)]),
-    postalCode: this.formBuilder.control('', [Validators.required, notBlankValidator(), Validators.maxLength(constraints.postalCode.maxLength)]),
-    addressLine1: this.formBuilder.control('', [Validators.required, notBlankValidator(), Validators.maxLength(constraints.addressLine1.maxLength)]),
-    addressLine2: this.formBuilder.control('', [Validators.maxLength(constraints.addressLine2.maxLength)]),
+    countryCode: this.formBuilder.control('', [
+      Validators.required,
+      notBlankValidator(),
+      Validators.pattern(constraints.countryCode.pattern),
+    ]),
+    city: this.formBuilder.control('', [
+      Validators.required,
+      notBlankValidator(),
+      Validators.maxLength(constraints.city.maxLength),
+    ]),
+    postalCode: this.formBuilder.control('', [
+      Validators.required,
+      notBlankValidator(),
+      Validators.maxLength(constraints.postalCode.maxLength),
+    ]),
+    addressLine1: this.formBuilder.control('', [
+      Validators.required,
+      notBlankValidator(),
+      Validators.maxLength(constraints.addressLine1.maxLength),
+    ]),
+    addressLine2: this.formBuilder.control('', [
+      Validators.maxLength(constraints.addressLine2.maxLength),
+    ]),
   });
   private readonly customerApi = inject(LegalEntityCustomerAPIService);
   private readonly route = inject(ActivatedRoute);
@@ -53,7 +71,8 @@ export class LegalEntityRegisteredAddressUpdate implements OnInit {
       return;
     }
 
-    this.customerApi.getLegalEntityCustomer({id})
+    this.customerApi
+      .getLegalEntityCustomer({ id })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (customer: LegalEntityCustomerViewDto) => {
@@ -78,7 +97,11 @@ export class LegalEntityRegisteredAddressUpdate implements OnInit {
     }
     this.submitting.set(true);
     this.submissionError.set(null);
-    this.customerApi.changeLegalEntityCustomerRegisteredAddress({id: customer.id, addressDto: this.createRequest()})
+    this.customerApi
+      .changeLegalEntityCustomerRegisteredAddress({
+        id: customer.id,
+        addressDto: this.createRequest(),
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updated) => void this.router.navigate(['/customers/legal-entities', updated.id]),
@@ -121,13 +144,16 @@ export class LegalEntityRegisteredAddressUpdate implements OnInit {
 
   private normalizeFormValues(): void {
     const value = this.updateForm.getRawValue();
-    this.updateForm.setValue({
-      countryCode: value.countryCode.trim().toUpperCase(),
-      city: value.city.trim(),
-      postalCode: value.postalCode.trim(),
-      addressLine1: value.addressLine1.trim(),
-      addressLine2: value.addressLine2.trim(),
-    }, {emitEvent: false});
+    this.updateForm.setValue(
+      {
+        countryCode: value.countryCode.trim().toUpperCase(),
+        city: value.city.trim(),
+        postalCode: value.postalCode.trim(),
+        addressLine1: value.addressLine1.trim(),
+        addressLine2: value.addressLine2.trim(),
+      },
+      { emitEvent: false },
+    );
   }
 
   private createRequest(): AddressDto {
@@ -137,7 +163,7 @@ export class LegalEntityRegisteredAddressUpdate implements OnInit {
       city: value.city,
       postalCode: value.postalCode,
       addressLine1: value.addressLine1,
-      ...(value.addressLine2.length > 0 ? {addressLine2: value.addressLine2} : {}),
+      ...(value.addressLine2.length > 0 ? { addressLine2: value.addressLine2 } : {}),
     };
   }
 

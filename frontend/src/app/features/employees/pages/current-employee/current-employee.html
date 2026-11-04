@@ -1,24 +1,13 @@
-<section
-  aria-labelledby="employee-page-title"
-  class="employee-page"
->
+<section aria-labelledby="employee-page-title" class="employee-page">
   <header class="employee-page__header">
     <p class="employee-page__label">Employee profile</p>
     <h1 id="employee-page-title">Current employee</h1>
   </header>
 
   @if (loading()) {
-    <p
-      class="employee-page__status"
-      role="status"
-    >
-      Loading employee profile...
-    </p>
+    <p class="employee-page__status" role="status">Loading employee profile...</p>
   } @else if (errorMessage(); as message) {
-    <div
-      class="employee-page__error"
-      role="alert"
-    >
+    <div class="employee-page__error" role="alert">
       <h2>Profile unavailable</h2>
       <p>{{ message }}</p>
     </div>

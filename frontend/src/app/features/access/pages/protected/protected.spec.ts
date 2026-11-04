@@ -1,6 +1,6 @@
-import {TestBed} from '@angular/core/testing';
+import { TestBed } from '@angular/core/testing';
 
-import {Protected} from './protected';
+import { Protected } from './protected';
 
 describe('Protected', () => {
   beforeEach(async () => {
@@ -22,7 +22,6 @@ describe('Protected', () => {
 
     const element = fixture.nativeElement as HTMLElement;
 
-    expect(element.querySelector('h1')?.textContent)
-      .toContain('Protected area');
+    expect(element.querySelector('h1')?.textContent).toContain('Protected area');
   });
 });

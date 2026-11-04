@@ -1,7 +1,7 @@
-import {Component, inject, signal,} from '@angular/core';
-import {RouterLink, RouterLinkActive, RouterOutlet} from '@angular/router';
+import { Component, inject, signal } from '@angular/core';
+import { RouterLink, RouterLinkActive, RouterOutlet } from '@angular/router';
 
-import {AuthSession} from './core/auth/auth-session';
+import { AuthSession } from './core/auth/auth-session';
 
 /**
  * Provides the Bank System application shell.
@@ -11,16 +11,11 @@ import {AuthSession} from './core/auth/auth-session';
  */
 @Component({
   selector: 'app-root',
-  imports: [
-    RouterLink,
-    RouterLinkActive,
-    RouterOutlet,
-  ],
+  imports: [RouterLink, RouterLinkActive, RouterOutlet],
   templateUrl: './app.html',
   styleUrl: './app.css',
 })
 export class App {
-
   protected readonly title = signal('Bank System');
 
   protected readonly authSession = inject(AuthSession);

@@ -1,27 +1,24 @@
-import {FormControl} from '@angular/forms';
-import {describe, expect, it} from 'vitest';
+import { FormControl } from '@angular/forms';
+import { describe, expect, it } from 'vitest';
 
-import {egnValidator} from './egn-validator';
+import { egnValidator } from './egn-validator';
 
 describe('egnValidator', () => {
   const validator = egnValidator();
 
-  it.each([
-    '6101047500',
-    '0041010002',
-    '9921010007',
-    '0042290000',
-    '0041019000',
-  ])('should accept the backend valid vector %s', (egn) => {
-    // Arrange
-    const control = new FormControl(egn, {nonNullable: true});
+  it.each(['6101047500', '0041010002', '9921010007', '0042290000', '0041019000'])(
+    'should accept the backend valid vector %s',
+    (egn) => {
+      // Arrange
+      const control = new FormControl(egn, { nonNullable: true });
 
-    // Act
-    const result = validator(control);
+      // Act
+      const result = validator(control);
 
-    // Assert
-    expect(result).toBeNull();
-  });
+      // Assert
+      expect(result).toBeNull();
+    },
+  );
 
   it.each([
     '610104750',
@@ -37,18 +34,18 @@ describe('egnValidator', () => {
     '9999999999',
   ])('should reject the backend invalid vector %s', (egn) => {
     // Arrange
-    const control = new FormControl(egn, {nonNullable: true});
+    const control = new FormControl(egn, { nonNullable: true });
 
     // Act
     const result = validator(control);
 
     // Assert
-    expect(result).toEqual({egn: true});
+    expect(result).toEqual({ egn: true });
   });
 
   it.each(['', '   '])('should leave blank value %j to required validation', (egn) => {
     // Arrange
-    const control = new FormControl(egn, {nonNullable: true});
+    const control = new FormControl(egn, { nonNullable: true });
 
     // Act & Assert
     expect(validator(control)).toBeNull();

@@ -1,13 +1,16 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import {eikValidator} from '../../../../../core/forms/eik-validator';
-import {notBlankValidator} from '../../../../../core/forms/not-blank-validator';
-import {LegalEntityCustomerAPIService, LegalEntityCustomerViewDto,} from '../../../../../generated/customer-api';
-import {customerSchemaConstraints} from '../../../../../generated/customer-schema-constraints.generated';
+import { eikValidator } from '../../../../../core/forms/eik-validator';
+import { notBlankValidator } from '../../../../../core/forms/not-blank-validator';
+import {
+  LegalEntityCustomerAPIService,
+  LegalEntityCustomerViewDto,
+} from '../../../../../generated/customer-api';
+import { customerSchemaConstraints } from '../../../../../generated/customer-schema-constraints.generated';
 
 const constraints = customerSchemaConstraints.EikCorrectionDto.eik;
 
@@ -29,7 +32,14 @@ export class LegalEntityEikCorrection implements OnInit {
 
   private readonly formBuilder = inject(NonNullableFormBuilder);
   protected readonly updateForm = this.formBuilder.group({
-    eik: this.formBuilder.control('', [Validators.required, notBlankValidator(), Validators.minLength(constraints.minLength), Validators.maxLength(constraints.maxLength), Validators.pattern(constraints.pattern), eikValidator()]),
+    eik: this.formBuilder.control('', [
+      Validators.required,
+      notBlankValidator(),
+      Validators.minLength(constraints.minLength),
+      Validators.maxLength(constraints.maxLength),
+      Validators.pattern(constraints.pattern),
+      eikValidator(),
+    ]),
   });
   private readonly customerApi = inject(LegalEntityCustomerAPIService);
   private readonly route = inject(ActivatedRoute);
@@ -44,12 +54,13 @@ export class LegalEntityEikCorrection implements OnInit {
       return;
     }
 
-    this.customerApi.getLegalEntityCustomer({id})
+    this.customerApi
+      .getLegalEntityCustomer({ id })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (customer: LegalEntityCustomerViewDto) => {
           this.customer.set(customer);
-          this.updateForm.setValue({eik: customer.eik});
+          this.updateForm.setValue({ eik: customer.eik });
           this.loading.set(false);
         },
         error: (error: unknown) => {
@@ -62,14 +73,20 @@ export class LegalEntityEikCorrection implements OnInit {
   protected submit(): void {
     const customer = this.customer();
     if (customer === null || this.submitting()) return;
-    this.updateForm.controls.eik.setValue(this.updateForm.controls.eik.value.trim(), {emitEvent: false});
+    this.updateForm.controls.eik.setValue(this.updateForm.controls.eik.value.trim(), {
+      emitEvent: false,
+    });
     if (this.updateForm.invalid) {
       this.updateForm.markAllAsTouched();
       return;
     }
     this.submitting.set(true);
     this.submissionError.set(null);
-    this.customerApi.correctLegalEntityCustomerEik({id: customer.id, eikCorrectionDto: this.updateForm.getRawValue()})
+    this.customerApi
+      .correctLegalEntityCustomerEik({
+        id: customer.id,
+        eikCorrectionDto: this.updateForm.getRawValue(),
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updated) => void this.router.navigate(['/customers/legal-entities', updated.id]),

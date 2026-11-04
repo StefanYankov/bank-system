@@ -1,8 +1,8 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {ActivatedRoute, RouterLink} from '@angular/router';
-import {AuthSession} from '../../../../../core/auth/auth-session';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, RouterLink } from '@angular/router';
+import { AuthSession } from '../../../../../core/auth/auth-session';
 import {
   LegalEntityCustomerAPIService,
   LegalEntityCustomerViewDto,
@@ -28,8 +28,7 @@ export class LegalEntityCustomerDetails implements OnInit {
   private readonly today = localIsoDate(new Date());
   private readonly authSession = inject(AuthSession);
   protected readonly canMaintainCustomers =
-    this.authSession.hasRealmRole('CLERK')
-    || this.authSession.hasRealmRole('ADMIN');
+    this.authSession.hasRealmRole('CLERK') || this.authSession.hasRealmRole('ADMIN');
 
   public ngOnInit(): void {
     const customerId = this.customerId();
@@ -95,7 +94,8 @@ export class LegalEntityCustomerDetails implements OnInit {
     this.loading.set(true);
     this.error.set(null);
     this.customer.set(null);
-    this.customerApi.getLegalEntityCustomer({id: customerId})
+    this.customerApi
+      .getLegalEntityCustomer({ id: customerId })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (customer: LegalEntityCustomerViewDto) => {

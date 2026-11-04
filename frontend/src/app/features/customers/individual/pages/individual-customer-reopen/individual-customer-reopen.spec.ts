@@ -1,11 +1,14 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {TestBed} from '@angular/core/testing';
-import {ActivatedRoute, convertToParamMap, provideRouter, Router} from '@angular/router';
-import {of, Subject, throwError} from 'rxjs';
-import {beforeEach, describe, expect, it, vi} from 'vitest';
+import { HttpErrorResponse } from '@angular/common/http';
+import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap, provideRouter, Router } from '@angular/router';
+import { of, Subject, throwError } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {IndividualCustomerAPIService, IndividualCustomerViewDto} from '../../../../../generated/customer-api';
-import {IndividualCustomerReopen} from './individual-customer-reopen';
+import {
+  IndividualCustomerAPIService,
+  IndividualCustomerViewDto,
+} from '../../../../../generated/customer-api';
+import { IndividualCustomerReopen } from './individual-customer-reopen';
 
 describe('IndividualCustomerReopen', () => {
   const customerId = '0199e65a-35b1-7000-8000-000000000101';
@@ -48,7 +51,7 @@ describe('IndividualCustomerReopen', () => {
           provide: ActivatedRoute,
           useValue: {
             snapshot: {
-              paramMap: convertToParamMap({id: customerId}),
+              paramMap: convertToParamMap({ id: customerId }),
             },
           },
         },
@@ -74,9 +77,12 @@ describe('IndividualCustomerReopen', () => {
     const element = fixture.nativeElement as HTMLElement;
 
     // Assert
-    expect(getIndividualCustomerMock).toHaveBeenCalledWith({id: customerId});
+    expect(getIndividualCustomerMock).toHaveBeenCalledWith({ id: customerId });
     expect(
-      element.querySelector('.customer-maintenance__summary')?.textContent?.replace(/\s+/g, ' ').trim(),
+      element
+        .querySelector('.customer-maintenance__summary')
+        ?.textContent?.replace(/\s+/g, ' ')
+        .trim(),
     ).toBe('CUS-000001 · Serafim Ivanov Gerasimoff');
   });
 
@@ -92,7 +98,7 @@ describe('IndividualCustomerReopen', () => {
     confirmButton?.click();
 
     // Assert
-    expect(reopenIndividualCustomerMock).toHaveBeenCalledWith({id: customerId});
+    expect(reopenIndividualCustomerMock).toHaveBeenCalledWith({ id: customerId });
     expect(navigateMock).toHaveBeenCalledWith(['/customers/individuals', customerId]);
   });
 
@@ -128,7 +134,9 @@ describe('IndividualCustomerReopen', () => {
 
   it('should show the state message for a conflict', () => {
     // Arrange
-    reopenIndividualCustomerMock.mockReturnValue(throwError(() => new HttpErrorResponse({status: 409})));
+    reopenIndividualCustomerMock.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 409 })),
+    );
     const fixture = TestBed.createComponent(IndividualCustomerReopen);
     fixture.detectChanges();
     const component = fixture.componentInstance;
@@ -146,7 +154,9 @@ describe('IndividualCustomerReopen', () => {
 
   it('should show a load error instead of the confirmation', () => {
     // Arrange
-    getIndividualCustomerMock.mockReturnValue(throwError(() => new HttpErrorResponse({status: 404})));
+    getIndividualCustomerMock.mockReturnValue(
+      throwError(() => new HttpErrorResponse({ status: 404 })),
+    );
     const fixture = TestBed.createComponent(IndividualCustomerReopen);
 
     // Act

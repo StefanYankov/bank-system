@@ -1,10 +1,13 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {TestBed} from '@angular/core/testing';
-import {provideRouter, Router} from '@angular/router';
-import {of, Subject, throwError} from 'rxjs';
-import {beforeEach, describe, expect, it, vi} from 'vitest';
-import {LegalEntityCustomerAPIService, LegalEntityCustomerViewDto} from '../../../../../generated/customer-api';
-import {LegalEntityCustomerRegistration} from './legal-entity-customer-registration';
+import { HttpErrorResponse } from '@angular/common/http';
+import { TestBed } from '@angular/core/testing';
+import { provideRouter, Router } from '@angular/router';
+import { of, Subject, throwError } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
+import {
+  LegalEntityCustomerAPIService,
+  LegalEntityCustomerViewDto,
+} from '../../../../../generated/customer-api';
+import { LegalEntityCustomerRegistration } from './legal-entity-customer-registration';
 
 describe('LegalEntityCustomerRegistration', () => {
   const registeredCustomer: LegalEntityCustomerViewDto = {
@@ -102,7 +105,7 @@ describe('LegalEntityCustomerRegistration', () => {
     const fixture = TestBed.createComponent(LegalEntityCustomerRegistration);
     fixture.detectChanges();
     const component = fixture.componentInstance;
-    component['registrationForm'].setValue({...validFormValue, eik: '123456789'});
+    component['registrationForm'].setValue({ ...validFormValue, eik: '123456789' });
 
     // Act
     component['submit']();
@@ -117,7 +120,7 @@ describe('LegalEntityCustomerRegistration', () => {
     const fixture = TestBed.createComponent(LegalEntityCustomerRegistration);
     fixture.detectChanges();
     const component = fixture.componentInstance;
-    component['registrationForm'].setValue({...validFormValue, eik: '1234 56786'});
+    component['registrationForm'].setValue({ ...validFormValue, eik: '1234 56786' });
 
     // Act
     component['submit']();
@@ -197,10 +200,7 @@ describe('LegalEntityCustomerRegistration', () => {
         },
       },
     });
-    expect(navigateMock).toHaveBeenCalledWith([
-      '/customers/legal-entities',
-      registeredCustomer.id,
-    ]);
+    expect(navigateMock).toHaveBeenCalledWith(['/customers/legal-entities', registeredCustomer.id]);
   });
 
   it('should disable repeat submission while the request is pending', () => {
@@ -222,9 +222,7 @@ describe('LegalEntityCustomerRegistration', () => {
 
   it('should show the duplicate-EIK message for a conflict', () => {
     // Arrange
-    registerMock.mockReturnValue(
-      throwError(() => new HttpErrorResponse({status: 409})),
-    );
+    registerMock.mockReturnValue(throwError(() => new HttpErrorResponse({ status: 409 })));
     const fixture = TestBed.createComponent(LegalEntityCustomerRegistration);
     fixture.detectChanges();
     const component = fixture.componentInstance;

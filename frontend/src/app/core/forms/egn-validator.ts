@@ -1,4 +1,4 @@
-import {AbstractControl, ValidationErrors, ValidatorFn} from '@angular/forms';
+import { AbstractControl, ValidationErrors, ValidatorFn } from '@angular/forms';
 
 const EGN_PATTERN = /^[0-9]{10}$/;
 const CHECK_DIGIT_WEIGHTS = [2, 4, 8, 5, 10, 9, 7, 3, 6] as const;
@@ -14,9 +14,7 @@ const CHECK_DIGIT_WEIGHTS = [2, 4, 8, 5, 10, 9, 7, 3, 6] as const;
  * @returns Angular validator for Bulgarian personal identifiers
  */
 export function egnValidator(): ValidatorFn {
-  return (
-    control: AbstractControl<string>,
-  ): ValidationErrors | null => {
+  return (control: AbstractControl<string>): ValidationErrors | null => {
     const egn = control.value.trim();
 
     if (egn.length === 0) {
@@ -24,11 +22,11 @@ export function egnValidator(): ValidatorFn {
     }
 
     if (!EGN_PATTERN.test(egn)) {
-      return {egn: true};
+      return { egn: true };
     }
 
     if (!hasValidBirthDate(egn) || !hasValidCheckDigit(egn)) {
-      return {egn: true};
+      return { egn: true };
     }
 
     return null;
@@ -59,9 +57,9 @@ function hasValidBirthDate(egn: string): boolean {
   const year = century + yearOfCentury;
   const date = new Date(Date.UTC(year, month - 1, day));
 
-  return date.getUTCFullYear() === year
-    && date.getUTCMonth() === month - 1
-    && date.getUTCDate() === day;
+  return (
+    date.getUTCFullYear() === year && date.getUTCMonth() === month - 1 && date.getUTCDate() === day
+  );
 }
 
 function hasValidCheckDigit(egn: string): boolean {

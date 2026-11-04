@@ -1,9 +1,9 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {Component, DestroyRef, inject, OnInit, signal,} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {ActivatedRoute, Router, RouterLink,} from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import {EmployeeAPIService, EmployeeViewDto,} from '../../../../generated/employee-api';
+import { EmployeeAPIService, EmployeeViewDto } from '../../../../generated/employee-api';
 
 /**
  * Reactivates an inactive Employee.
@@ -19,16 +19,13 @@ import {EmployeeAPIService, EmployeeViewDto,} from '../../../../generated/employ
   styleUrl: './employee-reactivate.css',
 })
 export class EmployeeReactivate implements OnInit {
-
   protected employeeId: string | null = null;
   protected readonly employee = signal<EmployeeViewDto | null>(null);
   protected readonly loading = signal(true);
   protected readonly submitting = signal(false);
   protected readonly loadError = signal<string | null>(null);
   protected readonly submissionError = signal<string | null>(null);
-  private readonly employeeApi = inject(
-    EmployeeAPIService,
-  );
+  private readonly employeeApi = inject(EmployeeAPIService);
   private readonly route = inject(ActivatedRoute);
   private readonly router = inject(Router);
   private readonly destroyRef = inject(DestroyRef);
@@ -39,15 +36,10 @@ export class EmployeeReactivate implements OnInit {
   public ngOnInit(): void {
     this.employeeId = this.route.snapshot.paramMap.get('id');
 
-    if (
-      this.employeeId === null
-      || this.employeeId.length === 0
-    ) {
+    if (this.employeeId === null || this.employeeId.length === 0) {
       this.loading.set(false);
 
-      this.loadError.set(
-        'The Employee identifier is missing.',
-      );
+      this.loadError.set('The Employee identifier is missing.');
 
       return;
     }
@@ -60,10 +52,9 @@ export class EmployeeReactivate implements OnInit {
    */
   protected reactivate(): void {
     if (
-      this.submitting()
-      || this.employeeId === null
-      || this.employee()?.status
-      === EmployeeViewDto.StatusEnum.Active
+      this.submitting() ||
+      this.employeeId === null ||
+      this.employee()?.status === EmployeeViewDto.StatusEnum.Active
     ) {
       return;
     }
@@ -71,21 +62,17 @@ export class EmployeeReactivate implements OnInit {
     this.submitting.set(true);
     this.submissionError.set(null);
 
-    this.employeeApi.reactivateEmployee({
-      id: this.employeeId,
-    })
+    this.employeeApi
+      .reactivateEmployee({
+        id: this.employeeId,
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (employee: EmployeeViewDto) => {
-          void this.router.navigate([
-            '/admin/employees',
-            employee.id,
-          ]);
+          void this.router.navigate(['/admin/employees', employee.id]);
         },
         error: (error: unknown) => {
-          this.submissionError.set(
-            this.reactivationErrorMessage(error),
-          );
+          this.submissionError.set(this.reactivationErrorMessage(error));
 
           this.submitting.set(false);
         },
@@ -113,9 +100,10 @@ export class EmployeeReactivate implements OnInit {
     this.loadError.set(null);
     this.employee.set(null);
 
-    this.employeeApi.getEmployeeById({
-      id: employeeId,
-    })
+    this.employeeApi
+      .getEmployeeById({
+        id: employeeId,
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (employee: EmployeeViewDto) => {
@@ -123,9 +111,7 @@ export class EmployeeReactivate implements OnInit {
           this.loading.set(false);
         },
         error: (error: unknown) => {
-          this.loadError.set(
-            this.loadErrorMessage(error),
-          );
+          this.loadError.set(this.loadErrorMessage(error));
 
           this.loading.set(false);
         },
@@ -158,9 +144,7 @@ export class EmployeeReactivate implements OnInit {
    * @param error API request failure
    * @returns message displayed by the page
    */
-  private reactivationErrorMessage(
-    error: unknown,
-  ): string {
+  private reactivationErrorMessage(error: unknown): string {
     if (error instanceof HttpErrorResponse) {
       if (error.status === 400) {
         return 'The Employee cannot be reactivated in the current state.';

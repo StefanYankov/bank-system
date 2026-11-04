@@ -1,61 +1,33 @@
-<section
-  aria-labelledby="employee-list-title"
-  class="employee-list"
->
+<section aria-labelledby="employee-list-title" class="employee-list">
   <header class="employee-list__header">
     <div>
-      <p class="employee-list__label">
-        Employee administration
-      </p>
+      <p class="employee-list__label">Employee administration</p>
 
-      <h1 id="employee-list-title">
-        Employees
-      </h1>
+      <h1 id="employee-list-title">Employees</h1>
 
       <p class="employee-list__description">
         Review Employee records and open an Employee for details.
       </p>
     </div>
 
-    <a
-      class="registration-link"
-      routerLink="/admin/employees/new"
-    >
-      Register Employee
-    </a>
+    <a class="registration-link" routerLink="/admin/employees/new"> Register Employee </a>
   </header>
 
   @if (loading()) {
-    <p
-      class="state-message"
-      role="status"
-    >
-      Loading employees...
-    </p>
+    <p class="state-message" role="status">Loading employees...</p>
   } @else if (error(); as errorMessage) {
-    <section
-      class="state-panel state-panel--error"
-      role="alert"
-    >
+    <section class="state-panel state-panel--error" role="alert">
       <h2>Employees unavailable</h2>
 
       <p>{{ errorMessage }}</p>
 
-      <button
-        class="button button--primary"
-        type="button"
-        (click)="retry()"
-      >
-        Try again
-      </button>
+      <button (click)="retry()" class="button button--primary" type="button">Try again</button>
     </section>
   } @else if (employees().length === 0) {
     <section class="state-panel">
       <h2>No employees found</h2>
 
-      <p>
-        Register an Employee to create the first record.
-      </p>
+      <p>Register an Employee to create the first record.</p>
     </section>
   } @else {
     <div class="employee-table-container">
@@ -65,34 +37,19 @@
         </caption>
 
         <thead>
-        <tr>
-          <th scope="col">
-            Employee number
-          </th>
+          <tr>
+            <th scope="col">Employee number</th>
 
-          <th scope="col">
-            Name
-          </th>
+            <th scope="col">Name</th>
 
-          <th scope="col">
-            Work email
-          </th>
+            <th scope="col">Work email</th>
 
-          <th scope="col">
-            Position
-          </th>
+            <th scope="col">Position</th>
 
-          <th scope="col">
-            Status
-          </th>
+            <th scope="col">Status</th>
 
-          <th
-            class="employee-table__actions-heading"
-            scope="col"
-          >
-            Actions
-          </th>
-        </tr>
+            <th class="employee-table__actions-heading" scope="col">Actions</th>
+          </tr>
         </thead>
 
         <tbody>
@@ -118,22 +75,14 @@
               <td>
                 <span
                   class="status-badge"
-                  [class.status-badge--inactive]="
-                    employee.status === 'INACTIVE'
-                  "
+                  [class.status-badge--inactive]="employee.status === 'INACTIVE'"
                 >
                   {{ employee.status }}
                 </span>
               </td>
 
               <td class="employee-table__actions">
-                <a
-                  class="details-link"
-                  [routerLink]="[
-                    '/admin/employees',
-                    employee.id
-                  ]"
-                >
+                <a [routerLink]="['/admin/employees', employee.id]" class="details-link">
                   View details
                 </a>
               </td>
@@ -143,10 +92,7 @@
       </table>
     </div>
 
-    <footer
-      aria-label="Employee list pagination"
-      class="pagination"
-    >
+    <footer aria-label="Employee list pagination" class="pagination">
       <p class="pagination__summary">
         {{ totalElements() }}
         {{ totalElements() === 1 ? 'employee' : 'employees' }}
@@ -162,9 +108,7 @@
           Previous
         </button>
 
-        <span class="pagination__page">
-          Page {{ page() + 1 }} of {{ totalPages() }}
-        </span>
+        <span class="pagination__page"> Page {{ page() + 1 }} of {{ totalPages() }} </span>
 
         <button
           class="button button--secondary"

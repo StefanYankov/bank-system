@@ -1,11 +1,11 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {TestBed} from '@angular/core/testing';
-import {ActivatedRoute, convertToParamMap, provideRouter,} from '@angular/router';
-import {of, Subject, throwError,} from 'rxjs';
-import {beforeEach, describe, expect, it, vi,} from 'vitest';
+import { HttpErrorResponse } from '@angular/common/http';
+import { TestBed } from '@angular/core/testing';
+import { ActivatedRoute, convertToParamMap, provideRouter } from '@angular/router';
+import { of, Subject, throwError } from 'rxjs';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {EmployeeAPIService, EmployeeViewDto,} from '../../../../generated/employee-api';
-import {EmployeeDetails} from './employee-details';
+import { EmployeeAPIService, EmployeeViewDto } from '../../../../generated/employee-api';
+import { EmployeeDetails } from './employee-details';
 
 describe('EmployeeDetails', () => {
   const employeeId = '0199e65a-35b1-7000-8000-000000000001';
@@ -32,9 +32,7 @@ describe('EmployeeDetails', () => {
 
   beforeEach(async () => {
     vi.clearAllMocks();
-    getEmployeeByIdMock.mockReturnValue(
-      of(activeEmployee),
-    );
+    getEmployeeByIdMock.mockReturnValue(of(activeEmployee));
 
     await TestBed.configureTestingModule({
       imports: [EmployeeDetails],
@@ -145,9 +143,12 @@ describe('EmployeeDetails', () => {
 
   it('should show a not-found message for a missing Employee', () => {
     getEmployeeByIdMock.mockReturnValue(
-      throwError(() => new HttpErrorResponse({
-        status: 404,
-      })),
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 404,
+          }),
+      ),
     );
 
     const fixture = TestBed.createComponent(EmployeeDetails);
@@ -164,9 +165,12 @@ describe('EmployeeDetails', () => {
 
   it('should show an authorization message for a forbidden response', () => {
     getEmployeeByIdMock.mockReturnValue(
-      throwError(() => new HttpErrorResponse({
-        status: 403,
-      })),
+      throwError(
+        () =>
+          new HttpErrorResponse({
+            status: 403,
+          }),
+      ),
     );
 
     const fixture = TestBed.createComponent(EmployeeDetails);
@@ -181,15 +185,10 @@ describe('EmployeeDetails', () => {
 
   it('should retry loading the Employee', () => {
     getEmployeeByIdMock
-      .mockReturnValueOnce(
-        throwError(() =>
-          new Error('Employee Service unavailable'),
-        ),
-      )
+      .mockReturnValueOnce(throwError(() => new Error('Employee Service unavailable')))
       .mockReturnValueOnce(of(activeEmployee));
 
-    const fixture =
-      TestBed.createComponent(EmployeeDetails);
+    const fixture = TestBed.createComponent(EmployeeDetails);
 
     fixture.detectChanges();
 
@@ -198,22 +197,16 @@ describe('EmployeeDetails', () => {
     expect(getEmployeeByIdMock).toHaveBeenCalledOnce();
     expect(element.textContent).toContain('The Employee could not be loaded. Please try again.');
 
-    const retryButton = element.querySelector(
-      '.button--primary',
-    ) as HTMLButtonElement | null;
+    const retryButton = element.querySelector('.button--primary') as HTMLButtonElement | null;
 
     expect(retryButton).not.toBeNull();
 
     retryButton?.click();
     fixture.detectChanges();
 
-    expect(
-      getEmployeeByIdMock,
-    ).toHaveBeenCalledTimes(2);
+    expect(getEmployeeByIdMock).toHaveBeenCalledTimes(2);
 
-    expect(element.textContent).toContain(
-      'Serafim Gerasimoff',
-    );
+    expect(element.textContent).toContain('Serafim Gerasimoff');
 
     expect(element.querySelectorAll('.details-action')).toHaveLength(3);
     expect(element.querySelector('.state-panel--error')).toBeNull();
@@ -226,17 +219,9 @@ describe('EmployeeDetails', () => {
    * @param label visible action label
    * @returns matching action link, if present
    */
-  function findActionLink(
-    element: HTMLElement,
-    label: string,
-  ): HTMLAnchorElement | undefined {
-    return Array.from(
-      element.querySelectorAll<HTMLAnchorElement>(
-        '.details-action',
-      ),
-    ).find(
-      (link) =>
-        link.textContent?.trim() === label,
+  function findActionLink(element: HTMLElement, label: string): HTMLAnchorElement | undefined {
+    return Array.from(element.querySelectorAll<HTMLAnchorElement>('.details-action')).find(
+      (link) => link.textContent?.trim() === label,
     );
   }
 
@@ -247,20 +232,11 @@ describe('EmployeeDetails', () => {
    * @param label visible action label
    * @param expectedHref expected Angular route
    */
-  function expectActionLink(
-    element: HTMLElement,
-    label: string,
-    expectedHref: string,
-  ): void {
-    const actionLink = findActionLink(
-      element,
-      label,
-    );
+  function expectActionLink(element: HTMLElement, label: string, expectedHref: string): void {
+    const actionLink = findActionLink(element, label);
 
     expect(actionLink).toBeDefined();
 
-    expect(
-      actionLink?.getAttribute('href'),
-    ).toBe(expectedHref);
+    expect(actionLink?.getAttribute('href')).toBe(expectedHref);
   }
 });

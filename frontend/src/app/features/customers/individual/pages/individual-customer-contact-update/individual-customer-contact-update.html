@@ -1,13 +1,5 @@
-<section
-  aria-labelledby="contact-update-title"
-  class="customer-maintenance"
->
-  <a
-    [routerLink]="customerLink()"
-    class="back-link"
-  >
-    ← Back to customer
-  </a>
+<section aria-labelledby="contact-update-title" class="customer-maintenance">
+  <a [routerLink]="customerLink()" class="back-link"> ← Back to customer </a>
 
   <header>
     <p class="customer-maintenance__label">Individual Customer</p>
@@ -18,50 +10,28 @@
   </header>
 
   @if (loading()) {
-    <p
-      class="customer-maintenance__status"
-      role="status"
-    >
-      Loading Individual Customer...
-    </p>
+    <p class="customer-maintenance__status" role="status">Loading Individual Customer...</p>
   } @else if (loadError(); as errorMessage) {
-    <section
-      class="submission-error"
-      role="alert"
-    >
+    <section class="submission-error" role="alert">
       <h2>Customer unavailable</h2>
       <p>{{ errorMessage }}</p>
     </section>
   } @else if (customer(); as customerRecord) {
     @if (customerRecord.status === 'CLOSED') {
-      <section
-        class="submission-error"
-        role="alert"
-      >
+      <section class="submission-error" role="alert">
         <h2>Customer is closed</h2>
         <p>A closed Customer cannot be changed. Reopen the Customer first.</p>
       </section>
     } @else {
       @if (submissionError(); as errorMessage) {
-        <section
-          class="submission-error"
-          role="alert"
-        >
+        <section class="submission-error" role="alert">
           <h2>Update unsuccessful</h2>
           <p>{{ errorMessage }}</p>
         </section>
       }
 
-      <form
-        (ngSubmit)="submit()"
-        [formGroup]="updateForm"
-        class="registration-form"
-        novalidate
-      >
-        <section
-          aria-labelledby="contact-section-title"
-          class="form-section"
-        >
+      <form (ngSubmit)="submit()" [formGroup]="updateForm" class="registration-form" novalidate>
+        <section aria-labelledby="contact-section-title" class="form-section">
           <h2 id="contact-section-title">Contact details</h2>
           <div class="form-grid">
             <div class="form-field">
@@ -72,12 +42,9 @@
                 formControlName="email"
                 id="email"
                 type="email"
-              >
+              />
               @if (shouldShowError('email')) {
-                <p
-                  class="field-error"
-                  id="email-error"
-                >
+                <p class="field-error" id="email-error">
                   @if (updateForm.controls.email.hasError('email')) {
                     Enter a valid email address.
                   } @else {
@@ -94,12 +61,9 @@
                 formControlName="phone"
                 id="phone"
                 type="tel"
-              >
+              />
               @if (shouldShowError('phone')) {
-                <p
-                  class="field-error"
-                  id="phone-error"
-                >
+                <p class="field-error" id="phone-error">
                   Phone is required and must not exceed 30 characters.
                 </p>
               }
@@ -108,17 +72,8 @@
         </section>
 
         <footer class="form-actions">
-          <a
-            [routerLink]="customerLink()"
-            class="button button--secondary"
-          >
-            Cancel
-          </a>
-          <button
-            [disabled]="submitting()"
-            class="button button--primary"
-            type="submit"
-          >
+          <a [routerLink]="customerLink()" class="button button--secondary"> Cancel </a>
+          <button [disabled]="submitting()" class="button button--primary" type="submit">
             @if (submitting()) {
               Updating...
             } @else {

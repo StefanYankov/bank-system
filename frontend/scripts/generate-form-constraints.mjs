@@ -1,6 +1,6 @@
-import {mkdirSync, readFileSync, writeFileSync,} from 'node:fs';
-import {dirname} from 'node:path';
-import {pathToFileURL} from 'node:url';
+import { mkdirSync, readFileSync, writeFileSync } from 'node:fs';
+import { dirname } from 'node:path';
+import { pathToFileURL } from 'node:url';
 
 /**
  * Form-constraint generation settings per service.
@@ -15,25 +15,63 @@ export const SERVICE_CONFIGS = {
     outputPath: './src/app/generated/employee-schema-constraints.generated.ts',
     exportName: 'employeeSchemaConstraints',
     expectedSchemas: {
-      EmployeeRegistrationDto: ['identitySubjectId', 'firstName', 'lastName', 'workEmail', 'position', 'employmentStartDate',],
-      EmployeeUpdateDto: ['firstName', 'lastName', 'workEmail',],
+      EmployeeRegistrationDto: [
+        'identitySubjectId',
+        'firstName',
+        'lastName',
+        'workEmail',
+        'position',
+        'employmentStartDate',
+      ],
+      EmployeeUpdateDto: ['firstName', 'lastName', 'workEmail'],
     },
-  }, customer: {
+  },
+  customer: {
     openApiPath: './openapi/customer-service.json',
     outputPath: './src/app/generated/customer-schema-constraints.generated.ts',
     exportName: 'customerSchemaConstraints',
     expectedSchemas: {
-      AddressDto: ['countryCode', 'city', 'postalCode', 'addressLine1', 'addressLine2',],
-      CompanyNameUpdateDto: ['companyName',],
-      CustomerContactUpdateDto: ['email', 'phone',],
-      EgnCorrectionDto: ['egn',],
-      EikCorrectionDto: ['eik',],
-      IndividualCustomerNameUpdateDto: ['firstName', 'middleName', 'lastName',],
-      IndividualCustomerRegistrationDto: ['email', 'phone', 'firstName', 'middleName', 'lastName', 'egn', 'residentialAddress',],
-      LegalEntityCustomerRegistrationDto: ['email', 'phone', 'companyName', 'eik', 'registeredAddress', 'correspondenceAddress',],
-      RepresentationEndDto: ['validTo',],
-      RepresentativeAdditionDto: ['individualCustomerId', 'firstName', 'middleName', 'lastName', 'role', 'validFrom',],
-      RepresentativeCorrectionDto: ['individualCustomerId', 'firstName', 'middleName', 'lastName', 'role', 'validFrom', 'validTo',],
+      AddressDto: ['countryCode', 'city', 'postalCode', 'addressLine1', 'addressLine2'],
+      CompanyNameUpdateDto: ['companyName'],
+      CustomerContactUpdateDto: ['email', 'phone'],
+      EgnCorrectionDto: ['egn'],
+      EikCorrectionDto: ['eik'],
+      IndividualCustomerNameUpdateDto: ['firstName', 'middleName', 'lastName'],
+      IndividualCustomerRegistrationDto: [
+        'email',
+        'phone',
+        'firstName',
+        'middleName',
+        'lastName',
+        'egn',
+        'residentialAddress',
+      ],
+      LegalEntityCustomerRegistrationDto: [
+        'email',
+        'phone',
+        'companyName',
+        'eik',
+        'registeredAddress',
+        'correspondenceAddress',
+      ],
+      RepresentationEndDto: ['validTo'],
+      RepresentativeAdditionDto: [
+        'individualCustomerId',
+        'firstName',
+        'middleName',
+        'lastName',
+        'role',
+        'validFrom',
+      ],
+      RepresentativeCorrectionDto: [
+        'individualCustomerId',
+        'firstName',
+        'middleName',
+        'lastName',
+        'role',
+        'validFrom',
+        'validTo',
+      ],
     },
   },
 };
@@ -50,7 +88,10 @@ export function getServiceConfig(serviceName) {
   const config = serviceName === undefined ? undefined : SERVICE_CONFIGS[serviceName];
 
   if (config === undefined) {
-    throw new Error(`Unknown service "${serviceName}". Expected one of: ` + `${Object.keys(SERVICE_CONFIGS).join(', ')}.`,);
+    throw new Error(
+      `Unknown service "${serviceName}". Expected one of: ` +
+        `${Object.keys(SERVICE_CONFIGS).join(', ')}.`,
+    );
   }
 
   return config;
@@ -63,8 +104,7 @@ export function getServiceConfig(serviceName) {
  * @returns {Record<string, unknown>} parsed OpenAPI document
  */
 export function readOpenApiDocument(filePath) {
-  const fileContent = readFileSync(filePath)
-    .toString('utf8');
+  const fileContent = readFileSync(filePath).toString('utf8');
 
   return JSON.parse(fileContent);
 }
@@ -80,13 +120,13 @@ export function getSchemas(openApiDocument) {
   const components = openApiDocument.components;
 
   if (!isRecord(components)) {
-    throw new Error('OpenAPI contract does not contain a valid components object.',);
+    throw new Error('OpenAPI contract does not contain a valid components object.');
   }
 
   const schemas = components.schemas;
 
   if (!isRecordOfRecords(schemas)) {
-    throw new Error('OpenAPI contract does not contain valid components.schemas.',);
+    throw new Error('OpenAPI contract does not contain valid components.schemas.');
   }
 
   return schemas;
@@ -105,23 +145,25 @@ export function getSchemas(openApiDocument) {
  * generated constraint metadata
  * @throws {Error} when an expected schema or property is missing
  */
-export function extractConstraints(schemas, expectedSchemas,) {
+export function extractConstraints(schemas, expectedSchemas) {
   const constraints = {};
 
   for (const [schemaName, expectedProperties] of Object.entries(expectedSchemas)) {
     const schema = schemas[schemaName];
 
     if (schema === undefined) {
-      throw new Error(`Expected OpenAPI schema "${schemaName}" was not found.`,);
+      throw new Error(`Expected OpenAPI schema "${schemaName}" was not found.`);
     }
 
     const properties = schema.properties;
 
     if (!isRecordOfRecords(properties)) {
-      throw new Error(`OpenAPI schema "${schemaName}" has no valid properties.`,);
+      throw new Error(`OpenAPI schema "${schemaName}" has no valid properties.`);
     }
 
-    const requiredProperties = new Set(Array.isArray(schema.required) ? schema.required.filter(isString) : [],);
+    const requiredProperties = new Set(
+      Array.isArray(schema.required) ? schema.required.filter(isString) : [],
+    );
 
     const schemaConstraints = {};
 
@@ -129,11 +171,17 @@ export function extractConstraints(schemas, expectedSchemas,) {
       const property = properties[propertyName];
 
       if (property === undefined) {
-        throw new Error(`Expected property "${schemaName}.${propertyName}" ` + 'was not found.',);
+        throw new Error(`Expected property "${schemaName}.${propertyName}" ` + 'was not found.');
       }
 
       schemaConstraints[propertyName] = {
-        required: requiredProperties.has(propertyName), ...(isNumber(property.maxLength) ? {maxLength: property.maxLength} : {}), ...(isNumber(property.minLength) ? {minLength: property.minLength} : {}), ...(isString(property.pattern) ? {pattern: property.pattern} : {}), ...(isNumber(property.minimum) ? {minimum: property.minimum} : {}), ...(isNumber(property.maximum) ? {maximum: property.maximum} : {}), ...(isString(property.format) ? {format: property.format} : {}),
+        required: requiredProperties.has(propertyName),
+        ...(isNumber(property.maxLength) ? { maxLength: property.maxLength } : {}),
+        ...(isNumber(property.minLength) ? { minLength: property.minLength } : {}),
+        ...(isString(property.pattern) ? { pattern: property.pattern } : {}),
+        ...(isNumber(property.minimum) ? { minimum: property.minimum } : {}),
+        ...(isNumber(property.maximum) ? { maximum: property.maximum } : {}),
+        ...(isString(property.format) ? { format: property.format } : {}),
       };
     }
 
@@ -152,14 +200,14 @@ export function extractConstraints(schemas, expectedSchemas,) {
  * @param {string} exportName name of the exported constant
  * @returns {string} generated TypeScript source
  */
-export function createTypeScriptSource(constraints, openApiPath, exportName,) {
+export function createTypeScriptSource(constraints, openApiPath, exportName) {
   const sourceName = openApiPath.replace(/^\.\//, '');
 
   return `/*
  * Auto-generated from ${sourceName}.
  * Do not edit manually.
  */
-export const ${exportName} = ${JSON.stringify(constraints, null, 2,)} as const;
+export const ${exportName} = ${JSON.stringify(constraints, null, 2)} as const;
 `;
 }
 
@@ -169,12 +217,12 @@ export const ${exportName} = ${JSON.stringify(constraints, null, 2,)} as const;
  * @param {string} outputPath generated file path
  * @param {string} fileContent generated TypeScript source
  */
-export function writeGeneratedFile(outputPath, fileContent,) {
+export function writeGeneratedFile(outputPath, fileContent) {
   mkdirSync(dirname(outputPath), {
     recursive: true,
   });
 
-  writeFileSync(outputPath, fileContent, 'utf8',);
+  writeFileSync(outputPath, fileContent, 'utf8');
 }
 
 /**
@@ -230,17 +278,17 @@ export function isNumber(value) {
 export function generateFormConstraints(serviceName) {
   const config = getServiceConfig(serviceName);
 
-  const openApiDocument = readOpenApiDocument(config.openApiPath,);
+  const openApiDocument = readOpenApiDocument(config.openApiPath);
 
   const schemas = getSchemas(openApiDocument);
 
-  const constraints = extractConstraints(schemas, config.expectedSchemas,);
+  const constraints = extractConstraints(schemas, config.expectedSchemas);
 
-  const fileContent = createTypeScriptSource(constraints, config.openApiPath, config.exportName,);
+  const fileContent = createTypeScriptSource(constraints, config.openApiPath, config.exportName);
 
-  writeGeneratedFile(config.outputPath, fileContent,);
+  writeGeneratedFile(config.outputPath, fileContent);
 
-  console.log(`Generated ${serviceName} form constraints: ${config.outputPath}`,);
+  console.log(`Generated ${serviceName} form constraints: ${config.outputPath}`);
 }
 
 const executedFile = process.argv[1];

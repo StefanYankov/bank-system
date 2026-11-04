@@ -1,14 +1,24 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {Component, computed, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {FormControl, ReactiveFormsModule} from '@angular/forms';
-import {RouterLink} from '@angular/router';
-import {catchError, debounceTime, distinctUntilChanged, map, of, startWith, Subject, switchMap, tap} from 'rxjs';
-import {AuthSession} from '../../../../core/auth/auth-session';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, computed, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { FormControl, ReactiveFormsModule } from '@angular/forms';
+import { RouterLink } from '@angular/router';
+import {
+  catchError,
+  debounceTime,
+  distinctUntilChanged,
+  map,
+  of,
+  startWith,
+  Subject,
+  switchMap,
+  tap,
+} from 'rxjs';
+import { AuthSession } from '../../../../core/auth/auth-session';
 import {
   CustomerAPIService,
   CustomerSummaryDto,
-  PagedResponseCustomerSummaryDto
+  PagedResponseCustomerSummaryDto,
 } from '../../../../generated/customer-api';
 
 interface SearchRequest {
@@ -18,13 +28,13 @@ interface SearchRequest {
 
 type SearchOutcome =
   | {
-  readonly kind: 'success';
-  readonly response: PagedResponseCustomerSummaryDto;
-}
+      readonly kind: 'success';
+      readonly response: PagedResponseCustomerSummaryDto;
+    }
   | {
-  readonly kind: 'error';
-  readonly error: unknown;
-};
+      readonly kind: 'error';
+      readonly error: unknown;
+    };
 
 /**
  * Searches Customers of both types and displays paginated summary results.
@@ -39,7 +49,7 @@ export class CustomerSearch implements OnInit {
   private static readonly PAGE_SIZE = 10;
   private static readonly SEARCH_DEBOUNCE_MS = 300;
 
-  protected readonly queryControl = new FormControl('', {nonNullable: true});
+  protected readonly queryControl = new FormControl('', { nonNullable: true });
   private readonly authSession = inject(AuthSession);
 
   protected readonly customers = signal<readonly CustomerSummaryDto[]>([]);
@@ -50,9 +60,8 @@ export class CustomerSearch implements OnInit {
   protected readonly totalPages = signal(0);
   protected readonly last = signal(true);
 
-  protected readonly canMaintainCustomers = computed(() =>
-    this.authSession.hasRealmRole('CLERK')
-    || this.authSession.hasRealmRole('ADMIN'),
+  protected readonly canMaintainCustomers = computed(
+    () => this.authSession.hasRealmRole('CLERK') || this.authSession.hasRealmRole('ADMIN'),
   );
 
   private readonly customerApi = inject(CustomerAPIService);
@@ -72,10 +81,8 @@ export class CustomerSearch implements OnInit {
         }),
         switchMap((request) =>
           this.search(request).pipe(
-            map((response): SearchOutcome => ({kind: 'success', response})),
-            catchError((error: unknown) =>
-              of<SearchOutcome>({kind: 'error', error}),
-            ),
+            map((response): SearchOutcome => ({ kind: 'success', response })),
+            catchError((error: unknown) => of<SearchOutcome>({ kind: 'error', error })),
           ),
         ),
         takeUntilDestroyed(this.destroyRef),
@@ -136,29 +143,23 @@ export class CustomerSearch implements OnInit {
       : ['/customers/legal-entities', customer.id];
   }
 
-  protected customerTypeLabel(
-    customerType: CustomerSummaryDto.CustomerTypeEnum,
-  ): string {
+  protected customerTypeLabel(customerType: CustomerSummaryDto.CustomerTypeEnum): string {
     return customerType === CustomerSummaryDto.CustomerTypeEnum.Individual
       ? 'Individual'
       : 'Legal entity';
   }
 
-  protected identifierLabel(
-    customerType: CustomerSummaryDto.CustomerTypeEnum,
-  ): string {
-    return customerType === CustomerSummaryDto.CustomerTypeEnum.Individual
-      ? 'EGN'
-      : 'EIK';
+  protected identifierLabel(customerType: CustomerSummaryDto.CustomerTypeEnum): string {
+    return customerType === CustomerSummaryDto.CustomerTypeEnum.Individual ? 'EGN' : 'EIK';
   }
 
   private requestPage(page: number): void {
-    this.requests.next({query: this.currentQuery, page});
+    this.requests.next({ query: this.currentQuery, page });
   }
 
   private search(request: SearchRequest) {
     return this.customerApi.searchCustomers({
-      ...(request.query.length > 0 ? {query: request.query} : {}),
+      ...(request.query.length > 0 ? { query: request.query } : {}),
       page: request.page,
       size: CustomerSearch.PAGE_SIZE,
       sort: ['customerNumber,asc'],

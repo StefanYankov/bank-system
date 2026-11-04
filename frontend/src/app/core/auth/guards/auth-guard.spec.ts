@@ -1,9 +1,9 @@
-import {ActivatedRouteSnapshot, RouterStateSnapshot,} from '@angular/router';
-import {AuthGuardData} from 'keycloak-angular';
+import { ActivatedRouteSnapshot, RouterStateSnapshot } from '@angular/router';
+import { AuthGuardData } from 'keycloak-angular';
 import Keycloak from 'keycloak-js';
-import {beforeEach, describe, expect, it, vi,} from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {isAuthenticated} from './auth-guard';
+import { isAuthenticated } from './auth-guard';
 
 describe('isAuthenticated', () => {
   const loginMock = vi.fn();
@@ -23,11 +23,7 @@ describe('isAuthenticated', () => {
     const authData = createAuthData(true);
 
     // Act
-    const result = await isAuthenticated(
-      route,
-      state,
-      authData,
-    );
+    const result = await isAuthenticated(route, state, authData);
 
     // Assert
     expect(result).toBe(true);
@@ -39,26 +35,17 @@ describe('isAuthenticated', () => {
     const authData = createAuthData(false);
 
     // Act
-    const result = await isAuthenticated(
-      route,
-      state,
-      authData,
-    );
+    const result = await isAuthenticated(route, state, authData);
 
     // Assert
     expect(result).toBe(false);
     expect(loginMock).toHaveBeenCalledOnce();
     expect(loginMock).toHaveBeenCalledWith({
-      redirectUri: new URL(
-        '/protected',
-        window.location.origin,
-      ).toString(),
+      redirectUri: new URL('/protected', window.location.origin).toString(),
     });
   });
 
-  function createAuthData(
-    authenticated: boolean,
-  ): AuthGuardData {
+  function createAuthData(authenticated: boolean): AuthGuardData {
     return {
       authenticated,
       grantedRoles: {

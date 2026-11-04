@@ -1,36 +1,24 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {Component, DestroyRef, inject, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {Router, RouterLink} from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, inject, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { Router, RouterLink } from '@angular/router';
 
-import {egnValidator} from '../../../../../core/forms/egn-validator';
-import {notBlankValidator} from '../../../../../core/forms/not-blank-validator';
+import { egnValidator } from '../../../../../core/forms/egn-validator';
+import { notBlankValidator } from '../../../../../core/forms/not-blank-validator';
 import {
   IndividualCustomerAPIService,
   IndividualCustomerRegistrationDto,
-  IndividualCustomerViewDto
+  IndividualCustomerViewDto,
 } from '../../../../../generated/customer-api';
-import {customerSchemaConstraints} from '../../../../../generated/customer-schema-constraints.generated';
+import { customerSchemaConstraints } from '../../../../../generated/customer-schema-constraints.generated';
 
-const registrationConstraints =
-  customerSchemaConstraints.IndividualCustomerRegistrationDto;
+const registrationConstraints = customerSchemaConstraints.IndividualCustomerRegistrationDto;
 const addressConstraints = customerSchemaConstraints.AddressDto;
 
-type RegistrationControl =
-  | 'email'
-  | 'phone'
-  | 'firstName'
-  | 'middleName'
-  | 'lastName'
-  | 'egn';
+type RegistrationControl = 'email' | 'phone' | 'firstName' | 'middleName' | 'lastName' | 'egn';
 
-type AddressControl =
-  | 'countryCode'
-  | 'city'
-  | 'postalCode'
-  | 'addressLine1'
-  | 'addressLine2';
+type AddressControl = 'countryCode' | 'city' | 'postalCode' | 'addressLine1' | 'addressLine2';
 
 /**
  * Registers a new Individual Customer.
@@ -142,16 +130,14 @@ export class IndividualCustomerRegistration {
     this.submissionError.set(null);
     const request = this.createRegistrationRequest();
 
-    this.customerApi.registerIndividualCustomer({
-      individualCustomerRegistrationDto: request,
-    })
+    this.customerApi
+      .registerIndividualCustomer({
+        individualCustomerRegistrationDto: request,
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (customer: IndividualCustomerViewDto) => {
-          void this.router.navigate([
-            '/customers/individuals',
-            customer.id,
-          ]);
+          void this.router.navigate(['/customers/individuals', customer.id]);
         },
         error: (error: unknown) => {
           this.submissionError.set(this.errorMessage(error));
@@ -178,31 +164,33 @@ export class IndividualCustomerRegistration {
    * @returns true when the control is invalid and has been touched
    */
   protected shouldShowAddressError(controlName: AddressControl): boolean {
-    const control =
-      this.registrationForm.controls.residentialAddress.controls[controlName];
+    const control = this.registrationForm.controls.residentialAddress.controls[controlName];
     return control.invalid && control.touched;
   }
 
   private normalizeFormValues(): void {
     const value = this.registrationForm.getRawValue();
 
-    this.registrationForm.patchValue({
-      email: value.email.trim(),
-      phone: value.phone.trim(),
-      firstName: value.firstName.trim(),
-      middleName: value.middleName.trim(),
-      lastName: value.lastName.trim(),
-      egn: value.egn.trim(),
-      residentialAddress: {
-        countryCode: value.residentialAddress.countryCode.trim().toUpperCase(),
-        city: value.residentialAddress.city.trim(),
-        postalCode: value.residentialAddress.postalCode.trim(),
-        addressLine1: value.residentialAddress.addressLine1.trim(),
-        addressLine2: value.residentialAddress.addressLine2.trim(),
+    this.registrationForm.patchValue(
+      {
+        email: value.email.trim(),
+        phone: value.phone.trim(),
+        firstName: value.firstName.trim(),
+        middleName: value.middleName.trim(),
+        lastName: value.lastName.trim(),
+        egn: value.egn.trim(),
+        residentialAddress: {
+          countryCode: value.residentialAddress.countryCode.trim().toUpperCase(),
+          city: value.residentialAddress.city.trim(),
+          postalCode: value.residentialAddress.postalCode.trim(),
+          addressLine1: value.residentialAddress.addressLine1.trim(),
+          addressLine2: value.residentialAddress.addressLine2.trim(),
+        },
       },
-    }, {
-      emitEvent: false,
-    });
+      {
+        emitEvent: false,
+      },
+    );
   }
 
   private createRegistrationRequest(): IndividualCustomerRegistrationDto {
@@ -212,9 +200,7 @@ export class IndividualCustomerRegistration {
       email: value.email,
       phone: value.phone,
       firstName: value.firstName,
-      ...(value.middleName.length > 0
-        ? {middleName: value.middleName}
-        : {}),
+      ...(value.middleName.length > 0 ? { middleName: value.middleName } : {}),
       lastName: value.lastName,
       egn: value.egn,
       residentialAddress: {
@@ -223,7 +209,7 @@ export class IndividualCustomerRegistration {
         postalCode: value.residentialAddress.postalCode,
         addressLine1: value.residentialAddress.addressLine1,
         ...(value.residentialAddress.addressLine2.length > 0
-          ? {addressLine2: value.residentialAddress.addressLine2}
+          ? { addressLine2: value.residentialAddress.addressLine2 }
           : {}),
       },
     };

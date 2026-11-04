@@ -1,8 +1,12 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {Component, DestroyRef, inject, OnInit, signal,} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {EmployeeAPIService, EmployeeViewDto, PagedResponseEmployeeViewDto,} from '../../../../generated/employee-api';
-import {RouterLink} from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import {
+  EmployeeAPIService,
+  EmployeeViewDto,
+  PagedResponseEmployeeViewDto,
+} from '../../../../generated/employee-api';
+import { RouterLink } from '@angular/router';
 
 /**
  * Displays a paginated administrative list of Employees.
@@ -18,7 +22,6 @@ import {RouterLink} from '@angular/router';
   styleUrl: './employee-list.css',
 })
 export class EmployeeList implements OnInit {
-
   private static readonly PAGE_SIZE = 10;
   private readonly employeeApi = inject(EmployeeAPIService);
   private readonly destroyRef = inject(DestroyRef);
@@ -75,11 +78,12 @@ export class EmployeeList implements OnInit {
   private loadPage(page: number): void {
     this.loading.set(true);
     this.error.set(null);
-    this.employeeApi.getEmployees({
-      page,
-      size: EmployeeList.PAGE_SIZE,
-      sort: ['employeeNumber,asc'],
-    })
+    this.employeeApi
+      .getEmployees({
+        page,
+        size: EmployeeList.PAGE_SIZE,
+        sort: ['employeeNumber,asc'],
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (response: PagedResponseEmployeeViewDto) => {
@@ -99,9 +103,7 @@ export class EmployeeList implements OnInit {
    *
    * @param response paginated Employee response returned by Employee Service
    */
-  private applyPage(
-    response: PagedResponseEmployeeViewDto,
-  ): void {
+  private applyPage(response: PagedResponseEmployeeViewDto): void {
     this.employees.set(response.content);
     this.page.set(response.page);
     this.totalElements.set(response.totalElements);
@@ -119,10 +121,7 @@ export class EmployeeList implements OnInit {
    * @return message displayed by the Employee list page
    */
   private errorMessage(error: unknown): string {
-    if (
-      error instanceof HttpErrorResponse
-      && error.status === 403
-    ) {
+    if (error instanceof HttpErrorResponse && error.status === 403) {
       return 'You do not have permission to view employees.';
     }
 

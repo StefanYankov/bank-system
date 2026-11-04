@@ -4,23 +4,16 @@
       <p class="customer-search__label">Customer management</p>
       <h1 id="customer-search-title">Customers</h1>
       <p class="customer-search__description">
-        Search individual and legal-entity customers by customer number,
-        name, EGN, or EIK.
+        Search individual and legal-entity customers by customer number, name, EGN, or EIK.
       </p>
     </div>
 
     @if (canMaintainCustomers()) {
       <div class="customer-search__actions">
-        <a
-          class="button button--primary"
-          routerLink="/customers/individuals/register"
-        >
+        <a class="button button--primary" routerLink="/customers/individuals/register">
           Register individual customer
         </a>
-        <a
-          class="button button--primary"
-          routerLink="/customers/legal-entities/register"
-        >
+        <a class="button button--primary" routerLink="/customers/legal-entities/register">
           Register legal-entity customer
         </a>
       </div>
@@ -28,9 +21,7 @@
   </header>
 
   <section aria-labelledby="customer-search-form-title" class="search-panel">
-    <h2 class="visually-hidden" id="customer-search-form-title">
-      Search customers
-    </h2>
+    <h2 class="visually-hidden" id="customer-search-form-title">Search customers</h2>
 
     <label for="customer-query">Search customers</label>
     <div class="search-panel__controls">
@@ -41,7 +32,7 @@
         maxlength="100"
         placeholder="Customer number, name, EGN, or EIK"
         type="search"
-      >
+      />
       <button
         (click)="clearSearch()"
         [disabled]="queryControl.value.length === 0"
@@ -62,13 +53,7 @@
     <section class="state-panel state-panel--error" role="alert">
       <h2>Customers unavailable</h2>
       <p>{{ errorMessage }}</p>
-      <button
-        (click)="retry()"
-        class="button button--primary"
-        type="button"
-      >
-        Try again
-      </button>
+      <button (click)="retry()" class="button button--primary" type="button">Try again</button>
     </section>
   } @else if (customers().length === 0) {
     <section class="state-panel">
@@ -82,24 +67,23 @@
   } @else {
     <div class="customer-table-container">
       <table class="customer-table">
-        <caption class="visually-hidden">Customer search results</caption>
+        <caption class="visually-hidden">
+          Customer search results
+        </caption>
         <thead>
-        <tr>
-          <th scope="col">Customer number</th>
-          <th scope="col">Name</th>
-          <th scope="col">Type</th>
-          <th scope="col">Identifier</th>
-          <th scope="col">Status</th>
-        </tr>
+          <tr>
+            <th scope="col">Customer number</th>
+            <th scope="col">Name</th>
+            <th scope="col">Type</th>
+            <th scope="col">Identifier</th>
+            <th scope="col">Status</th>
+          </tr>
         </thead>
         <tbody>
           @for (customer of customers(); track customer.id) {
             <tr>
               <td>
-                <a
-                  [routerLink]="detailsLink(customer)"
-                  class="customer-link"
-                >
+                <a [routerLink]="detailsLink(customer)" class="customer-link">
                   {{ customer.customerNumber }}
                 </a>
               </td>
@@ -139,9 +123,7 @@
         >
           Previous
         </button>
-        <span class="pagination__page">
-          Page {{ page() + 1 }} of {{ totalPages() }}
-        </span>
+        <span class="pagination__page"> Page {{ page() + 1 }} of {{ totalPages() }} </span>
         <button
           (click)="nextPage()"
           [disabled]="last() || loading()"

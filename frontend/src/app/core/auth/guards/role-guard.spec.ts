@@ -1,10 +1,16 @@
-import {TestBed} from '@angular/core/testing';
-import {ActivatedRouteSnapshot, provideRouter, Router, RouterStateSnapshot, UrlTree,} from '@angular/router';
-import {AuthGuardData} from 'keycloak-angular';
+import { TestBed } from '@angular/core/testing';
+import {
+  ActivatedRouteSnapshot,
+  provideRouter,
+  Router,
+  RouterStateSnapshot,
+  UrlTree,
+} from '@angular/router';
+import { AuthGuardData } from 'keycloak-angular';
 import Keycloak from 'keycloak-js';
-import {beforeEach, describe, expect, it, vi,} from 'vitest';
+import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-import {hasRequiredRole, ROUTE_ROLES,} from './role-guard';
+import { hasRequiredRole, ROUTE_ROLES } from './role-guard';
 
 describe('hasRequiredRole', () => {
   const loginMock = vi.fn();
@@ -18,9 +24,7 @@ describe('hasRequiredRole', () => {
     loginMock.mockResolvedValue(undefined);
 
     TestBed.configureTestingModule({
-      providers: [
-        provideRouter([]),
-      ],
+      providers: [provideRouter([])],
     });
   });
 
@@ -38,10 +42,7 @@ describe('hasRequiredRole', () => {
     expect(result).toBe(false);
     expect(loginMock).toHaveBeenCalledOnce();
     expect(loginMock).toHaveBeenCalledWith({
-      redirectUri: new URL(
-        '/admin',
-        window.location.origin,
-      ).toString(),
+      redirectUri: new URL('/admin', window.location.origin).toString(),
     });
   });
 
@@ -62,14 +63,8 @@ describe('hasRequiredRole', () => {
 
   it('should allow a user with one of the required roles', async () => {
     // Arrange
-    const route = createRoute([
-      'ADMIN',
-      'LOAN_OFFICER',
-    ]);
-    const authData = createAuthData(
-      true,
-      ['LOAN_OFFICER'],
-    );
+    const route = createRoute(['ADMIN', 'LOAN_OFFICER']);
+    const authData = createAuthData(true, ['LOAN_OFFICER']);
 
     // Act
     const result = await TestBed.runInInjectionContext(() =>
@@ -96,29 +91,22 @@ describe('hasRequiredRole', () => {
 
     const router = TestBed.inject(Router);
 
-    expect(
-      router.serializeUrl(result as UrlTree),
-    ).toBe('/forbidden');
+    expect(router.serializeUrl(result as UrlTree)).toBe('/forbidden');
 
     expect(loginMock).not.toHaveBeenCalled();
   });
 
-  function createRoute(
-    roles?: readonly string[],
-  ): ActivatedRouteSnapshot {
+  function createRoute(roles?: readonly string[]): ActivatedRouteSnapshot {
     return {
       data: roles
         ? {
-          [ROUTE_ROLES]: roles,
-        }
+            [ROUTE_ROLES]: roles,
+          }
         : {},
     } as unknown as ActivatedRouteSnapshot;
   }
 
-  function createAuthData(
-    authenticated: boolean,
-    realmRoles: string[],
-  ): AuthGuardData {
+  function createAuthData(authenticated: boolean, realmRoles: string[]): AuthGuardData {
     return {
       authenticated,
       grantedRoles: {

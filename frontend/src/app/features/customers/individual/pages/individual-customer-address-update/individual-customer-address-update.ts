@@ -1,16 +1,16 @@
-import {HttpErrorResponse} from '@angular/common/http';
-import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
-import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
-import {NonNullableFormBuilder, ReactiveFormsModule, Validators} from '@angular/forms';
-import {ActivatedRoute, Router, RouterLink} from '@angular/router';
+import { HttpErrorResponse } from '@angular/common/http';
+import { Component, DestroyRef, inject, OnInit, signal } from '@angular/core';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { NonNullableFormBuilder, ReactiveFormsModule, Validators } from '@angular/forms';
+import { ActivatedRoute, Router, RouterLink } from '@angular/router';
 
-import {notBlankValidator} from '../../../../../core/forms/not-blank-validator';
+import { notBlankValidator } from '../../../../../core/forms/not-blank-validator';
 import {
   AddressDto,
   IndividualCustomerAPIService,
-  IndividualCustomerViewDto
+  IndividualCustomerViewDto,
 } from '../../../../../generated/customer-api';
-import {customerSchemaConstraints} from '../../../../../generated/customer-schema-constraints.generated';
+import { customerSchemaConstraints } from '../../../../../generated/customer-schema-constraints.generated';
 
 const addressConstraints = customerSchemaConstraints.AddressDto;
 
@@ -73,7 +73,8 @@ export class IndividualCustomerAddressUpdate implements OnInit {
       return;
     }
 
-    this.customerApi.getIndividualCustomer({id: customerId})
+    this.customerApi
+      .getIndividualCustomer({ id: customerId })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (customer: IndividualCustomerViewDto) => {
@@ -110,10 +111,11 @@ export class IndividualCustomerAddressUpdate implements OnInit {
     this.submitting.set(true);
     this.submissionError.set(null);
 
-    this.customerApi.changeIndividualCustomerResidentialAddress({
-      id: customer.id,
-      addressDto: this.createRequest(),
-    })
+    this.customerApi
+      .changeIndividualCustomerResidentialAddress({
+        id: customer.id,
+        addressDto: this.createRequest(),
+      })
       .pipe(takeUntilDestroyed(this.destroyRef))
       .subscribe({
         next: (updated: IndividualCustomerViewDto) => {
@@ -148,15 +150,18 @@ export class IndividualCustomerAddressUpdate implements OnInit {
 
   private normalizeFormValues(): void {
     const value = this.updateForm.getRawValue();
-    this.updateForm.setValue({
-      countryCode: value.countryCode.trim().toUpperCase(),
-      city: value.city.trim(),
-      postalCode: value.postalCode.trim(),
-      addressLine1: value.addressLine1.trim(),
-      addressLine2: value.addressLine2.trim(),
-    }, {
-      emitEvent: false,
-    });
+    this.updateForm.setValue(
+      {
+        countryCode: value.countryCode.trim().toUpperCase(),
+        city: value.city.trim(),
+        postalCode: value.postalCode.trim(),
+        addressLine1: value.addressLine1.trim(),
+        addressLine2: value.addressLine2.trim(),
+      },
+      {
+        emitEvent: false,
+      },
+    );
   }
 
   private createRequest(): AddressDto {
@@ -166,7 +171,7 @@ export class IndividualCustomerAddressUpdate implements OnInit {
       city: value.city,
       postalCode: value.postalCode,
       addressLine1: value.addressLine1,
-      ...(value.addressLine2.length > 0 ? {addressLine2: value.addressLine2} : {}),
+      ...(value.addressLine2.length > 0 ? { addressLine2: value.addressLine2 } : {}),
     };
   }
 

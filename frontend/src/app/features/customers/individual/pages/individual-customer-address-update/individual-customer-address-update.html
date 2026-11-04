@@ -1,13 +1,5 @@
-<section
-  aria-labelledby="address-update-title"
-  class="customer-maintenance"
->
-  <a
-    [routerLink]="customerLink()"
-    class="back-link"
-  >
-    ← Back to customer
-  </a>
+<section aria-labelledby="address-update-title" class="customer-maintenance">
+  <a [routerLink]="customerLink()" class="back-link"> ← Back to customer </a>
 
   <header>
     <p class="customer-maintenance__label">Individual Customer</p>
@@ -18,50 +10,28 @@
   </header>
 
   @if (loading()) {
-    <p
-      class="customer-maintenance__status"
-      role="status"
-    >
-      Loading Individual Customer...
-    </p>
+    <p class="customer-maintenance__status" role="status">Loading Individual Customer...</p>
   } @else if (loadError(); as errorMessage) {
-    <section
-      class="submission-error"
-      role="alert"
-    >
+    <section class="submission-error" role="alert">
       <h2>Customer unavailable</h2>
       <p>{{ errorMessage }}</p>
     </section>
   } @else if (customer(); as customerRecord) {
     @if (customerRecord.status === 'CLOSED') {
-      <section
-        class="submission-error"
-        role="alert"
-      >
+      <section class="submission-error" role="alert">
         <h2>Customer is closed</h2>
         <p>A closed Customer cannot be changed. Reopen the Customer first.</p>
       </section>
     } @else {
       @if (submissionError(); as errorMessage) {
-        <section
-          class="submission-error"
-          role="alert"
-        >
+        <section class="submission-error" role="alert">
           <h2>Update unsuccessful</h2>
           <p>{{ errorMessage }}</p>
         </section>
       }
 
-      <form
-        (ngSubmit)="submit()"
-        [formGroup]="updateForm"
-        class="registration-form"
-        novalidate
-      >
-        <section
-          aria-labelledby="address-section-title"
-          class="form-section"
-        >
+      <form (ngSubmit)="submit()" [formGroup]="updateForm" class="registration-form" novalidate>
+        <section aria-labelledby="address-section-title" class="form-section">
           <h2 id="address-section-title">Residential address</h2>
           <div class="form-grid">
             <div class="form-field">
@@ -73,14 +43,9 @@
                 id="country-code"
                 maxlength="2"
                 type="text"
-              >
+              />
               @if (shouldShowError('countryCode')) {
-                <p
-                  class="field-error"
-                  id="country-code-error"
-                >
-                  Enter a two-letter country code.
-                </p>
+                <p class="field-error" id="country-code-error">Enter a two-letter country code.</p>
               }
             </div>
             <div class="form-field">
@@ -91,12 +56,9 @@
                 formControlName="city"
                 id="city"
                 type="text"
-              >
+              />
               @if (shouldShowError('city')) {
-                <p
-                  class="field-error"
-                  id="city-error"
-                >
+                <p class="field-error" id="city-error">
                   City is required and must not exceed 100 characters.
                 </p>
               }
@@ -109,12 +71,9 @@
                 formControlName="postalCode"
                 id="postal-code"
                 type="text"
-              >
+              />
               @if (shouldShowError('postalCode')) {
-                <p
-                  class="field-error"
-                  id="postal-code-error"
-                >
+                <p class="field-error" id="postal-code-error">
                   Postal code is required and must not exceed 20 characters.
                 </p>
               }
@@ -127,12 +86,9 @@
                 formControlName="addressLine1"
                 id="address-line-1"
                 type="text"
-              >
+              />
               @if (shouldShowError('addressLine1')) {
-                <p
-                  class="field-error"
-                  id="address-line-1-error"
-                >
+                <p class="field-error" id="address-line-1-error">
                   Address line 1 is required and must not exceed 200 characters.
                 </p>
               }
@@ -145,12 +101,9 @@
                 formControlName="addressLine2"
                 id="address-line-2"
                 type="text"
-              >
+              />
               @if (shouldShowError('addressLine2')) {
-                <p
-                  class="field-error"
-                  id="address-line-2-error"
-                >
+                <p class="field-error" id="address-line-2-error">
                   Address line 2 must not exceed 200 characters.
                 </p>
               }
@@ -159,17 +112,8 @@
         </section>
 
         <footer class="form-actions">
-          <a
-            [routerLink]="customerLink()"
-            class="button button--secondary"
-          >
-            Cancel
-          </a>
-          <button
-            [disabled]="submitting()"
-            class="button button--primary"
-            type="submit"
-          >
+          <a [routerLink]="customerLink()" class="button button--secondary"> Cancel </a>
+          <button [disabled]="submitting()" class="button button--primary" type="submit">
             @if (submitting()) {
               Updating...
             } @else {

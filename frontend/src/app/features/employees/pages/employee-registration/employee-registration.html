@@ -1,22 +1,10 @@
-<section
-  aria-labelledby="employee-registration-title"
-  class="employee-registration"
->
-  <a
-    class="back-link"
-    routerLink="/admin/employees"
-  >
-    ← Back to employees
-  </a>
+<section aria-labelledby="employee-registration-title" class="employee-registration">
+  <a class="back-link" routerLink="/admin/employees"> ← Back to employees </a>
 
   <header class="employee-registration__header">
-    <p class="employee-registration__label">
-      Employee administration
-    </p>
+    <p class="employee-registration__label">Employee administration</p>
 
-    <h1 id="employee-registration-title">
-      Register Employee
-    </h1>
+    <h1 id="employee-registration-title">Register Employee</h1>
 
     <p class="employee-registration__description">
       Create an Employee record linked to an existing Keycloak account.
@@ -24,38 +12,22 @@
   </header>
 
   @if (submissionError(); as errorMessage) {
-    <section
-      class="submission-error"
-      role="alert"
-    >
+    <section class="submission-error" role="alert">
       <h2>Registration unsuccessful</h2>
       <p>{{ errorMessage }}</p>
     </section>
   }
 
-  <form
-    (ngSubmit)="submit()"
-    [formGroup]="registrationForm"
-    class="registration-form"
-    novalidate
-  >
-    <section
-      aria-labelledby="identity-section-title"
-      class="form-section"
-    >
-      <h2 id="identity-section-title">
-        Identity link
-      </h2>
+  <form (ngSubmit)="submit()" [formGroup]="registrationForm" class="registration-form" novalidate>
+    <section aria-labelledby="identity-section-title" class="form-section">
+      <h2 id="identity-section-title">Identity link</h2>
 
       <p class="form-section__description">
-        The Keycloak account must already exist before the Employee
-        can be registered.
+        The Keycloak account must already exist before the Employee can be registered.
       </p>
 
       <div class="form-field form-field--full-width">
-        <label for="identity-subject-id">
-          Keycloak subject ID
-        </label>
+        <label for="identity-subject-id"> Keycloak subject ID </label>
 
         <input
           aria-describedby="identity-subject-id-help identity-subject-id-error"
@@ -63,25 +35,15 @@
           formControlName="identitySubjectId"
           id="identity-subject-id"
           type="text"
-        >
+        />
 
-        <p
-          class="field-help"
-          id="identity-subject-id-help"
-        >
+        <p class="field-help" id="identity-subject-id-help">
           Enter the immutable subject ID of the existing Keycloak account.
         </p>
 
         @if (shouldShowError('identitySubjectId')) {
-          <p
-            class="field-error"
-            id="identity-subject-id-error"
-          >
-            @if (
-              registrationForm.controls.identitySubjectId.hasError(
-                'required'
-              )
-              ) {
+          <p class="field-error" id="identity-subject-id-error">
+            @if (registrationForm.controls.identitySubjectId.hasError('required')) {
               Keycloak subject ID is required.
             } @else {
               Keycloak subject ID must not exceed 255 characters.
@@ -91,19 +53,12 @@
       </div>
     </section>
 
-    <section
-      aria-labelledby="profile-section-title"
-      class="form-section"
-    >
-      <h2 id="profile-section-title">
-        Employee profile
-      </h2>
+    <section aria-labelledby="profile-section-title" class="form-section">
+      <h2 id="profile-section-title">Employee profile</h2>
 
       <div class="form-grid">
         <div class="form-field">
-          <label for="first-name">
-            First name
-          </label>
+          <label for="first-name"> First name </label>
 
           <input
             aria-describedby="first-name-error"
@@ -111,18 +66,11 @@
             formControlName="firstName"
             id="first-name"
             type="text"
-          >
+          />
 
           @if (shouldShowError('firstName')) {
-            <p
-              class="field-error"
-              id="first-name-error"
-            >
-              @if (
-                registrationForm.controls.firstName.hasError(
-                  'required'
-                )
-                ) {
+            <p class="field-error" id="first-name-error">
+              @if (registrationForm.controls.firstName.hasError('required')) {
                 First name is required.
               } @else {
                 First name must not exceed 100 characters.
@@ -132,9 +80,7 @@
         </div>
 
         <div class="form-field">
-          <label for="last-name">
-            Last name
-          </label>
+          <label for="last-name"> Last name </label>
 
           <input
             aria-describedby="last-name-error"
@@ -142,18 +88,11 @@
             formControlName="lastName"
             id="last-name"
             type="text"
-          >
+          />
 
           @if (shouldShowError('lastName')) {
-            <p
-              class="field-error"
-              id="last-name-error"
-            >
-              @if (
-                registrationForm.controls.lastName.hasError(
-                  'required'
-                )
-                ) {
+            <p class="field-error" id="last-name-error">
+              @if (registrationForm.controls.lastName.hasError('required')) {
                 Last name is required.
               } @else {
                 Last name must not exceed 100 characters.
@@ -163,9 +102,7 @@
         </div>
 
         <div class="form-field form-field--full-width">
-          <label for="work-email">
-            Work email
-          </label>
+          <label for="work-email"> Work email </label>
 
           <input
             aria-describedby="work-email-error"
@@ -173,24 +110,13 @@
             formControlName="workEmail"
             id="work-email"
             type="email"
-          >
+          />
 
           @if (shouldShowError('workEmail')) {
-            <p
-              class="field-error"
-              id="work-email-error"
-            >
-              @if (
-                registrationForm.controls.workEmail.hasError(
-                  'required'
-                )
-                ) {
+            <p class="field-error" id="work-email-error">
+              @if (registrationForm.controls.workEmail.hasError('required')) {
                 Work email is required.
-              } @else if (
-                registrationForm.controls.workEmail.hasError(
-                  'email'
-                )
-                ) {
+              } @else if (registrationForm.controls.workEmail.hasError('email')) {
                 Enter a valid work email address.
               } @else {
                 Work email must not exceed 254 characters.
@@ -201,65 +127,38 @@
       </div>
     </section>
 
-    <section
-      aria-labelledby="employment-section-title"
-      class="form-section"
-    >
-      <h2 id="employment-section-title">
-        Employment details
-      </h2>
+    <section aria-labelledby="employment-section-title" class="form-section">
+      <h2 id="employment-section-title">Employment details</h2>
 
       <div class="form-grid">
         <div class="form-field">
-          <label for="position">
-            Position
-          </label>
+          <label for="position"> Position </label>
 
-          <select
-            aria-describedby="position-error"
-            formControlName="position"
-            id="position"
-          >
-            <option value="CLERK">
-              Clerk
-            </option>
+          <select aria-describedby="position-error" formControlName="position" id="position">
+            <option value="CLERK">Clerk</option>
 
-            <option value="LOAN_OFFICER">
-              Loan officer
-            </option>
+            <option value="LOAN_OFFICER">Loan officer</option>
 
-            <option value="ADMINISTRATOR">
-              Administrator
-            </option>
+            <option value="ADMINISTRATOR">Administrator</option>
           </select>
 
           @if (shouldShowError('position')) {
-            <p
-              class="field-error"
-              id="position-error"
-            >
-              Position is required.
-            </p>
+            <p class="field-error" id="position-error">Position is required.</p>
           }
         </div>
 
         <div class="form-field">
-          <label for="employment-start-date">
-            Employment start date
-          </label>
+          <label for="employment-start-date"> Employment start date </label>
 
           <input
             aria-describedby="employment-start-date-error"
             formControlName="employmentStartDate"
             id="employment-start-date"
             type="date"
-          >
+          />
 
           @if (shouldShowError('employmentStartDate')) {
-            <p
-              class="field-error"
-              id="employment-start-date-error"
-            >
+            <p class="field-error" id="employment-start-date-error">
               Employment start date is required.
             </p>
           }
@@ -268,18 +167,9 @@
     </section>
 
     <footer class="form-actions">
-      <a
-        class="button button--secondary"
-        routerLink="/admin/employees"
-      >
-        Cancel
-      </a>
+      <a class="button button--secondary" routerLink="/admin/employees"> Cancel </a>
 
-      <button
-        [disabled]="submitting()"
-        class="button button--primary"
-        type="submit"
-      >
+      <button [disabled]="submitting()" class="button button--primary" type="submit">
         @if (submitting()) {
           Registering...
         } @else {
