@@ -2,18 +2,21 @@ name: customer-service
 
 on:
   push:
-    branches: [ main ]
+    branches: [main]
     paths: &paths
-      - 'services/customer-service/**'
-      - 'libs/error-handling-starter/**'
-      - 'libs/common-identifiers/**'
-      - 'buildSrc/**'
-      - 'gradle/**'
-      - 'settings.gradle.kts'
-      - 'gradlew'
-      - '.github/workflows/customer-service.yaml'
+      - "services/customer-service/**"
+      - "libs/error-handling-starter/**"
+      - "libs/common-identifiers/**"
+      - "buildSrc/**"
+      - "gradle/**"
+      - "settings.gradle.kts"
+      - "gradlew"
+      - ".github/workflows/customer-service.yaml"
   pull_request:
     paths: *paths
+
+permissions:
+  contents: read
 
 jobs:
   check:
@@ -23,7 +26,7 @@ jobs:
       - uses: actions/setup-java@v6.0.1
         with:
           distribution: temurin
-          java-version: '25'
+          java-version: "25"
       - uses: gradle/actions/setup-gradle@v6
       - name: Test and coverage gate
         run: ./gradlew :services:customer-service:check
