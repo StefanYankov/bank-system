@@ -1,0 +1,70 @@
+<section
+  aria-labelledby="page-title"
+  class="customer-maintenance"
+>
+  <a
+    [routerLink]="customerLink()"
+    class="back-link"
+  >
+    ← Back to customer
+  </a>
+
+  <header>
+    <p class="customer-maintenance__label">Legal Entity Customer</p>
+    <h1 id="page-title">Update contact information</h1>
+    <p class="customer-maintenance__description">Replace the company email address and phone number.</p>
+  </header>
+
+  @if (loading()) {
+    <p class="customer-maintenance__status" role="status">
+      Loading Legal Entity Customer...
+    </p>
+  } @else if (loadError(); as errorMessage) {
+    <section class="submission-error" role="alert">
+      <h2>Customer unavailable</h2>
+      <p>{{ errorMessage }}</p>
+    </section>
+  } @else if (customer(); as customerRecord) {
+    @if (customerRecord.status === 'CLOSED') {
+      <section class="submission-error" role="alert">
+        <h2>Customer is closed</h2>
+        <p>A closed Customer cannot be changed. Reopen the Customer first.</p>
+      </section>
+    } @else {
+      @if (submissionError(); as errorMessage) {
+        <section class="submission-error" role="alert">
+          <h2>Update unsuccessful</h2>
+          <p>{{ errorMessage }}</p>
+        </section>
+      }
+      <form (ngSubmit)="submit()" [formGroup]="updateForm" class="registration-form" novalidate>
+        <section aria-labelledby="contact-title" class="form-section">
+          <h2 id="contact-title">Contact details</h2>
+          <div class="form-grid">
+            <div class="form-field">
+              <label for="email">Email</label>
+              <input aria-describedby="email-error" autocomplete="email" formControlName="email" id="email"
+                     type="email">
+              @if (shouldShowError('email')) {
+                <p class="field-error" id="email-error">Enter a valid email address of at most 254 characters.</p>
+              }
+            </div>
+            <div class="form-field">
+              <label for="phone">Phone</label>
+              <input aria-describedby="phone-error" autocomplete="tel" formControlName="phone" id="phone" type="tel">
+              @if (shouldShowError('phone')) {
+                <p class="field-error" id="phone-error">Phone is required and must not exceed 30 characters.</p>
+              }
+            </div>
+          </div>
+        </section>
+        <footer class="form-actions">
+          <a [routerLink]="customerLink()" class="button button--secondary">Cancel</a>
+          <button [disabled]="submitting()" class="button button--primary" type="submit">
+            {{ submitting() ? 'Updating...' : 'Update contact' }}
+          </button>
+        </footer>
+      </form>
+    }
+  }
+</section>

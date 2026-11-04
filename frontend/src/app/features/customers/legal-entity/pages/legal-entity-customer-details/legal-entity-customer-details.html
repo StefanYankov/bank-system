@@ -54,6 +54,44 @@
       </span>
     </header>
 
+    @if (canMaintainCustomers && customerRecord.status === 'ACTIVE') {
+      <nav
+        aria-label="Legal Entity Customer actions"
+        class="customer-actions"
+      >
+        <a
+          [routerLink]="['/customers/legal-entities', customerRecord.id, 'company-name']"
+          class="button button--secondary"
+        >
+          Update company name
+        </a>
+        <a
+          [routerLink]="['/customers/legal-entities', customerRecord.id, 'contact']"
+          class="button button--secondary"
+        >
+          Update contact
+        </a>
+        <a
+          [routerLink]="['/customers/legal-entities', customerRecord.id, 'registered-address']"
+          class="button button--secondary"
+        >
+          Update registered address
+        </a>
+        <a
+          [routerLink]="['/customers/legal-entities', customerRecord.id, 'correspondence-address']"
+          class="button button--secondary"
+        >
+          Update correspondence address
+        </a>
+        <a
+          [routerLink]="['/customers/legal-entities', customerRecord.id, 'eik']"
+          class="button button--secondary"
+        >
+          Correct EIK
+        </a>
+      </nav>
+    }
+
     <section
       aria-labelledby="company-details-title"
       class="details-card"

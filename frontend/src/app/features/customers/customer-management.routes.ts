@@ -97,13 +97,63 @@ export const customerManagementRoutes: Routes = [
   {
     path: 'legal-entities/register',
     canActivate: [roleGuard],
-    data: {
-      [ROUTE_ROLES]: CUSTOMER_MAINTENANCE_ROLES,
-    },
+    data: {[ROUTE_ROLES]: CUSTOMER_MAINTENANCE_ROLES},
     loadComponent: () =>
       import(
         './legal-entity/pages/legal-entity-customer-registration/legal-entity-customer-registration'
-        ).then((module) => module.LegalEntityCustomerRegistration),
+        ).then((module) => module.LegalEntityCustomerRegistration)
+  },
+  {
+    path: 'legal-entities/:id/company-name',
+    canActivate: [roleGuard],
+    data: {[ROUTE_ROLES]: CUSTOMER_MAINTENANCE_ROLES},
+    loadComponent: () =>
+      import(
+        './legal-entity/pages/legal-entity-company-name-update/legal-entity-company-name-update'
+        ).then((module) => module.LegalEntityCompanyNameUpdate)
+  },
+  {
+    path: 'legal-entities/:id/contact',
+    canActivate: [roleGuard],
+    data: {
+      [ROUTE_ROLES]: CUSTOMER_MAINTENANCE_ROLES
+    },
+    loadComponent: () =>
+      import(
+        './legal-entity/pages/legal-entity-contact-update/legal-entity-contact-update'
+        ).then((module) => module.LegalEntityContactUpdate)
+  },
+  {
+    path: 'legal-entities/:id/registered-address',
+    canActivate: [roleGuard],
+    data: {
+      [ROUTE_ROLES]: CUSTOMER_MAINTENANCE_ROLES
+    },
+    loadComponent: () =>
+      import(
+        './legal-entity/pages/legal-entity-registered-address-update/legal-entity-registered-address-update'
+        ).then((module) => module.LegalEntityRegisteredAddressUpdate)
+  },
+  {
+    path: 'legal-entities/:id/correspondence-address',
+    canActivate: [roleGuard],
+    data: {
+      [ROUTE_ROLES]: CUSTOMER_MAINTENANCE_ROLES
+    },
+    loadComponent: () =>
+      import(
+        './legal-entity/pages/legal-entity-correspondence-address-update/legal-entity-correspondence-address-update'
+        ).then((module) => module.LegalEntityCorrespondenceAddressUpdate)
+  },
+  {
+    path: 'legal-entities/:id/eik',
+    canActivate: [roleGuard],
+    data: {
+      [ROUTE_ROLES]: CUSTOMER_MAINTENANCE_ROLES
+    },
+    loadComponent: () => import(
+      './legal-entity/pages/legal-entity-eik-correction/legal-entity-eik-correction'
+      ).then((module) => module.LegalEntityEikCorrection)
   },
   {
     path: 'legal-entities/:id',

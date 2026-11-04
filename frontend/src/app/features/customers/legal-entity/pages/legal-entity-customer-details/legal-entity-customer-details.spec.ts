@@ -3,6 +3,8 @@ import {TestBed} from '@angular/core/testing';
 import {ActivatedRoute, convertToParamMap, provideRouter} from '@angular/router';
 import {of, Subject, throwError} from 'rxjs';
 import {beforeEach, describe, expect, it, vi} from 'vitest';
+
+import {AuthSession} from '../../../../../core/auth/auth-session';
 import {
   LegalEntityCustomerAPIService,
   LegalEntityCustomerViewDto,
@@ -62,9 +64,11 @@ describe('LegalEntityCustomerDetails', () => {
   };
 
   const getLegalEntityCustomerMock = vi.fn();
+  let realmRoles: readonly string[] = [];
 
   beforeEach(async () => {
     vi.clearAllMocks();
+    realmRoles = ['CLERK'];
     getLegalEntityCustomerMock.mockReturnValue(of(customer));
 
     await TestBed.configureTestingModule({
@@ -83,6 +87,12 @@ describe('LegalEntityCustomerDetails', () => {
           provide: LegalEntityCustomerAPIService,
           useValue: {
             getLegalEntityCustomer: getLegalEntityCustomerMock,
+          },
+        },
+        {
+          provide: AuthSession,
+          useValue: {
+            hasRealmRole: (role: string): boolean => realmRoles.includes(role),
           },
         },
       ],
@@ -108,6 +118,47 @@ describe('LegalEntityCustomerDetails', () => {
     expect(element.textContent).toContain('ACTIVE');
   });
 
+  it('should show maintenance actions to a clerk for an active Customer', () => {
+    const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.textContent).toContain('Update company name');
+    expect(element.textContent).toContain('Update contact');
+    expect(element.textContent).toContain('Update registered address');
+    expect(element.textContent).toContain('Update correspondence address');
+    expect(element.textContent).toContain('Correct EIK');
+  });
+
+  it('should show maintenance actions to an administrator', () => {
+    realmRoles = ['ADMIN'];
+    const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).querySelector('.customer-actions')).not.toBeNull();
+  });
+
+  it('should hide maintenance actions from a loan officer', () => {
+    realmRoles = ['LOAN_OFFICER'];
+    const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
+    fixture.detectChanges();
+    const element = fixture.nativeElement as HTMLElement;
+
+    expect(element.querySelector('.customer-actions')).toBeNull();
+    expect(element.textContent).toContain('Starter Ltd');
+  });
+
+  it('should hide maintenance actions for a closed Customer', () => {
+    getLegalEntityCustomerMock.mockReturnValue(of({
+      ...customer,
+      status: LegalEntityCustomerViewDto.StatusEnum.Closed,
+    }));
+    const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
+    fixture.detectChanges();
+
+    expect((fixture.nativeElement as HTMLElement).querySelector('.customer-actions')).toBeNull();
+  });
+
   it('should render both addresses', () => {
     // Arrange
     const fixture = TestBed.createComponent(LegalEntityCustomerDetails);
@@ -119,6 +170,7 @@ describe('LegalEntityCustomerDetails', () => {
     // Assert
     const registered = element.querySelector('#registered-address')?.textContent ?? '';
     const correspondence = element.querySelector('#correspondence-address')?.textContent ?? '';
+
     expect(registered).toContain('1 Alexander Battenberg Square');
     expect(registered).toContain('Floor 3');
     expect(correspondence).toContain('10 Main Street');
@@ -182,7 +234,7 @@ describe('LegalEntityCustomerDetails', () => {
     const element = fixture.nativeElement as HTMLElement;
 
     // Assert
-    expect(element.textContent).not.toContain(customerId);
+    expect((fixture.nativeElement as HTMLElement).textContent).not.toContain(customerId);
   });
 
   it('should show a loading state while the request is pending', () => {
@@ -194,7 +246,6 @@ describe('LegalEntityCustomerDetails', () => {
     fixture.detectChanges();
     const element = fixture.nativeElement as HTMLElement;
 
-    // Assert
     expect(element.textContent).toContain('Loading Legal Entity Customer');
     expect(element.querySelector('.details-card')).toBeNull();
   });

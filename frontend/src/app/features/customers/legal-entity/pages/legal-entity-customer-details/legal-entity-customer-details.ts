@@ -2,6 +2,8 @@ import {HttpErrorResponse} from '@angular/common/http';
 import {Component, DestroyRef, inject, OnInit, signal} from '@angular/core';
 import {takeUntilDestroyed} from '@angular/core/rxjs-interop';
 import {ActivatedRoute, RouterLink} from '@angular/router';
+
+import {AuthSession} from '../../../../../core/auth/auth-session';
 import {
   LegalEntityCustomerAPIService,
   LegalEntityCustomerViewDto,
@@ -10,11 +12,6 @@ import {
 
 /**
  * Displays the details of one Legal Entity Customer.
- *
- * Every authenticated bank role may read the page. The response includes
- * current and ended Representatives; a Representative is shown as ended when
- * its inclusive valid-to date is before today. Maintenance actions are added
- * in a later batch.
  */
 @Component({
   selector: 'app-legal-entity-customer-details',
@@ -31,6 +28,11 @@ export class LegalEntityCustomerDetails implements OnInit {
   private readonly route = inject(ActivatedRoute);
   private readonly destroyRef = inject(DestroyRef);
   private readonly today = localIsoDate(new Date());
+  private readonly authSession = inject(AuthSession);
+
+  protected readonly canMaintainCustomers =
+    this.authSession.hasRealmRole('CLERK')
+    || this.authSession.hasRealmRole('ADMIN');
 
   public ngOnInit(): void {
     const customerId = this.customerId();
