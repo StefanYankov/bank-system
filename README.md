@@ -22,30 +22,30 @@ Current state:
 
 ## Architecture
 
-| Component | Owns | Status |
-|---|---|---|
-| `employee-service` | Staff profiles and employment lifecycle | Implemented |
-| `customer-service` | Individual and Legal Entity Customers and Representatives | Implemented |
-| `account-service` | Accounts and balances | Planned |
-| `loan-service` | Loans, schedules, and instalment payments | Planned |
-| Angular frontend | Staff-facing web application | Employee and Customer management implemented |
-| Keycloak | Authentication, credentials, roles, and API clients | Configured |
+| Component          | Owns                                                      | Status                                       |
+| ------------------ | --------------------------------------------------------- | -------------------------------------------- |
+| `employee-service` | Staff profiles and employment lifecycle                   | Implemented                                  |
+| `customer-service` | Individual and Legal Entity Customers and Representatives | Implemented                                  |
+| `account-service`  | Accounts and balances                                     | Planned                                      |
+| `loan-service`     | Loans, schedules, and instalment payments                 | Planned                                      |
+| Angular frontend   | Staff-facing web application                              | Employee and Customer management implemented |
+| Keycloak           | Authentication, credentials, roles, and API clients       | Configured                                   |
 
 Each service owns its PostgreSQL database. Services do not access another service's database directly.
 
 ## Technology Stack
 
-| Area | Technology |
-|---|---|
-| Backend | Java 25, Spring Boot 4.1.1 |
-| Frontend | Angular 22, TypeScript 6, Signals, Vitest, ESLint |
-| Build | Gradle 9.6 with Kotlin DSL, npm |
-| Database | PostgreSQL 18.6, Flyway |
-| Identity | Keycloak 26.7.4, OAuth 2.0, OpenID Connect |
-| API | Spring MVC, OpenAPI, Swagger UI, RFC 9457 Problem Details |
-| Mapping | MapStruct |
-| Testing | JUnit 5, Mockito, AssertJ, MockMvc, Testcontainers, Vitest, JaCoCo |
-| Infrastructure | Docker Compose, GitHub Actions |
+| Area           | Technology                                                         |
+| -------------- | ------------------------------------------------------------------ |
+| Backend        | Java 25, Spring Boot 4.1.1                                         |
+| Frontend       | Angular 22, TypeScript 6, Signals, Vitest, ESLint                  |
+| Build          | Gradle 9.6 with Kotlin DSL, npm                                    |
+| Database       | PostgreSQL 18.6, Flyway                                            |
+| Identity       | Keycloak 26.7.4, OAuth 2.0, OpenID Connect                         |
+| API            | Spring MVC, OpenAPI, Swagger UI, RFC 9457 Problem Details          |
+| Mapping        | MapStruct                                                          |
+| Testing        | JUnit 5, Mockito, AssertJ, MockMvc, Testcontainers, Vitest, JaCoCo |
+| Infrastructure | Docker Compose, GitHub Actions                                     |
 
 ## Repository Structure
 
@@ -210,33 +210,33 @@ Representative information is currently read-only in the Angular application. Ad
 
 ## Local Endpoints
 
-| Endpoint | Purpose |
-|---|---|
-| [Angular frontend](http://localhost:4200) | Staff-facing web application |
-| [Employee Service health](http://localhost:8081/actuator/health) | Employee Service health check |
+| Endpoint                                                             | Purpose                                |
+| -------------------------------------------------------------------- | -------------------------------------- |
+| [Angular frontend](http://localhost:4200)                            | Staff-facing web application           |
+| [Employee Service health](http://localhost:8081/actuator/health)     | Employee Service health check          |
 | [Employee Service Swagger UI](http://localhost:8081/swagger-ui.html) | Interactive Employee API documentation |
-| [Employee Service OpenAPI JSON](http://localhost:8081/v3/api-docs) | Generated Employee API specification |
-| [Customer Service health](http://localhost:8082/actuator/health) | Customer Service health check |
+| [Employee Service OpenAPI JSON](http://localhost:8081/v3/api-docs)   | Generated Employee API specification   |
+| [Customer Service health](http://localhost:8082/actuator/health)     | Customer Service health check          |
 | [Customer Service Swagger UI](http://localhost:8082/swagger-ui.html) | Interactive Customer API documentation |
-| [Customer Service OpenAPI JSON](http://localhost:8082/v3/api-docs) | Generated Customer API specification |
-| [Keycloak administration](http://localhost:8180) | Realm and client administration |
+| [Customer Service OpenAPI JSON](http://localhost:8082/v3/api-docs)   | Generated Customer API specification   |
+| [Keycloak administration](http://localhost:8180)                     | Realm and client administration        |
 
 ## Local Identity and API Testing
 
 Development users are imported from `infra/keycloak/bank-system-realm.json`.
 
-| User | Realm role | Frontend access |
-|---|---|---|
-| `clerk` | `CLERK` | Customer read and maintenance workflows |
-| `loan.officer` | `LOAN_OFFICER` | Read-only Customer workflows |
-| `bank.admin` | `ADMIN` | Employee and Customer administration |
+| User           | Realm role     | Frontend access                         |
+| -------------- | -------------- | --------------------------------------- |
+| `clerk`        | `CLERK`        | Customer read and maintenance workflows |
+| `loan.officer` | `LOAN_OFFICER` | Read-only Customer workflows            |
+| `bank.admin`   | `ADMIN`        | Employee and Customer administration    |
 
 ### Keycloak clients
 
-| Client | Purpose | Authentication flow |
-|---|---|---|
-| `bank-frontend` | Angular staff application | Authorization Code with PKCE |
-| `bank-dev-cli` | Postman, command-line tools, and local API testing | Direct access grant, development only |
+| Client          | Purpose                                            | Authentication flow                   |
+| --------------- | -------------------------------------------------- | ------------------------------------- |
+| `bank-frontend` | Angular staff application                          | Authorization Code with PKCE          |
+| `bank-dev-cli`  | Postman, command-line tools, and local API testing | Direct access grant, development only |
 
 Both clients use the shared `bank-api-audience` client scope. Backend services accept access tokens containing the `bank-api` audience.
 
@@ -271,15 +271,15 @@ Provides shared runtime error handling for Spring MVC services.
 
 The starter handles domain, validation, framework, authentication, authorization, and unexpected errors. Responses follow RFC 9457 and include a project error code.
 
-| Category | HTTP status |
-|---|---|
-| `VALIDATION` | 400 |
-| `NOT_FOUND` | 404 |
-| `CONFLICT` | 409 |
-| `RULE_VIOLATION` | 422 |
-| `UNAUTHENTICATED` | 401 |
-| `ACCESS_DENIED` | 403 |
-| `INTERNAL` | 500 |
+| Category          | HTTP status |
+| ----------------- | ----------- |
+| `VALIDATION`      | 400         |
+| `NOT_FOUND`       | 404         |
+| `CONFLICT`        | 409         |
+| `RULE_VIOLATION`  | 422         |
+| `UNAUTHENTICATED` | 401         |
+| `ACCESS_DENIED`   | 403         |
+| `INTERNAL`        | 500         |
 
 Internal starter classes are not part of the public API. Services depend only on the public error contract.
 
@@ -324,6 +324,10 @@ Frontend checks include reproducible Employee and Customer API client generation
 GitHub Actions runs checks for changed modules. Changes to a shared library also trigger checks for services that consume it.
 
 Frontend CI installs dependencies, regenerates the Employee and Customer API clients and form constraints from the committed OpenAPI contracts, runs linting and tests, and produces a production build.
+
+## Security
+
+Report suspected vulnerabilities privately according to the [security policy](.github/SECURITY.md).
 
 ## License
 
