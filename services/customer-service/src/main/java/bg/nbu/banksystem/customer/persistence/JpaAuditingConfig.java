@@ -23,10 +23,7 @@ import java.util.Optional;
  * </p>
  */
 @Configuration
-@EnableJpaAuditing(
-        auditorAwareRef = "auditorAware",
-        dateTimeProviderRef = "auditingDateTimeProvider"
-)
+@EnableJpaAuditing(auditorAwareRef = "auditorAware", dateTimeProviderRef = "auditingDateTimeProvider")
 public class JpaAuditingConfig {
 
     /**
@@ -37,8 +34,7 @@ public class JpaAuditingConfig {
     private static String resolveCurrentAuditor() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
 
-        if (!(authentication instanceof JwtAuthenticationToken jwtAuthentication)
-                || !jwtAuthentication.isAuthenticated()) {
+        if (!(authentication instanceof JwtAuthenticationToken jwtAuthentication) || !jwtAuthentication.isAuthenticated()) {
             return SYSTEM_ACTOR;
         }
 

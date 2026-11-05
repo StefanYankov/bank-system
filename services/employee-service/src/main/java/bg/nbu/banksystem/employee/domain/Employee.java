@@ -31,22 +31,12 @@ import java.util.UUID;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 public class Employee extends BaseEntity {
 
-    @Column(
-            name = "employee_number",
-            nullable = false,
-            updatable = false,
-            unique = true,
-            length = EmployeeConstraints.EMPLOYEE_NUMBER_MAX_LENGTH
-    )
+    @Column(name = "employee_number", nullable = false, updatable = false, unique = true,
+        length = EmployeeConstraints.EMPLOYEE_NUMBER_MAX_LENGTH)
     private String employeeNumber;
 
-    @Column(
-            name = "identity_subject_id",
-            nullable = false,
-            updatable = false,
-            unique = true,
-            length = EmployeeConstraints.IDENTITY_SUBJECT_MAX_LENGTH
-    )
+    @Column(name = "identity_subject_id", nullable = false, updatable = false, unique = true,
+        length = EmployeeConstraints.IDENTITY_SUBJECT_MAX_LENGTH)
     private String identitySubjectId;
 
     @Column(name = "first_name", nullable = false, length = EmployeeConstraints.NAME_MAX_LENGTH)
@@ -55,12 +45,7 @@ public class Employee extends BaseEntity {
     @Column(name = "last_name", nullable = false, length = EmployeeConstraints.NAME_MAX_LENGTH)
     private String lastName;
 
-    @Column(
-            name = "work_email",
-            nullable = false,
-            unique = true,
-            length = EmployeeConstraints.EMAIL_MAX_LENGTH
-    )
+    @Column(name = "work_email", nullable = false, unique = true, length = EmployeeConstraints.EMAIL_MAX_LENGTH)
     private String workEmail;
 
     @Enumerated(EnumType.STRING)
@@ -77,16 +62,8 @@ public class Employee extends BaseEntity {
     @Column(name = "employment_end_date")
     private @Nullable LocalDate employmentEndDate;
 
-    private Employee(
-            UUID id,
-            String employeeNumber,
-            String identitySubjectId,
-            String firstName,
-            String lastName,
-            String workEmail,
-            EmployeePosition position,
-            LocalDate employmentStartDate
-    ) {
+    private Employee(UUID id, String employeeNumber, String identitySubjectId, String firstName, String lastName,
+                     String workEmail, EmployeePosition position, LocalDate employmentStartDate) {
         super(id);
 
         this.employeeNumber = requireText(employeeNumber, "employeeNumber");
@@ -94,14 +71,8 @@ public class Employee extends BaseEntity {
         this.firstName = requireText(firstName, "firstName");
         this.lastName = requireText(lastName, "lastName");
         this.workEmail = WorkEmails.normalize(workEmail);
-        this.position = Objects.requireNonNull(
-                position,
-                "position must not be null"
-        );
-        this.employmentStartDate = Objects.requireNonNull(
-                employmentStartDate,
-                "employmentStartDate must not be null"
-        );
+        this.position = Objects.requireNonNull(position, "position must not be null");
+        this.employmentStartDate = Objects.requireNonNull(employmentStartDate, "employmentStartDate must not be null");
 
         this.status = EmployeeStatus.ACTIVE;
     }
@@ -118,25 +89,18 @@ public class Employee extends BaseEntity {
      * @param employmentStartDate first date of employment
      * @return the registered employee
      */
-    public static Employee register(
-            String employeeNumber,
-            String identitySubjectId,
-            String firstName,
-            String lastName,
-            String workEmail,
-            EmployeePosition position,
-            LocalDate employmentStartDate
-    ) {
-        return new Employee(
-                Identifiers.newUuid(),
-                employeeNumber,
-                identitySubjectId,
-                firstName,
-                lastName,
-                workEmail,
-                position,
-                employmentStartDate
-        );
+    public static Employee register(String employeeNumber, String identitySubjectId, String firstName, String lastName,
+                                    String workEmail, EmployeePosition position, LocalDate employmentStartDate) {
+        return new Employee(Identifiers.newUuid(), employeeNumber, identitySubjectId, firstName, lastName, workEmail,
+            position, employmentStartDate);
+    }
+
+    private static String requireText(@Nullable String value, String fieldName) {
+        if (value == null || value.isBlank()) {
+            throw new IllegalArgumentException(fieldName + " must not be blank");
+        }
+
+        return value.trim();
     }
 
     /**
@@ -146,26 +110,10 @@ public class Employee extends BaseEntity {
      * @param lastName  employee last name
      * @param workEmail employee work email
      */
-    public void updateProfile(
-            String firstName,
-            String lastName,
-            String workEmail
-    ) {
+    public void updateProfile(String firstName, String lastName, String workEmail) {
         this.firstName = requireText(firstName, "firstName");
         this.lastName = requireText(lastName, "lastName");
         this.workEmail = WorkEmails.normalize(workEmail);
-    }
-
-    /**
-     * Changes the employee's position within the bank system.
-     *
-     * @param newPosition the new position
-     */
-    public void changePosition(EmployeePosition newPosition) {
-        this.position = Objects.requireNonNull(
-                newPosition,
-                "newPosition must not be null"
-        );
     }
 
     /**
@@ -217,13 +165,12 @@ public class Employee extends BaseEntity {
         this.employmentEndDate = null;
     }
 
-    private static String requireText(@Nullable String value, String fieldName) {
-        if (value == null || value.isBlank()) {
-            throw new IllegalArgumentException(
-                    fieldName + " must not be blank"
-            );
-        }
-
-        return value.trim();
+    /**
+     * Changes the employee's position within the bank system.
+     *
+     * @param newPosition the new position
+     */
+    public void changePosition(EmployeePosition newPosition) {
+        this.position = Objects.requireNonNull(newPosition, "newPosition must not be null");
     }
 }

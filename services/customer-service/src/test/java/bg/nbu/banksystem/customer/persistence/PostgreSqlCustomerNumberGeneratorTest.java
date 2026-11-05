@@ -24,7 +24,7 @@ class PostgreSqlCustomerNumberGeneratorTest {
     @Container
     @ServiceConnection
     static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer(
-            DockerImageName.parse("postgres:18.6-alpine3.24"));
+        DockerImageName.parse("postgres:18.6-alpine3.24"));
 
     @Autowired
     private CustomerNumberGenerator customerNumberGenerator;
