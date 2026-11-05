@@ -30,7 +30,7 @@ class IndividualCustomerRepositoryTest {
     @Container
     @ServiceConnection
     static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer(
-            DockerImageName.parse("postgres:18.6-alpine3.24"));
+        DockerImageName.parse("postgres:18.6-alpine3.24"));
     private static final String EGN = "6101047500";
     private static final String OTHER_EGN = "0041010002";
     @Autowired
@@ -38,7 +38,7 @@ class IndividualCustomerRepositoryTest {
 
     private static IndividualCustomer individualCustomer(String customerNumber, String egn) {
         return IndividualCustomer.register(customerNumber, "serafim.gerasimoff@example.com", "+359888123456", "Serafim",
-                "Ivanov", "Gerasimoff", egn, residentialAddress());
+            "Ivanov", "Gerasimoff", egn, residentialAddress());
     }
 
     private static Address residentialAddress() {
@@ -83,6 +83,6 @@ class IndividualCustomerRepositoryTest {
 
         // Act & Assert
         assertThatThrownBy(() -> individualCustomerRepository.saveAndFlush(duplicate)).isInstanceOf(
-                DataIntegrityViolationException.class);
+            DataIntegrityViolationException.class);
     }
 }

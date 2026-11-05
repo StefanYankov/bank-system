@@ -24,18 +24,14 @@ import static org.assertj.core.api.Assertions.assertThat;
 @DisplayName("JpaAuditingConfig (unit)")
 class JpaAuditingConfigTest {
 
-    private static final Instant FIXED_INSTANT =
-            Instant.parse("2026-10-10T08:00:00Z");
+    private static final Instant FIXED_INSTANT = Instant.parse("2026-10-10T08:00:00Z");
 
     private static final String SUBJECT = "keycloak-user-subject";
 
     private final JpaAuditingConfig config = new JpaAuditingConfig();
 
     private static Jwt jwtWithSubject(String subject) {
-        return Jwt.withTokenValue("test-token")
-                .header("alg", "none")
-                .subject(subject)
-                .build();
+        return Jwt.withTokenValue("test-token").header("alg", "none").subject(subject).build();
     }
 
     @AfterEach
@@ -52,8 +48,7 @@ class JpaAuditingConfigTest {
         void shouldReturnInstantFromSuppliedClock() {
             // Arrange
             Clock fixedClock = Clock.fixed(FIXED_INSTANT, ZoneOffset.UTC);
-            DateTimeProvider provider =
-                    config.auditingDateTimeProvider(fixedClock);
+            DateTimeProvider provider = config.auditingDateTimeProvider(fixedClock);
 
             // Act
             Optional<TemporalAccessor> currentTime = provider.getNow();
@@ -71,14 +66,9 @@ class JpaAuditingConfigTest {
         @DisplayName("Happy Path: Should use the JWT subject for an authenticated request")
         void shouldUseJwtSubject() {
             // Arrange
-            JwtAuthenticationToken authentication =
-                    new JwtAuthenticationToken(
-                            jwtWithSubject(SUBJECT),
-                            List.of()
-                    );
+            JwtAuthenticationToken authentication = new JwtAuthenticationToken(jwtWithSubject(SUBJECT), List.of());
 
-            SecurityContextHolder.getContext()
-                    .setAuthentication(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
             AuditorAware<String> auditorAware = config.auditorAware();
 
@@ -100,19 +90,16 @@ class JpaAuditingConfigTest {
             Optional<String> auditor = auditorAware.getCurrentAuditor();
 
             // Assert
-            assertThat(auditor)
-                    .contains(JpaAuditingConfig.SYSTEM_ACTOR);
+            assertThat(auditor).contains(JpaAuditingConfig.SYSTEM_ACTOR);
         }
 
         @Test
         @DisplayName("Edge Case: Should use SYSTEM for an unauthenticated JWT")
         void shouldUseSystemForUnauthenticatedJwt() {
             // Arrange
-            JwtAuthenticationToken authentication =
-                    new JwtAuthenticationToken(jwtWithSubject(SUBJECT));
+            JwtAuthenticationToken authentication = new JwtAuthenticationToken(jwtWithSubject(SUBJECT));
 
-            SecurityContextHolder.getContext()
-                    .setAuthentication(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
             AuditorAware<String> auditorAware = config.auditorAware();
 
@@ -120,23 +107,17 @@ class JpaAuditingConfigTest {
             Optional<String> auditor = auditorAware.getCurrentAuditor();
 
             // Assert
-            assertThat(auditor)
-                    .contains(JpaAuditingConfig.SYSTEM_ACTOR);
+            assertThat(auditor).contains(JpaAuditingConfig.SYSTEM_ACTOR);
         }
 
         @Test
         @DisplayName("Edge Case: Should use SYSTEM for anonymous authentication")
         void shouldUseSystemForAnonymousAuthentication() {
             // Arrange
-            AnonymousAuthenticationToken authentication =
-                    new AnonymousAuthenticationToken(
-                            "test-key",
-                            "anonymousUser",
-                            List.of(new SimpleGrantedAuthority("ROLE_ANONYMOUS"))
-                    );
+            AnonymousAuthenticationToken authentication = new AnonymousAuthenticationToken("test-key", "anonymousUser",
+                List.of(new SimpleGrantedAuthority("ROLE_ANONYMOUS")));
 
-            SecurityContextHolder.getContext()
-                    .setAuthentication(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
             AuditorAware<String> auditorAware = config.auditorAware();
 
@@ -144,22 +125,16 @@ class JpaAuditingConfigTest {
             Optional<String> auditor = auditorAware.getCurrentAuditor();
 
             // Assert
-            assertThat(auditor)
-                    .contains(JpaAuditingConfig.SYSTEM_ACTOR);
+            assertThat(auditor).contains(JpaAuditingConfig.SYSTEM_ACTOR);
         }
 
         @Test
         @DisplayName("Edge Case: Should use SYSTEM when the authenticated JWT subject is blank")
         void shouldUseSystemForBlankJwtSubject() {
             // Arrange
-            JwtAuthenticationToken authentication =
-                    new JwtAuthenticationToken(
-                            jwtWithSubject("   "),
-                            List.of()
-                    );
+            JwtAuthenticationToken authentication = new JwtAuthenticationToken(jwtWithSubject("   "), List.of());
 
-            SecurityContextHolder.getContext()
-                    .setAuthentication(authentication);
+            SecurityContextHolder.getContext().setAuthentication(authentication);
 
             AuditorAware<String> auditorAware = config.auditorAware();
 
@@ -167,8 +142,7 @@ class JpaAuditingConfigTest {
             Optional<String> auditor = auditorAware.getCurrentAuditor();
 
             // Assert
-            assertThat(auditor)
-                    .contains(JpaAuditingConfig.SYSTEM_ACTOR);
+            assertThat(auditor).contains(JpaAuditingConfig.SYSTEM_ACTOR);
         }
     }
 }

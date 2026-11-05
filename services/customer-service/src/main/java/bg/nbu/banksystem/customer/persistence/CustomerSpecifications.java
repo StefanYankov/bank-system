@@ -34,7 +34,7 @@ public final class CustomerSpecifications {
     public static Specification<Customer> matchesAllTerms(List<String> terms) {
         return (root, query, builder) -> {
             Predicate[] termPredicates = terms.stream().map(term -> matchesTerm(term, root, query, builder))
-                    .toArray(Predicate[]::new);
+                .toArray(Predicate[]::new);
 
             return builder.and(termPredicates);
         };
@@ -47,20 +47,20 @@ public final class CustomerSpecifications {
 
         Subquery<UUID> individuals = query.subquery(UUID.class);
         Root<IndividualCustomer> individual = individuals.from(IndividualCustomer.class);
-        individuals.select(individual.get("id"))
-                .where(builder.or(containsIgnoringCase(builder, individual.get("firstName"), containsPattern),
-                        containsIgnoringCase(builder, individual.get("middleName"), containsPattern),
-                        containsIgnoringCase(builder, individual.get("lastName"), containsPattern),
-                        builder.like(individual.get("egn"), startsWithPattern, ESCAPE_CHARACTER)));
+        individuals.select(individual.get("id")).where(
+            builder.or(containsIgnoringCase(builder, individual.get("firstName"), containsPattern),
+                containsIgnoringCase(builder, individual.get("middleName"), containsPattern),
+                containsIgnoringCase(builder, individual.get("lastName"), containsPattern),
+                builder.like(individual.get("egn"), startsWithPattern, ESCAPE_CHARACTER)));
 
         Subquery<UUID> legalEntities = query.subquery(UUID.class);
         Root<LegalEntityCustomer> legalEntity = legalEntities.from(LegalEntityCustomer.class);
-        legalEntities.select(legalEntity.get("id"))
-                .where(builder.or(containsIgnoringCase(builder, legalEntity.get("companyName"), containsPattern),
-                        builder.like(legalEntity.get("eik"), startsWithPattern, ESCAPE_CHARACTER)));
+        legalEntities.select(legalEntity.get("id")).where(
+            builder.or(containsIgnoringCase(builder, legalEntity.get("companyName"), containsPattern),
+                builder.like(legalEntity.get("eik"), startsWithPattern, ESCAPE_CHARACTER)));
 
         return builder.or(containsIgnoringCase(builder, root.get("customerNumber"), containsPattern),
-                root.get("id").in(individuals), root.get("id").in(legalEntities));
+            root.get("id").in(individuals), root.get("id").in(legalEntities));
     }
 
     private static Predicate containsIgnoringCase(CriteriaBuilder builder, Expression<String> field,

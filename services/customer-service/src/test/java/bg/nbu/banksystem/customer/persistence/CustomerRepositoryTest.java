@@ -49,7 +49,7 @@ class CustomerRepositoryTest {
     @Container
     @ServiceConnection
     static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer(
-            DockerImageName.parse("postgres:18.6-alpine3.24"));
+        DockerImageName.parse("postgres:18.6-alpine3.24"));
     private static final String EGN = "6101047500";
     private static final String OTHER_EGN = "0041010002";
     private static final String EIK = "123456786";
@@ -75,9 +75,51 @@ class CustomerRepositoryTest {
         return (LegalEntityCustomer) customerRepository.findById(id).orElseThrow();
     }
 
+    private static IndividualCustomer individualCustomer(String customerNumber, String egn) {
+        return IndividualCustomer.register(customerNumber, "serafim.gerasimoff@example.com", "+359888123456", "Serafim",
+            "Ivanov", "Gerasimoff", egn, residentialAddress());
+    }
+
+    private static LegalEntityCustomer legalEntityCustomer(String customerNumber, String eik) {
+        return LegalEntityCustomer.register(customerNumber, "contact@starter.example", "+35929201234", COMPANY_NAME,
+            eik, registeredAddress(), correspondenceAddress());
+    }
+
+    private static Representative addLegalRepresentative(LegalEntityCustomer company,
+                                                         @Nullable IndividualCustomer individualCustomer) {
+        return company.addRepresentative(individualCustomer, "Serafim", "Ivanov", "Gerasimoff",
+            RepresentativeRole.LEGAL_REPRESENTATIVE, VALID_FROM);
+    }
+
     private String customerTypeColumn(UUID id) {
         return jdbcClient.sql("SELECT customer_type FROM customers WHERE id = :id").param("id", id).query(String.class)
-                .single();
+            .single();
+    }
+
+    @Nested
+    @DisplayName("Business identifier queries")
+    class BusinessIdentifierQueries {
+
+        @Test
+        @DisplayName("Happy Path: Should find a Customer of either type by Customer number")
+        void shouldFindByCustomerNumber() {
+            // Arrange
+            customerRepository.saveAndFlush(legalEntityCustomer("CUS-000014", EIK));
+            entityManager.clear();
+
+            // Act
+            var result = customerRepository.findByCustomerNumber("CUS-000014");
+
+            // Assert
+            assertThat(result).get().isInstanceOf(LegalEntityCustomer.class);
+        }
+
+        @Test
+        @DisplayName("Edge Case: Should return an empty result for an unknown Customer number")
+        void shouldReturnEmptyResultForUnknownCustomerNumber() {
+            // Act & Assert
+            assertThat(customerRepository.findByCustomerNumber("CUS-999999")).isEmpty();
+        }
     }
 
     @Nested
@@ -158,13 +200,30 @@ class CustomerRepositoryTest {
 
             // Assert
             assertThat(page.getContent()).hasSize(2).hasAtLeastOneElementOfType(IndividualCustomer.class)
-                    .hasAtLeastOneElementOfType(LegalEntityCustomer.class);
+                .hasAtLeastOneElementOfType(LegalEntityCustomer.class);
         }
     }
 
-    private static IndividualCustomer individualCustomer(String customerNumber, String egn) {
-        return IndividualCustomer.register(customerNumber, "serafim.gerasimoff@example.com", "+359888123456", "Serafim",
-                "Ivanov", "Gerasimoff", egn, residentialAddress());
+    @Nested
+    @DisplayName("Entity identity")
+    class EntityIdentity {
+
+        @Test
+        @DisplayName("Happy Path: Should treat a Customer and its Hibernate proxy as equal")
+        void shouldTreatEntityAndProxyAsEqual() {
+            // Arrange
+            IndividualCustomer customer = customerRepository.saveAndFlush(individualCustomer("CUS-000026", EGN));
+            entityManager.clear();
+
+            // Act
+            IndividualCustomer proxy = entityManager.getReference(IndividualCustomer.class, customer.getId());
+
+            // Assert
+            assertThat(proxy).isInstanceOf(HibernateProxy.class);
+            assertThat(customer).isEqualTo(proxy);
+            assertThat(proxy).isEqualTo(customer);
+            assertThat(customer.hashCode()).isEqualTo(proxy.hashCode());
+        }
     }
 
     @Nested
@@ -224,34 +283,8 @@ class CustomerRepositoryTest {
 
             // Assert
             IndividualCustomer reloaded = (IndividualCustomer) customerRepository.findById(customer.getId())
-                    .orElseThrow();
+                .orElseThrow();
             assertThat(reloaded.getEgn()).isEqualTo(OTHER_EGN);
-        }
-    }
-
-    @Nested
-    @DisplayName("Business identifier queries")
-    class BusinessIdentifierQueries {
-
-        @Test
-        @DisplayName("Happy Path: Should find a Customer of either type by Customer number")
-        void shouldFindByCustomerNumber() {
-            // Arrange
-            customerRepository.saveAndFlush(legalEntityCustomer("CUS-000014", EIK));
-            entityManager.clear();
-
-            // Act
-            var result = customerRepository.findByCustomerNumber("CUS-000014");
-
-            // Assert
-            assertThat(result).get().isInstanceOf(LegalEntityCustomer.class);
-        }
-
-        @Test
-        @DisplayName("Edge Case: Should return an empty result for an unknown Customer number")
-        void shouldReturnEmptyResultForUnknownCustomerNumber() {
-            // Act & Assert
-            assertThat(customerRepository.findByCustomerNumber("CUS-999999")).isEmpty();
         }
     }
 
@@ -268,7 +301,7 @@ class CustomerRepositoryTest {
 
             // Act & Assert
             assertThatThrownBy(() -> customerRepository.saveAndFlush(duplicate)).isInstanceOf(
-                    DataIntegrityViolationException.class);
+                DataIntegrityViolationException.class);
         }
 
         @Test
@@ -280,7 +313,7 @@ class CustomerRepositoryTest {
 
             // Act & Assert
             assertThatThrownBy(() -> jdbcClient.sql("UPDATE customers SET status = 'PENDING' WHERE id = :id")
-                    .param("id", customer.getId()).update()).isInstanceOf(DataIntegrityViolationException.class);
+                .param("id", customer.getId()).update()).isInstanceOf(DataIntegrityViolationException.class);
         }
 
         @Test
@@ -293,42 +326,9 @@ class CustomerRepositoryTest {
 
             // Act & Assert
             assertThatThrownBy(() -> jdbcClient.sql("UPDATE representatives SET valid_to = :validTo WHERE id = :id")
-                    .param("validTo", VALID_FROM.minusDays(1)).param("id", representative.getId())
-                    .update()).isInstanceOf(DataIntegrityViolationException.class);
+                .param("validTo", VALID_FROM.minusDays(1)).param("id", representative.getId()).update()).isInstanceOf(
+                DataIntegrityViolationException.class);
         }
-    }
-
-    @Nested
-    @DisplayName("Entity identity")
-    class EntityIdentity {
-
-        @Test
-        @DisplayName("Happy Path: Should treat a Customer and its Hibernate proxy as equal")
-        void shouldTreatEntityAndProxyAsEqual() {
-            // Arrange
-            IndividualCustomer customer = customerRepository.saveAndFlush(individualCustomer("CUS-000026", EGN));
-            entityManager.clear();
-
-            // Act
-            IndividualCustomer proxy = entityManager.getReference(IndividualCustomer.class, customer.getId());
-
-            // Assert
-            assertThat(proxy).isInstanceOf(HibernateProxy.class);
-            assertThat(customer).isEqualTo(proxy);
-            assertThat(proxy).isEqualTo(customer);
-            assertThat(customer.hashCode()).isEqualTo(proxy.hashCode());
-        }
-    }
-
-    private static LegalEntityCustomer legalEntityCustomer(String customerNumber, String eik) {
-        return LegalEntityCustomer.register(customerNumber, "contact@starter.example", "+35929201234", COMPANY_NAME,
-                eik, registeredAddress(), correspondenceAddress());
-    }
-
-    private static Representative addLegalRepresentative(LegalEntityCustomer company,
-                                                         @Nullable IndividualCustomer individualCustomer) {
-        return company.addRepresentative(individualCustomer, "Serafim", "Ivanov", "Gerasimoff",
-                RepresentativeRole.LEGAL_REPRESENTATIVE, VALID_FROM);
     }
 
     private static Address residentialAddress() {
@@ -390,7 +390,7 @@ class CustomerRepositoryTest {
             // Assert
             LegalEntityCustomer reloaded = reloadLegalEntity(company.getId());
             assertThat(reloaded.getRepresentatives().getFirst().getIndividualCustomer().getId()).isEqualTo(
-                    individual.getId());
+                individual.getId());
         }
 
         @Test
@@ -409,7 +409,7 @@ class CustomerRepositoryTest {
             // Assert
             LegalEntityCustomer reloaded = reloadLegalEntity(company.getId());
             assertThat(reloaded.getRepresentatives()).singleElement()
-                    .satisfies(saved -> assertThat(saved.getValidTo()).isEqualTo(VALID_TO));
+                .satisfies(saved -> assertThat(saved.getValidTo()).isEqualTo(VALID_TO));
         }
 
         @Test
@@ -425,7 +425,7 @@ class CustomerRepositoryTest {
 
             // Act
             company.correctRepresentative(representative.getId(), null, "Jane", null, "Doe",
-                    RepresentativeRole.AUTHORIZED_REPRESENTATIVE, correctedValidFrom, null);
+                RepresentativeRole.AUTHORIZED_REPRESENTATIVE, correctedValidFrom, null);
             customerRepository.flush();
             entityManager.clear();
 

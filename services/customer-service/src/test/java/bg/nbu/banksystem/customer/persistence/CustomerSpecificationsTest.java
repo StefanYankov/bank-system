@@ -45,7 +45,7 @@ class CustomerSpecificationsTest {
     @Container
     @ServiceConnection
     static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer(
-            DockerImageName.parse("postgres:18.6-alpine3.24"));
+        DockerImageName.parse("postgres:18.6-alpine3.24"));
 
     @Autowired
     private CustomerRepository customerRepository;
@@ -53,14 +53,70 @@ class CustomerSpecificationsTest {
     @Autowired
     private EntityManager entityManager;
 
+    private static IndividualCustomer individualCustomer(String customerNumber, String firstName,
+                                                         @Nullable String middleName, String lastName, String egn) {
+        return IndividualCustomer.register(customerNumber, "serafim.gerasimoff@example.com", "+359888123456", firstName,
+            middleName, lastName, egn, residentialAddress());
+    }
+
+    private static LegalEntityCustomer legalEntityCustomer(String customerNumber, String companyName, String eik) {
+        return LegalEntityCustomer.register(customerNumber, "contact@starter.example", "+35929201234", companyName, eik,
+            registeredAddress(), correspondenceAddress());
+    }
+
     @BeforeEach
     void saveCustomers() {
         customerRepository.saveAndFlush(individualCustomer("CUS-000301", "Serafim", "Ivanov", "Gerasimoff", EGN));
         customerRepository.saveAndFlush(individualCustomer("CUS-000302", "Jane", null, "Doe", OTHER_EGN));
         customerRepository.saveAndFlush(legalEntityCustomer("CUS-000303", "Starter Financial Services", EIK));
         customerRepository.saveAndFlush(
-                legalEntityCustomer("CUS-000304", "Gerasimoff Holdings", EIK_SHARING_EGN_PREFIX));
+            legalEntityCustomer("CUS-000304", "Gerasimoff Holdings", EIK_SHARING_EGN_PREFIX));
         entityManager.clear();
+    }
+
+    @Nested
+    @DisplayName("Multiple terms")
+    class MultipleTerms {
+
+        @Test
+        @DisplayName("Happy Path: Should require every term to match, in any order")
+        void shouldRequireEveryTerm() {
+            // Act & Assert
+            assertThat(customerNumbers("Serafim", "Gerasimoff")).containsExactly("CUS-000301");
+            assertThat(customerNumbers("Gerasimoff", "Serafim")).containsExactly("CUS-000301");
+        }
+
+        @Test
+        @DisplayName("Happy Path: Should combine a name and an identifier prefix")
+        void shouldCombineNameAndIdentifier() {
+            // Act & Assert
+            assertThat(customerNumbers("Gerasimoff", "6101")).containsExactly("CUS-000301", "CUS-000304");
+            assertThat(customerNumbers("Serafim", "0041")).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Edge Case: Should match every Customer when there are no terms")
+        void shouldMatchEveryCustomerWithoutTerms() {
+            // Act & Assert
+            assertThat(customerNumbers()).hasSize(4);
+        }
+    }
+
+    private List<String> customerNumbers(String... terms) {
+        return customerRepository.findAll(CustomerSpecifications.matchesAllTerms(List.of(terms)),
+            PageRequest.of(0, 10, Sort.by("customerNumber"))).map(Customer::getCustomerNumber).getContent();
+    }
+
+    private static Address residentialAddress() {
+        return Address.of("BG", "Sofia", "1000", "1 Alexander Battenberg Square", null);
+    }
+
+    private static Address registeredAddress() {
+        return Address.of("BG", "Sofia", "1000", "1 Alexander Battenberg Square", null);
+    }
+
+    private static Address correspondenceAddress() {
+        return Address.of("BG", "Sofia", "1000", "10 Business Park Street", "Office 4");
     }
 
     @Nested
@@ -93,7 +149,7 @@ class CustomerSpecificationsTest {
         void shouldMatchCustomerNumberIgnoringCase() {
             // Act & Assert
             assertThat(customerNumbers("cus-00030")).containsExactly("CUS-000301", "CUS-000302", "CUS-000303",
-                    "CUS-000304");
+                "CUS-000304");
         }
 
         @Test
@@ -102,62 +158,6 @@ class CustomerSpecificationsTest {
             // Act & Assert
             assertThat(customerNumbers("0475")).isEmpty();
         }
-    }
-
-    private static IndividualCustomer individualCustomer(String customerNumber, String firstName,
-                                                         @Nullable String middleName, String lastName, String egn) {
-        return IndividualCustomer.register(customerNumber, "serafim.gerasimoff@example.com", "+359888123456", firstName,
-                middleName, lastName, egn, residentialAddress());
-    }
-
-    @Nested
-    @DisplayName("Multiple terms")
-    class MultipleTerms {
-
-        @Test
-        @DisplayName("Happy Path: Should require every term to match, in any order")
-        void shouldRequireEveryTerm() {
-            // Act & Assert
-            assertThat(customerNumbers("Serafim", "Gerasimoff")).containsExactly("CUS-000301");
-            assertThat(customerNumbers("Gerasimoff", "Serafim")).containsExactly("CUS-000301");
-        }
-
-        @Test
-        @DisplayName("Happy Path: Should combine a name and an identifier prefix")
-        void shouldCombineNameAndIdentifier() {
-            // Act & Assert
-            assertThat(customerNumbers("Gerasimoff", "6101")).containsExactly("CUS-000301", "CUS-000304");
-            assertThat(customerNumbers("Serafim", "0041")).isEmpty();
-        }
-
-        @Test
-        @DisplayName("Edge Case: Should match every Customer when there are no terms")
-        void shouldMatchEveryCustomerWithoutTerms() {
-            // Act & Assert
-            assertThat(customerNumbers()).hasSize(4);
-        }
-    }
-
-    private static LegalEntityCustomer legalEntityCustomer(String customerNumber, String companyName, String eik) {
-        return LegalEntityCustomer.register(customerNumber, "contact@starter.example", "+35929201234", companyName, eik,
-                registeredAddress(), correspondenceAddress());
-    }
-
-    private static Address residentialAddress() {
-        return Address.of("BG", "Sofia", "1000", "1 Alexander Battenberg Square", null);
-    }
-
-    private static Address registeredAddress() {
-        return Address.of("BG", "Sofia", "1000", "1 Alexander Battenberg Square", null);
-    }
-
-    private static Address correspondenceAddress() {
-        return Address.of("BG", "Sofia", "1000", "10 Business Park Street", "Office 4");
-    }
-
-    private List<String> customerNumbers(String... terms) {
-        return customerRepository.findAll(CustomerSpecifications.matchesAllTerms(List.of(terms)),
-                PageRequest.of(0, 10, Sort.by("customerNumber"))).map(Customer::getCustomerNumber).getContent();
     }
 
     @Nested
@@ -192,7 +192,7 @@ class CustomerSpecificationsTest {
         void shouldMatchCyrillicNamesIgnoringCase() {
             // Arrange
             customerRepository.saveAndFlush(
-                    individualCustomer("CUS-000305", "Серафим", null, "Герасимов", CYRILLIC_NAME_EGN));
+                individualCustomer("CUS-000305", "Серафим", null, "Герасимов", CYRILLIC_NAME_EGN));
             entityManager.clear();
 
             // Act & Assert
@@ -220,7 +220,7 @@ class CustomerSpecificationsTest {
         void shouldEscapeBackslash() {
             // Arrange
             customerRepository.saveAndFlush(
-                    legalEntityCustomer("CUS-000306", "Back\\Slash Ltd", BACKSLASH_COMPANY_EIK));
+                legalEntityCustomer("CUS-000306", "Back\\Slash Ltd", BACKSLASH_COMPANY_EIK));
             entityManager.clear();
 
             // Act & Assert
@@ -244,11 +244,11 @@ class CustomerSpecificationsTest {
 
             // Act
             List<Customer> results = customerRepository.findAll(
-                    CustomerSpecifications.matchesAllTerms(List.of("financial")), PageRequest.of(0, 10)).getContent();
+                CustomerSpecifications.matchesAllTerms(List.of("financial")), PageRequest.of(0, 10)).getContent();
 
             // Assert
             assertThat(results).singleElement()
-                    .satisfies(found -> assertThat(found.getStatus()).isEqualTo(CustomerStatus.CLOSED));
+                .satisfies(found -> assertThat(found.getStatus()).isEqualTo(CustomerStatus.CLOSED));
         }
     }
 
@@ -261,7 +261,7 @@ class CustomerSpecificationsTest {
         void shouldPageAndCount() {
             // Act
             Page<Customer> page = customerRepository.findAll(CustomerSpecifications.matchesAllTerms(List.of("6101")),
-                    PageRequest.of(0, 1, Sort.by("customerNumber")));
+                PageRequest.of(0, 1, Sort.by("customerNumber")));
 
             // Assert
             assertThat(page.getTotalElements()).isEqualTo(2);
@@ -273,11 +273,11 @@ class CustomerSpecificationsTest {
         void shouldSortDescending() {
             // Act
             Page<Customer> page = customerRepository.findAll(CustomerSpecifications.matchesAllTerms(List.of("6101")),
-                    PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "customerNumber")));
+                PageRequest.of(0, 10, Sort.by(Sort.Direction.DESC, "customerNumber")));
 
             // Assert
             assertThat(page.getContent()).extracting(Customer::getCustomerNumber)
-                    .containsExactly("CUS-000304", "CUS-000301");
+                .containsExactly("CUS-000304", "CUS-000301");
         }
 
         @Test
@@ -285,7 +285,7 @@ class CustomerSpecificationsTest {
         void shouldReturnEmptyPageBeyondLastPage() {
             // Act
             Page<Customer> page = customerRepository.findAll(CustomerSpecifications.matchesAllTerms(List.of("6101")),
-                    PageRequest.of(5, 10, Sort.by("customerNumber")));
+                PageRequest.of(5, 10, Sort.by("customerNumber")));
 
             // Assert
             assertThat(page.getContent()).isEmpty();

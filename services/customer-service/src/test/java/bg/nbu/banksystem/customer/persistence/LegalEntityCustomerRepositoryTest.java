@@ -30,7 +30,7 @@ class LegalEntityCustomerRepositoryTest {
     @Container
     @ServiceConnection
     static final PostgreSQLContainer POSTGRES = new PostgreSQLContainer(
-            DockerImageName.parse("postgres:18.6-alpine3.24"));
+        DockerImageName.parse("postgres:18.6-alpine3.24"));
     private static final String EIK = "123456786";
     private static final String OTHER_EIK = "000000305";
     @Autowired
@@ -38,7 +38,7 @@ class LegalEntityCustomerRepositoryTest {
 
     private static LegalEntityCustomer legalEntityCustomer(String customerNumber, String eik) {
         return LegalEntityCustomer.register(customerNumber, "contact@starter.example", "+35929201234",
-                "Starter Financial Services", eik, registeredAddress(), correspondenceAddress());
+            "Starter Financial Services", eik, registeredAddress(), correspondenceAddress());
     }
 
     private static Address registeredAddress() {
@@ -64,7 +64,7 @@ class LegalEntityCustomerRepositoryTest {
     void shouldExcludeCurrentCustomerFromDuplicateCheck() {
         // Arrange
         LegalEntityCustomer customer = legalEntityCustomerRepository.saveAndFlush(
-                legalEntityCustomer("CUS-000202", EIK));
+            legalEntityCustomer("CUS-000202", EIK));
 
         // Act & Assert
         assertThat(legalEntityCustomerRepository.existsByEikAndIdNot(EIK, customer.getId())).isFalse();
@@ -87,7 +87,7 @@ class LegalEntityCustomerRepositoryTest {
         LegalEntityCustomer duplicate = legalEntityCustomer("CUS-000204", EIK);
 
         // Act & Assert
-        assertThatThrownBy(() -> legalEntityCustomerRepository.saveAndFlush(duplicate))
-                .isInstanceOf(DataIntegrityViolationException.class);
+        assertThatThrownBy(() -> legalEntityCustomerRepository.saveAndFlush(duplicate)).isInstanceOf(
+            DataIntegrityViolationException.class);
     }
 }
