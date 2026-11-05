@@ -5,10 +5,6 @@ import org.springframework.http.HttpStatus;
 
 /**
  * Maps an {@link ErrorCategory} to the HTTP status reported to clients.
- *
- * <p>
- * This is the only place in the system where categories are translated to HTTP.
- * </p
  */
 public final class CategoryStatusMapper {
 
@@ -24,6 +20,7 @@ public final class CategoryStatusMapper {
             case RULE_VIOLATION -> HttpStatus.UNPROCESSABLE_CONTENT;
             case UNAUTHENTICATED -> HttpStatus.UNAUTHORIZED;
             case ACCESS_DENIED -> HttpStatus.FORBIDDEN;
+            case UNAVAILABLE -> HttpStatus.SERVICE_UNAVAILABLE;
             case INTERNAL -> HttpStatus.INTERNAL_SERVER_ERROR;
         };
     }

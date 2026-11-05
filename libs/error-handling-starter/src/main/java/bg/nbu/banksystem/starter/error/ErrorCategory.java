@@ -41,6 +41,11 @@ public enum ErrorCategory {
     ACCESS_DENIED,
 
     /**
+     * A required downstream dependency is temporarily unavailable.
+     */
+    UNAVAILABLE,
+    
+    /**
      * An unexpected server-side failure.
      */
     INTERNAL
