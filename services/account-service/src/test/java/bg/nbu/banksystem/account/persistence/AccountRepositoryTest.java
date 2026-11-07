@@ -9,18 +9,23 @@ import bg.nbu.banksystem.account.domain.Iban;
 import bg.nbu.banksystem.account.domain.TransactionType;
 import jakarta.persistence.EntityManager;
 import org.junit.jupiter.api.AfterEach;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.data.jpa.test.autoconfigure.DataJpaTest;
 import org.springframework.boot.jdbc.test.autoconfigure.AutoConfigureTestDatabase;
+import org.springframework.boot.test.context.TestConfiguration;
 import org.springframework.boot.testcontainers.service.connection.ServiceConnection;
+import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Import;
+import org.springframework.context.annotation.Primary;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.dao.OptimisticLockingFailureException;
 import org.springframework.data.domain.Page;
 import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Slice;
 import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.oauth2.jwt.Jwt;
@@ -31,6 +36,11 @@ import org.testcontainers.postgresql.PostgreSQLContainer;
 import org.testcontainers.utility.DockerImageName;
 
 import java.math.BigDecimal;
+import java.time.Clock;
+import java.time.Instant;
+import java.time.ZoneId;
+import java.time.ZoneOffset;
+import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
@@ -39,7 +49,7 @@ import static org.assertj.core.api.Assertions.assertThatThrownBy;
 
 @DataJpaTest(properties = "spring.flyway.locations=classpath:db/migration")
 @Testcontainers
-@Import(JpaAuditingConfig.class)
+@Import({JpaAuditingConfig.class, AccountRepositoryTest.TestClockConfig.class})
 @AutoConfigureTestDatabase(replace = AutoConfigureTestDatabase.Replace.NONE)
 @DisplayName("AccountRepository (integration)")
 class AccountRepositoryTest {
@@ -52,15 +62,22 @@ class AccountRepositoryTest {
     private static final UUID OWNER_ID = UUID.fromString("01923b7c-8f6d-7a12-9d1e-4b2f8c3e5a10");
     private static final UUID OTHER_OWNER_ID = UUID.fromString("01923b7c-8f6d-7a12-9d1e-4b2f8c3e5a11");
     private static final String AUTHENTICATED_SUBJECT = "authenticated-keycloak-subject";
+    private static final Instant DEFAULT_TEST_TIME = Instant.parse("2026-01-01T00:00:00Z");
 
     @Autowired
     private AccountRepository accountRepository;
+
+    @Autowired
+    private AccountTransactionQueryRepository transactionQueryRepository;
 
     @Autowired
     private EntityManager entityManager;
 
     @Autowired
     private JdbcClient jdbcClient;
+
+    @Autowired
+    private MutableClock testClock;
 
     private static Account openAccount(long sequence, UUID ownerCustomerId) {
         Iban iban = Iban.generate(AccountType.CURRENT, sequence);
@@ -70,6 +87,11 @@ class AccountRepositoryTest {
     private static JwtAuthenticationToken authenticatedJwt(String subject) {
         Jwt jwt = Jwt.withTokenValue("test-token").header("alg", "none").subject(subject).build();
         return new JwtAuthenticationToken(jwt, List.of());
+    }
+
+    @BeforeEach
+    void resetTestClock() {
+        testClock.setInstant(DEFAULT_TEST_TIME);
     }
 
     @AfterEach
@@ -143,47 +165,45 @@ class AccountRepositoryTest {
         }
     }
 
-    @Nested
-    @DisplayName("Queries")
-    class Queries {
+    @TestConfiguration(proxyBeanMethods = false)
+    static class TestClockConfig {
 
-        @Test
-        @DisplayName("Happy Path: Should find an account by IBAN")
-        void shouldFindByIban() {
-            // Arrange
-            Account account = accountRepository.saveAndFlush(openAccount(4, OWNER_ID));
-            entityManager.clear();
+        @Bean
+        @Primary
+        MutableClock testClock() {
+            return new MutableClock(DEFAULT_TEST_TIME);
+        }
+    }
 
-            // Act & Assert
-            assertThat(accountRepository.findByIban(account.getIban())).get().extracting(Account::getId)
-                .isEqualTo(account.getId());
+    static final class MutableClock extends Clock {
+
+        private Instant instant;
+
+        private MutableClock(Instant instant) {
+            this.instant = instant;
         }
 
-        @Test
-        @DisplayName("Edge Case: Should return an empty result for an unknown IBAN")
-        void shouldReturnEmptyForUnknownIban() {
-            // Arrange
-            String unknownIban = Iban.generate(AccountType.SAVINGS, 99_999_999L).value();
-
-            // Act & Assert
-            assertThat(accountRepository.findByIban(unknownIban)).isEmpty();
+        void setInstant(Instant instant) {
+            this.instant = instant;
         }
 
-        @Test
-        @DisplayName("Happy Path: Should list only the accounts of one owner")
-        void shouldListAccountsByOwner() {
-            // Arrange
-            accountRepository.saveAndFlush(openAccount(5, OWNER_ID));
-            accountRepository.saveAndFlush(openAccount(6, OWNER_ID));
-            accountRepository.saveAndFlush(openAccount(7, OTHER_OWNER_ID));
-            entityManager.clear();
+        @Override
+        public ZoneId getZone() {
+            return ZoneOffset.UTC;
+        }
 
-            // Act
-            Page<Account> page = accountRepository.findByOwnerCustomerId(OWNER_ID, PageRequest.of(0, 10));
+        @Override
+        public Clock withZone(ZoneId zone) {
+            if (!ZoneOffset.UTC.equals(zone)) {
+                throw new IllegalArgumentException("MutableClock supports UTC only");
+            }
 
-            // Assert
-            assertThat(page.getTotalElements()).isEqualTo(2);
-            assertThat(page.getContent()).extracting(Account::getOwnerCustomerId).containsOnly(OWNER_ID);
+            return this;
+        }
+
+        @Override
+        public Instant instant() {
+            return instant;
         }
     }
 
@@ -279,6 +299,168 @@ class AccountRepositoryTest {
             // Act & Assert
             assertThatThrownBy(() -> jdbcClient.sql("UPDATE accounts SET status = 'FROZEN' WHERE id = :id")
                 .param("id", account.getId()).update()).isInstanceOf(DataIntegrityViolationException.class);
+        }
+    }
+
+    @Nested
+    @DisplayName("Queries")
+    class Queries {
+
+        @Test
+        @DisplayName("Happy Path: Should find an account by IBAN")
+        void shouldFindByIban() {
+            // Arrange
+            Account account = accountRepository.saveAndFlush(openAccount(4, OWNER_ID));
+            entityManager.clear();
+
+            // Act & Assert
+            assertThat(accountRepository.findByIban(account.getIban())).get().extracting(Account::getId)
+                .isEqualTo(account.getId());
+        }
+
+        @Test
+        @DisplayName("Edge Case: Should return an empty result for an unknown IBAN")
+        void shouldReturnEmptyForUnknownIban() {
+            // Arrange
+            String unknownIban = Iban.generate(AccountType.SAVINGS, 99_999_999L).value();
+
+            // Act & Assert
+            assertThat(accountRepository.findByIban(unknownIban)).isEmpty();
+        }
+
+        @Test
+        @DisplayName("Happy Path: Should list only the accounts of one owner")
+        void shouldListAccountsByOwner() {
+            // Arrange
+            accountRepository.saveAndFlush(openAccount(5, OWNER_ID));
+            accountRepository.saveAndFlush(openAccount(6, OWNER_ID));
+            accountRepository.saveAndFlush(openAccount(7, OTHER_OWNER_ID));
+            entityManager.clear();
+
+            // Act
+            Page<Account> page = accountRepository.findByOwnerCustomerId(OWNER_ID, PageRequest.of(0, 10));
+
+            // Assert
+            assertThat(page.getTotalElements()).isEqualTo(2);
+            assertThat(page.getContent()).extracting(Account::getOwnerCustomerId).containsOnly(OWNER_ID);
+        }
+
+        @Test
+        @DisplayName("Happy Path: Should detect an active account for one owner")
+        void shouldDetectActiveAccountForOwner() {
+            // Arrange
+            accountRepository.saveAndFlush(openAccount(14, OWNER_ID));
+            accountRepository.saveAndFlush(openAccount(15, OTHER_OWNER_ID));
+            entityManager.clear();
+
+            // Act
+            boolean activeAccountExists = accountRepository.existsByOwnerCustomerIdAndStatus(
+                OWNER_ID, AccountStatus.ACTIVE);
+
+            // Assert
+            assertThat(activeAccountExists).isTrue();
+        }
+
+        @Test
+        @DisplayName("Edge Case: Should not treat a closed account as active")
+        void shouldNotTreatClosedAccountAsActive() {
+            // Arrange
+            Account account = openAccount(16, OWNER_ID);
+            account.close();
+            accountRepository.saveAndFlush(account);
+            entityManager.clear();
+
+            // Act
+            boolean activeAccountExists = accountRepository.existsByOwnerCustomerIdAndStatus(
+                OWNER_ID, AccountStatus.ACTIVE);
+
+            // Assert
+            assertThat(activeAccountExists).isFalse();
+        }
+    }
+
+    @Nested
+    @DisplayName("Transaction history queries")
+    class TransactionHistoryQueries {
+
+        @Test
+        @DisplayName("Happy Path: Should return only one Account's transactions inside the requested interval")
+        void shouldReturnOnlyRequestedAccountTransactionsInsideInterval() {
+            // Arrange
+            Account requestedAccount = accountRepository.saveAndFlush(openAccount(17, OWNER_ID));
+            Account otherAccount = accountRepository.saveAndFlush(openAccount(18, OTHER_OWNER_ID));
+            Instant from = Instant.parse("2026-01-01T00:00:00Z");
+            Instant to = Instant.parse("2026-02-01T00:00:00Z");
+
+            persistCreditAt(requestedAccount, "Before", from.minusSeconds(1));
+            persistCreditAt(requestedAccount, "Inside", from);
+            persistCreditAt(requestedAccount, "At upper boundary", to);
+            persistCreditAt(otherAccount, "Other account", from.plusSeconds(1));
+            entityManager.clear();
+
+            // Act
+            Slice<AccountTransaction> history = transactionQueryRepository.findHistory(
+                requestedAccount.getId(), from, to, PageRequest.of(0, 10));
+
+            // Assert
+            assertThat(history.getContent()).extracting(AccountTransaction::getReference).containsExactly("Inside");
+        }
+
+        @Test
+        @DisplayName("Happy Path: Should order transaction history newest first with an identifier tie-breaker")
+        void shouldOrderHistoryNewestFirstWithIdentifierTieBreaker() {
+            // Arrange
+            Account account = accountRepository.saveAndFlush(openAccount(19, OWNER_ID));
+            Instant olderTime = Instant.parse("2026-03-01T11:59:59Z");
+            Instant tiedTime = Instant.parse("2026-03-01T12:00:00Z");
+
+            AccountTransaction older = persistCreditAt(account, "Older", olderTime);
+            AccountTransaction tiedFirst = persistCreditAt(account, "Tied first", tiedTime);
+            AccountTransaction tiedSecond = persistCreditAt(account, "Tied second", tiedTime);
+            entityManager.clear();
+
+            List<UUID> expectedTiedIds = List.of(tiedFirst.getId(), tiedSecond.getId()).stream()
+                .sorted(Comparator.reverseOrder())
+                .toList();
+
+            // Act
+            Slice<AccountTransaction> history = transactionQueryRepository.findHistory(
+                account.getId(), olderTime, tiedTime.plusSeconds(1), PageRequest.of(0, 10));
+
+            // Assert
+            assertThat(history.getContent()).extracting(AccountTransaction::getId)
+                .containsExactly(expectedTiedIds.get(0), expectedTiedIds.get(1), older.getId());
+        }
+
+        @Test
+        @DisplayName("Happy Path: Should report another slice without calculating a total")
+        void shouldReportAnotherSlice() {
+            // Arrange
+            Account account = accountRepository.saveAndFlush(openAccount(20, OWNER_ID));
+            Instant from = Instant.parse("2026-04-01T00:00:00Z");
+
+            persistCreditAt(account, "First", from.plusSeconds(1));
+            persistCreditAt(account, "Second", from.plusSeconds(2));
+            persistCreditAt(account, "Third", from.plusSeconds(3));
+            entityManager.clear();
+
+            // Act
+            Slice<AccountTransaction> history = transactionQueryRepository.findHistory(
+                account.getId(), from, from.plusSeconds(10), PageRequest.of(0, 2));
+
+            // Assert
+            assertThat(history.getContent()).hasSize(2);
+            assertThat(history.hasNext()).isTrue();
+            assertThat(history.getContent()).extracting(AccountTransaction::getReference)
+                .containsExactly("Third", "Second");
+        }
+
+        private AccountTransaction persistCreditAt(Account account, String reference, Instant createdAt) {
+            testClock.setInstant(createdAt);
+            AccountTransaction transaction = account.credit(new BigDecimal("10.00"), Currency.EUR, reference);
+            accountRepository.flush();
+
+            return transaction;
         }
     }
 }
