@@ -12,7 +12,9 @@ dependencies {
     implementation(libs.bundles.persistence)
     implementation(libs.bundles.security)
     implementation(libs.springdoc.openapi.starter.webmvc.ui)
-
+    implementation(libs.spring.boot.starter.restclient)
+    implementation(libs.resilience4j.spring.boot4)
+    
     implementation(libs.mapstruct)
     annotationProcessor(libs.mapstruct.processor)
 
@@ -24,6 +26,8 @@ dependencies {
 
     testImplementation(libs.bundles.testing)
     testImplementation(libs.bundles.integration.testing)
+    testImplementation(libs.wiremock.spring.boot)
+    testImplementation(libs.spring.boot.starter.restclient.test)
     testCompileOnly(libs.lombok)
     testAnnotationProcessor(libs.lombok)
 }

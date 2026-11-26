@@ -5,6 +5,8 @@ springdocGradlePlugin = "1.9.0"
 mapstruct = "1.6.3"
 lombokMapstructBinding = "0.2.0"
 uuidCreator = "6.1.1"
+resilience4j = "2.4.0"
+wiremockSpringBoot = "4.4.3"
 
 [libraries]
 # --- Web ---
@@ -36,6 +38,11 @@ lombok-mapstruct-binding = { module = "org.projectlombok:lombok-mapstruct-bindin
 # --- Identifiers ---
 uuid-creator = { module = "com.github.f4b6a3:uuid-creator", version.ref = "uuidCreator" }
 
+# --- Resilience ---
+resilience4j-spring-boot4 = { module = "io.github.resilience4j:resilience4j-spring-boot4", version.ref = "resilience4j" }
+spring-boot-starter-restclient = { module = "org.springframework.boot:spring-boot-starter-restclient" }
+wiremock-spring-boot = { module = "org.wiremock.integrations:wiremock-spring-boot", version.ref = "wiremockSpringBoot" }
+
 # --- Testing ---
 spring-boot-starter-webmvc-test = { module = "org.springframework.boot:spring-boot-starter-webmvc-test" }
 spring-boot-starter-data-jpa-test = { module = "org.springframework.boot:spring-boot-starter-data-jpa-test" }
@@ -44,6 +51,7 @@ spring-boot-starter-flyway-test = { module = "org.springframework.boot:spring-bo
 spring-boot-starter-actuator-test = { module = "org.springframework.boot:spring-boot-starter-actuator-test" }
 spring-boot-starter-security-test = { module = "org.springframework.boot:spring-boot-starter-security-test" }
 spring-boot-starter-security-oauth2-resource-server-test = { module = "org.springframework.boot:spring-boot-starter-security-oauth2-resource-server-test" }
+spring-boot-starter-restclient-test = { module = "org.springframework.boot:spring-boot-starter-restclient-test" }
 junit-jupiter = { module = "org.junit.jupiter:junit-jupiter" }
 assertj-core = { module = "org.assertj:assertj-core" }
 
